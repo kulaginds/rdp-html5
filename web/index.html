@@ -1,0 +1,26 @@
+<html lang="eu">
+<head>
+    <title>Web RDP Solution</title>
+</head>
+<body>
+<script>
+    const socket = new WebSocket("ws://localhost:8080/connect")
+
+    socket.onopen = function (e) {
+        console.log("connection opened")
+    };
+
+    socket.onmessage = function (e) {
+        console.log("message accepted:", e);
+    };
+
+    socket.onerror = function (e) {
+        console.log("error:", e);
+    };
+
+    socket.onclose = function (e) {
+        console.log("connection closed")
+    };
+</script>
+</body>
+</html>
