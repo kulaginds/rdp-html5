@@ -1,26 +1,42 @@
 <html lang="eu">
 <head>
     <title>Web RDP Solution</title>
+    <script src="js/binary.js"></script>
+    <script src="js/encoding/per.js"></script>
+    <script src="js/pdu/header.js"></script>
+    <script src="js/pdu/capability_set.js"></script>
+    <script src="js/pdu/demand_active.js"></script>
+    <script src="js/pdu/confirm_active.js"></script>
+    <script src="js/pdu/capability.js"></script>
+    <script src="js/pdu/client_syncronize.js"></script>
+    <script src="js/pdu/client_control.js"></script>
+    <script src="js/pdu/client_fontlist.js"></script>
+    <script src="js/protocol/wrap.js"></script>
+    <script src="js/protocol/tpkt.js"></script>
+    <script src="js/protocol/x224.js"></script>
+    <script src="js/protocol/mcs.js"></script>
+    <script src="js/client.js"></script>
 </head>
 <body>
+<div>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+
+<div>
+    <canvas id="canvas" width="1024" height="768"></canvas>
+</div>
+
 <script>
-    const socket = new WebSocket("ws://localhost:8080/connect")
+    const client = new Client("canvas");
 
-    socket.onopen = function (e) {
-        console.log("connection opened")
-    };
+    function connect() {
+        client.connect("ws://localhost:8080/connect");
+    }
 
-    socket.onmessage = function (e) {
-        console.log("message accepted:", e);
-    };
-
-    socket.onerror = function (e) {
-        console.log("error:", e);
-    };
-
-    socket.onclose = function (e) {
-        console.log("connection closed")
-    };
+    function disconnect() {
+        client.disconnect();
+    }
 </script>
 </body>
 </html>

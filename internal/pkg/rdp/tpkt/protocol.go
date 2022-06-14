@@ -1,12 +1,14 @@
 package tpkt
 
-import "net"
+import (
+	"io"
+)
 
 type protocol struct {
-	conn net.Conn
+	conn io.ReadWriteCloser
 }
 
-func New(conn net.Conn) *protocol {
+func New(conn io.ReadWriteCloser) *protocol {
 	return &protocol{
 		conn: conn,
 	}

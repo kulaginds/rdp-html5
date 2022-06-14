@@ -7,6 +7,5 @@ import (
 type tpktConn interface {
 	Receive() (io.Reader, error)
 	Send(pduData []byte) error
-	StartTLS() error
 	Close() error
 }

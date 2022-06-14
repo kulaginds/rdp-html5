@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"bytes"
 	"context"
+	"encoding/binary"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/websocket"
 
@@ -18,12 +19,10 @@ const (
 	webSocketReadBufferSize  = 8192
 	webSocketWriteBufferSize = 8192 * 2
 	rdpMaxPackageSize        = 16 * 1024
+	tpktAndX224HeadersLen    = 4 + 3
 )
 
 const (
-	width  = 1280
-	height = 800
-
 	host     = "192.168.1.2:3389"
 	user     = "Doc"
 	password = "1qazXSW@"
@@ -57,15 +56,23 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
-	domain := strings.Split(host, ":")
+	var (
+		width  uint16
+		height uint16
+	)
 
-	rdpClient, err := rdp.NewClient(host, domain[0], user, password, width, height)
+	width, height, err = wsReadCanvasDimensions(wsConn)
+	if err != nil {
+		log.Println(fmt.Errorf("ws read canvas dimensions: %w", err))
+		return
+	}
+
+	rdpClient, err := rdp.NewClient(host, user, password, width, height)
 	if err != nil {
 		log.Println(fmt.Errorf("rdp init: %w", err))
 		wsConn.WriteMessage(1, []byte(`{"error": "rdp connect"}`))
 		return
 	}
-
 	defer rdpClient.Close()
 
 	if err = rdpClient.Connect(); err != nil {
@@ -78,6 +85,22 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 
 	go wsToRdp(ctx, wsConn, rdpClient, cancel)
 	rdpToWs(ctx, rdpClient, wsConn)
+}
+
+func wsReadCanvasDimensions(wsConn *websocket.Conn) (uint16, uint16, error) {
+	_, data, err := wsConn.ReadMessage()
+	if err != nil {
+		return 0, 0, err
+	}
+
+	if len(data) != 4 {
+		return 0, 0, errors.New("bad data size")
+	}
+
+	width := binary.LittleEndian.Uint16(data[0:2])
+	height := binary.LittleEndian.Uint16(data[2:4])
+
+	return width, height, nil
 }
 
 func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn io.Writer, cancel context.CancelFunc) {
@@ -100,8 +123,10 @@ func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn io.Writer, can
 			return
 		}
 
+		log.Printf("JS: Send: %s\n", hex.EncodeToString(data))
+
 		if _, err = rdpConn.Write(data); err != nil {
-			log.Println(fmt.Errorf("failed writing to guacd: %w", err))
+			log.Println(fmt.Errorf("failed writing to rdp: %w", err))
 
 			return
 		}
@@ -113,9 +138,13 @@ func rdpToWs(ctx context.Context, rdpConn io.Reader, wsConn *websocket.Conn) {
 		log.Println("rdpToWs done")
 	}()
 
-	var err error
-
-	buf := bytes.NewBuffer(make([]byte, 0, rdpMaxPackageSize))
+	var (
+		err         error
+		tpktHeader  []byte
+		tpktDataLen uint16
+		tpktData    []byte
+		data        []byte
+	)
 
 	for {
 		select {
@@ -124,13 +153,34 @@ func rdpToWs(ctx context.Context, rdpConn io.Reader, wsConn *websocket.Conn) {
 		default: // pass
 		}
 
-		if _, err = buf.ReadFrom(rdpConn); err != nil {
-			log.Println(fmt.Errorf("failed to buffer guacd to ws: %w", err))
+		tpktHeader = make([]byte, 4)
 
+		_, err = io.ReadFull(rdpConn, tpktHeader)
+		if err != nil {
+			log.Println(fmt.Errorf("readall err: %w", err))
 			return
 		}
 
-		if err = wsConn.WriteMessage(1, buf.Bytes()); err != nil {
+		if tpktHeader[0] != 0x03 {
+			log.Println("unknown tpkt version")
+			return
+		}
+
+		tpktDataLen = binary.BigEndian.Uint16(tpktHeader[2:4])
+
+		tpktData = make([]byte, tpktDataLen-4)
+
+		_, err = io.ReadFull(rdpConn, tpktData)
+		if err != nil {
+			log.Println(fmt.Errorf("read len err: %w", err))
+			return
+		}
+
+		data = append(tpktHeader, tpktData...)
+
+		log.Printf("JS: Receive: %s\n", hex.EncodeToString(data))
+
+		if err = wsConn.WriteMessage(2, data); err != nil {
 			if err == websocket.ErrCloseSent {
 				log.Println("sent to closed websocket")
 
@@ -141,7 +191,5 @@ func rdpToWs(ctx context.Context, rdpConn io.Reader, wsConn *websocket.Conn) {
 
 			return
 		}
-
-		buf.Reset()
 	}
 }

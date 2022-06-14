@@ -8,58 +8,259 @@ import (
 
 type CapabilitySetType uint16
 
-type PDUType uint16
+const (
+	// CapabilitySetTypeGeneral CAPSTYPE_GENERAL
+	CapabilitySetTypeGeneral CapabilitySetType = 0x0001
+
+	// CapabilitySetTypeBitmap CAPSTYPE_BITMAP
+	CapabilitySetTypeBitmap CapabilitySetType = 0x0002
+
+	// CapabilitySetTypeOrder CAPSTYPE_ORDER
+	CapabilitySetTypeOrder CapabilitySetType = 0x0003
+
+	// CapabilitySetTypeBitmapCache CAPSTYPE_BITMAPCACHE
+	CapabilitySetTypeBitmapCache CapabilitySetType = 0x0004
+
+	// CapabilitySetTypeControl CAPSTYPE_CONTROL
+	CapabilitySetTypeControl CapabilitySetType = 0x0005
+
+	// CapabilitySetTypeActivation CAPSTYPE_ACTIVATION
+	CapabilitySetTypeActivation CapabilitySetType = 0x0007
+
+	// CapabilitySetTypePointer CAPSTYPE_POINTER
+	CapabilitySetTypePointer CapabilitySetType = 0x0008
+
+	// CapabilitySetTypeShare CAPSTYPE_SHARE
+	CapabilitySetTypeShare CapabilitySetType = 0x0009
+
+	// CapabilitySetTypeColorCache CAPSTYPE_COLORCACHE
+	CapabilitySetTypeColorCache CapabilitySetType = 0x000A
+
+	// CapabilitySetTypeSound CAPSTYPE_SOUND
+	CapabilitySetTypeSound CapabilitySetType = 0x000C
+
+	// CapabilitySetTypeInput CAPSTYPE_INPUT
+	CapabilitySetTypeInput CapabilitySetType = 0x000D
+
+	// CapabilitySetTypeFont CAPSTYPE_FONT
+	CapabilitySetTypeFont CapabilitySetType = 0x000E
+
+	// CapabilitySetTypeBrush CAPSTYPE_BRUSH
+	CapabilitySetTypeBrush CapabilitySetType = 0x000F
+
+	// CapabilitySetTypeGlyphCache CAPSTYPE_GLYPHCACHE
+	CapabilitySetTypeGlyphCache CapabilitySetType = 0x0010
+
+	// CapabilitySetTypeOffscreenBitmapCache CAPSTYPE_OFFSCREENCACHE
+	CapabilitySetTypeOffscreenBitmapCache CapabilitySetType = 0x0011
+
+	// CapabilitySetTypeBitmapCacheHostSupport CAPSTYPE_BITMAPCACHE_HOSTSUPPORT
+	CapabilitySetTypeBitmapCacheHostSupport CapabilitySetType = 0x0012
+
+	// CapabilitySetTypeBitmapCacheRev2 CAPSTYPE_BITMAPCACHE_REV2
+	CapabilitySetTypeBitmapCacheRev2 CapabilitySetType = 0x0013
+
+	// CapabilitySetTypeVirtualChannel CAPSTYPE_VIRTUALCHANNEL
+	CapabilitySetTypeVirtualChannel CapabilitySetType = 0x0014
+
+	// CapabilitySetTypeDrawNineGridCache CAPSTYPE_DRAWNINEGRIDCACHE
+	CapabilitySetTypeDrawNineGridCache CapabilitySetType = 0x0015
+
+	// CapabilitySetTypeDrawGDIPlus CAPSTYPE_DRAWGDIPLUS
+	CapabilitySetTypeDrawGDIPlus CapabilitySetType = 0x0016
+
+	// CapabilitySetTypeRail CAPSTYPE_RAIL
+	CapabilitySetTypeRail CapabilitySetType = 0x0017
+
+	// CapabilitySetTypeWindow CAPSTYPE_WINDOW
+	CapabilitySetTypeWindow CapabilitySetType = 0x0018
+
+	// CapabilitySetTypeCompDesk CAPSETTYPE_COMPDESK
+	CapabilitySetTypeCompDesk CapabilitySetType = 0x0019
+
+	// CapabilitySetTypeMultifragmentUpdate CAPSETTYPE_MULTIFRAGMENTUPDATE
+	CapabilitySetTypeMultifragmentUpdate CapabilitySetType = 0x001A
+
+	// CapabilitySetTypeLargePointer CAPSETTYPE_LARGE_POINTER
+	CapabilitySetTypeLargePointer CapabilitySetType = 0x001B
+
+	// CapabilitySetTypeSurfaceCommands CAPSETTYPE_SURFACE_COMMANDS
+	CapabilitySetTypeSurfaceCommands CapabilitySetType = 0x001C
+
+	// CapabilitySetTypeBitmapCodecs CAPSETTYPE_BITMAP_CODECS
+	CapabilitySetTypeBitmapCodecs CapabilitySetType = 0x001D
+
+	// CapabilitySetTypeFrameAcknowledge CAPSSETTYPE_FRAME_ACKNOWLEDGE
+	CapabilitySetTypeFrameAcknowledge CapabilitySetType = 0x001E
+)
 
 type CapabilitySet struct {
-	CapabilitySetType CapabilitySetType
-	LengthCapability  uint16
-	CapabilityData    []byte
+	CapabilitySetType                   CapabilitySetType
+	GeneralCapabilitySet                *GeneralCapabilitySet
+	BitmapCapabilitySet                 *BitmapCapabilitySet
+	OrderCapabilitySet                  *OrderCapabilitySet
+	BitmapCacheCapabilitySetRev1        *BitmapCacheCapabilitySetRev1
+	BitmapCacheCapabilitySetRev2        *BitmapCacheCapabilitySetRev2
+	ColorCacheCapabilitySet             *ColorCacheCapabilitySet
+	PointerCapabilitySet                *PointerCapabilitySet
+	InputCapabilitySet                  *InputCapabilitySet
+	BrushCapabilitySet                  *BrushCapabilitySet
+	GlyphCacheCapabilitySet             *GlyphCacheCapabilitySet
+	OffscreenBitmapCacheCapabilitySet   *OffscreenBitmapCacheCapabilitySet
+	VirtualChannelCapabilitySet         *VirtualChannelCapabilitySet
+	DrawNineGridCacheCapabilitySet      *DrawNineGridCacheCapabilitySet
+	DrawGDIPlusCapabilitySet            *DrawGDIPlusCapabilitySet
+	SoundCapabilitySet                  *SoundCapabilitySet
+	BitmapCacheHostSupportCapabilitySet *BitmapCacheHostSupportCapabilitySet
+	ControlCapabilitySet                *ControlCapabilitySet
+	WindowActivationCapabilitySet       *WindowActivationCapabilitySet
+	ShareCapabilitySet                  *ShareCapabilitySet
+	FontCapabilitySet                   *FontCapabilitySet
+	MultifragmentUpdateCapabilitySet    *MultifragmentUpdateCapabilitySet
+	LargePointerCapabilitySet           *LargePointerCapabilitySet
+	DesktopCompositionCapabilitySet     *DesktopCompositionCapabilitySet
+	SurfaceCommandsCapabilitySet        *SurfaceCommandsCapabilitySet
+	BitmapCodecsCapabilitySet           *BitmapCodecsCapabilitySet
 }
 
 func (set *CapabilitySet) Serialize() []byte {
+	var data []byte
+
+	switch set.CapabilitySetType {
+	case CapabilitySetTypeGeneral:
+		data = set.GeneralCapabilitySet.Serialize()
+	case CapabilitySetTypeBitmap:
+		data = set.BitmapCapabilitySet.Serialize()
+	case CapabilitySetTypeOrder:
+		data = set.OrderCapabilitySet.Serialize()
+	case CapabilitySetTypeBitmapCache:
+		data = set.BitmapCacheCapabilitySetRev1.Serialize()
+	case CapabilitySetTypeBitmapCacheRev2:
+		data = set.BitmapCacheCapabilitySetRev2.Serialize()
+	case CapabilitySetTypeColorCache:
+		data = set.ColorCacheCapabilitySet.Serialize()
+	case CapabilitySetTypeActivation:
+		data = set.WindowActivationCapabilitySet.Serialize()
+	case CapabilitySetTypeControl:
+		data = set.ControlCapabilitySet.Serialize()
+	case CapabilitySetTypePointer:
+		data = set.PointerCapabilitySet.Serialize()
+	case CapabilitySetTypeInput:
+		data = set.InputCapabilitySet.Serialize()
+	case CapabilitySetTypeBrush:
+		data = set.BrushCapabilitySet.Serialize()
+	case CapabilitySetTypeGlyphCache:
+		data = set.GlyphCacheCapabilitySet.Serialize()
+	case CapabilitySetTypeOffscreenBitmapCache:
+		data = set.OffscreenBitmapCacheCapabilitySet.Serialize()
+	case CapabilitySetTypeVirtualChannel:
+		data = set.VirtualChannelCapabilitySet.Serialize()
+	case CapabilitySetTypeSound:
+		data = set.SoundCapabilitySet.Serialize()
+	case CapabilitySetTypeShare:
+		data = set.ShareCapabilitySet.Serialize()
+	case CapabilitySetTypeFont:
+		data = set.FontCapabilitySet.Serialize()
+	case CapabilitySetTypeDrawNineGridCache:
+		data = set.DrawNineGridCacheCapabilitySet.Serialize()
+	case CapabilitySetTypeDrawGDIPlus:
+		data = set.DrawGDIPlusCapabilitySet.Serialize()
+	}
+
 	buf := &bytes.Buffer{}
 
-	binary.Write(buf, binary.LittleEndian, set.CapabilitySetType)
-	binary.Write(buf, binary.LittleEndian, set.LengthCapability)
+	lengthCapability := uint16(4 + len(data))
 
-	buf.Write(set.CapabilityData)
+	_ = binary.Write(buf, binary.LittleEndian, set.CapabilitySetType)
+	_ = binary.Write(buf, binary.LittleEndian, lengthCapability)
+	buf.Write(data)
 
 	return buf.Bytes()
 }
 
 func (set *CapabilitySet) Deserialize(wire io.Reader) error {
-	binary.Read(wire, binary.LittleEndian, &set.CapabilitySetType)
-	binary.Read(wire, binary.LittleEndian, &set.LengthCapability)
+	var (
+		lengthCapability uint16
+		err              error
+	)
 
-	set.CapabilityData = make([]byte, set.LengthCapability)
-
-	if _, err := wire.Read(set.CapabilityData); err != nil {
+	err = binary.Read(wire, binary.LittleEndian, &set.CapabilitySetType)
+	if err != nil {
 		return err
 	}
 
-	return nil
-}
+	err = binary.Read(wire, binary.LittleEndian, &lengthCapability)
+	if err != nil {
+		return err
+	}
 
-type ShareControlHeader struct {
-	TotalLength uint16
-	PDUType     PDUType
-	PDUSource   uint16
-}
+	switch set.CapabilitySetType {
+	case CapabilitySetTypeGeneral:
+		set.GeneralCapabilitySet = &GeneralCapabilitySet{}
 
-func (header *ShareControlHeader) Serialize() []byte {
-	buf := &bytes.Buffer{}
+		return set.GeneralCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeBitmap:
+		set.BitmapCapabilitySet = &BitmapCapabilitySet{}
 
-	binary.Write(buf, binary.LittleEndian, header.TotalLength)
-	binary.Write(buf, binary.LittleEndian, header.PDUType)
-	binary.Write(buf, binary.LittleEndian, header.PDUSource)
+		return set.BitmapCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeOrder:
+		set.OrderCapabilitySet = &OrderCapabilitySet{}
 
-	return buf.Bytes()
-}
+		return set.OrderCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeBitmapCache:
+		set.BitmapCacheCapabilitySetRev1 = &BitmapCacheCapabilitySetRev1{}
 
-func (header *ShareControlHeader) Deserialize(wire io.Reader) error {
-	binary.Read(wire, binary.LittleEndian, &header.TotalLength)
-	binary.Read(wire, binary.LittleEndian, &header.PDUType)
-	binary.Read(wire, binary.LittleEndian, &header.PDUSource)
+		return set.BitmapCacheCapabilitySetRev1.Deserialize(wire)
+	case CapabilitySetTypeBitmapCacheRev2:
+		set.BitmapCacheCapabilitySetRev2 = &BitmapCacheCapabilitySetRev2{}
+
+		return set.BitmapCacheCapabilitySetRev2.Deserialize(wire)
+	case CapabilitySetTypeColorCache:
+		set.ColorCacheCapabilitySet = &ColorCacheCapabilitySet{}
+
+		return set.ColorCacheCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypePointer:
+		set.PointerCapabilitySet = &PointerCapabilitySet{}
+
+		return set.PointerCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeInput:
+		set.InputCapabilitySet = &InputCapabilitySet{}
+
+		return set.InputCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeBrush:
+		set.BrushCapabilitySet = &BrushCapabilitySet{}
+
+		return set.BrushCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeGlyphCache:
+		set.GlyphCacheCapabilitySet = &GlyphCacheCapabilitySet{}
+
+		return set.GlyphCacheCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeOffscreenBitmapCache:
+		set.OffscreenBitmapCacheCapabilitySet = &OffscreenBitmapCacheCapabilitySet{}
+
+		return set.OffscreenBitmapCacheCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeVirtualChannel:
+		set.VirtualChannelCapabilitySet = &VirtualChannelCapabilitySet{}
+
+		return set.VirtualChannelCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeDrawNineGridCache:
+		set.DrawNineGridCacheCapabilitySet = &DrawNineGridCacheCapabilitySet{}
+
+		return set.DrawNineGridCacheCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeDrawGDIPlus:
+		set.DrawGDIPlusCapabilitySet = &DrawGDIPlusCapabilitySet{}
+
+		return set.DrawGDIPlusCapabilitySet.Deserialize(wire)
+	case CapabilitySetTypeSound:
+		set.SoundCapabilitySet = &SoundCapabilitySet{}
+
+		return set.SoundCapabilitySet.Deserialize(wire)
+	}
+
+	data := make([]byte, lengthCapability-4)
+	if _, err = wire.Read(data); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -82,9 +283,20 @@ func (pdu *ServerDemandActivePDU) Deserialize(wire io.Reader) error {
 		return err
 	}
 
-	binary.Read(wire, binary.LittleEndian, &pdu.ShareID)
-	binary.Read(wire, binary.LittleEndian, &pdu.LengthSourceDescriptor)
-	binary.Read(wire, binary.LittleEndian, &pdu.LengthCombinedCapabilities)
+	err = binary.Read(wire, binary.LittleEndian, &pdu.ShareID)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.LengthSourceDescriptor)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.LengthCombinedCapabilities)
+	if err != nil {
+		return err
+	}
 
 	pdu.SourceDescriptor = make([]byte, pdu.LengthSourceDescriptor)
 
@@ -93,8 +305,15 @@ func (pdu *ServerDemandActivePDU) Deserialize(wire io.Reader) error {
 		return err
 	}
 
-	binary.Read(wire, binary.LittleEndian, &pdu.NumberCapabilities)
-	binary.Read(wire, binary.LittleEndian, &pdu.pad2Octets)
+	err = binary.Read(wire, binary.LittleEndian, &pdu.NumberCapabilities)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.pad2Octets)
+	if err != nil {
+		return err
+	}
 
 	pdu.CapabilitySets = make([]CapabilitySet, 0, pdu.NumberCapabilities)
 
@@ -108,60 +327,94 @@ func (pdu *ServerDemandActivePDU) Deserialize(wire io.Reader) error {
 		pdu.CapabilitySets = append(pdu.CapabilitySets, capabilitySet)
 	}
 
-	binary.Read(wire, binary.LittleEndian, &pdu.SessionId)
+	err = binary.Read(wire, binary.LittleEndian, &pdu.SessionId)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 type ClientConfirmActivePDU struct {
-	ShareControlHeader         ShareControlHeader
-	ShareID                    uint32
-	originatorID               uint16
-	LengthSourceDescriptor     uint16
-	LengthCombinedCapabilities uint16
-	SourceDescriptor           []byte
-	NumberCapabilities         uint16
-	pad2Octets                 uint16
-	CapabilitySets             []CapabilitySet
+	ShareControlHeader ShareControlHeader
+	ShareID            uint32
+	SourceDescriptor   []byte
+	CapabilitySets     []CapabilitySet
 }
 
 func NewClientConfirmActivePDU(shareID uint32, userId uint16) *ClientConfirmActivePDU {
 	return &ClientConfirmActivePDU{
 		ShareControlHeader: ShareControlHeader{
-			TotalLength: 6 + 4 + 2 + 2 + 2 + 16 + 2 + 2,
-			PDUType:     0x13, // TS_PROTOCOL_VERSION, PDUTYPE_CONFIRMACTIVEPDU
-			PDUSource:   userId,
+			PDUType:   PDUTypeConfirmActive,
+			PDUSource: userId,
 		},
-		ShareID:                    shareID,
-		originatorID:               0x03EA,
-		LengthSourceDescriptor:     16,
-		LengthCombinedCapabilities: 0,
+		ShareID: shareID,
 		SourceDescriptor: []byte{
 			'w', 'e', 'b', '-', 'r', 'd', 'p', '-', 's', 'o', 'l', 'u', 't', 'i', 'o', 'n',
 		},
-		NumberCapabilities: 0,
-		pad2Octets:         0,
-		CapabilitySets:     nil,
+		CapabilitySets: nil,
 	}
 }
 
 func (pdu *ClientConfirmActivePDU) Serialize() []byte {
+	capBuf := bytes.Buffer{}
+
+	for _, set := range pdu.CapabilitySets {
+		capBuf.Write(set.Serialize())
+	}
+
+	lengthSourceDescriptor := uint16(len(pdu.SourceDescriptor))
+	lengthCombinedCapabilities := uint16(4 + capBuf.Len())
+
+	pdu.ShareControlHeader.PDUType = PDUTypeConfirmActive
+	pdu.ShareControlHeader.TotalLength = 6 + 4 + 2 + 2 + 2 + lengthSourceDescriptor + lengthCombinedCapabilities
+
 	buf := &bytes.Buffer{}
 
 	buf.Write(pdu.ShareControlHeader.Serialize())
-	binary.Write(buf, binary.LittleEndian, pdu.ShareID)
-	binary.Write(buf, binary.LittleEndian, pdu.originatorID)
-	binary.Write(buf, binary.LittleEndian, pdu.LengthSourceDescriptor)
-	binary.Write(buf, binary.LittleEndian, pdu.LengthCombinedCapabilities)
+	_ = binary.Write(buf, binary.LittleEndian, pdu.ShareID)
+	_ = binary.Write(buf, binary.LittleEndian, uint16(0x03EA)) // originatorID
+	_ = binary.Write(buf, binary.LittleEndian, lengthSourceDescriptor)
+	_ = binary.Write(buf, binary.LittleEndian, lengthCombinedCapabilities)
 
 	buf.Write(pdu.SourceDescriptor)
 
-	binary.Write(buf, binary.LittleEndian, pdu.NumberCapabilities)
-	binary.Write(buf, binary.LittleEndian, pdu.pad2Octets)
+	_ = binary.Write(buf, binary.LittleEndian, uint16(len(pdu.CapabilitySets)))
+	_ = binary.Write(buf, binary.LittleEndian, uint16(0)) // padding
 
-	for _, set := range pdu.CapabilitySets {
-		buf.Write(set.Serialize())
-	}
+	buf.Write(capBuf.Bytes())
 
 	return buf.Bytes()
+}
+
+func (c *client) CapabilitiesExchange() error {
+	_, wire, err := c.mcsLayer.Receive()
+	if err != nil {
+		return err
+	}
+
+	var resp ServerDemandActivePDU
+	if err = resp.Deserialize(wire); err != nil {
+		return err
+	}
+
+	c.shareID = resp.ShareID
+
+	req := NewClientConfirmActivePDU(resp.ShareID, c.mcsLayer.UserId())
+	req.CapabilitySets = []CapabilitySet{
+		*NewGeneralCapabilitySet(),
+		*NewBitmapCapabilitySet(c.desktopWidth, c.desktopHeight),
+		*NewOrderCapabilitySet(),
+		*NewBitmapCacheCapabilitySetRev1(),
+		*NewPointerCapabilitySet(),
+		*NewInputCapabilitySet(),
+		*NewBrushCapabilitySet(),
+		*NewGlyphCacheCapabilitySet(),
+		*NewOffscreenBitmapCacheCapabilitySet(),
+		*NewVirtualChannelCapabilitySet(),
+		*NewSoundCapabilitySet(),
+		*NewMultifragmentUpdateCapabilitySet(),
+	}
+
+	return c.mcsLayer.Send("global", req.Serialize())
 }

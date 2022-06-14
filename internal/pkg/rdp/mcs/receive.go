@@ -53,7 +53,7 @@ func (p *protocol) Receive() (string, io.Reader, error) {
 		return "", nil, err
 	}
 
-	if resp.Application != sendDataIndication {
+	if resp.Application != SendDataIndication {
 		return "", nil, ErrUnknownDomainApplication
 	}
 

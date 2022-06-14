@@ -1,4 +1,4 @@
-package tpkt
+package rdp
 
 import (
 	"crypto/tls"
@@ -6,8 +6,8 @@ import (
 	"log"
 )
 
-func (p *protocol) StartTLS() error {
-	tlsConn := tls.Client(p.conn, &tls.Config{
+func (c *client) StartTLS() error {
+	tlsConn := tls.Client(c.conn, &tls.Config{
 		InsecureSkipVerify: true,
 		MinVersion:         tls.VersionTLS10,
 		MaxVersion:         tls.VersionTLS13,
@@ -19,7 +19,7 @@ func (p *protocol) StartTLS() error {
 		return fmt.Errorf("TLS handshake: %w", err)
 	}
 
-	p.conn = tlsConn
+	c.conn = tlsConn
 
 	return nil
 }

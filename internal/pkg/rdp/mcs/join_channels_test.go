@@ -13,16 +13,19 @@ func TestClientMCSChannelJoinRequestPDU_Serialize(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		req ClientChannelJoinRequest
+		req DomainPDU
 
 		expected []byte
 	}{
 		{
 			name: "join channel 1007",
 
-			req: ClientChannelJoinRequest{
-				Initiator: 1007,
-				ChannelId: 1007,
+			req: DomainPDU{
+				Application: channelJoinRequest,
+				ClientChannelJoinRequest: &ClientChannelJoinRequest{
+					Initiator: 1007,
+					ChannelId: 1007,
+				},
 			},
 
 			expected: []byte{
@@ -32,9 +35,12 @@ func TestClientMCSChannelJoinRequestPDU_Serialize(t *testing.T) {
 		{
 			name: "join channel 1003",
 
-			req: ClientChannelJoinRequest{
-				Initiator: 1007,
-				ChannelId: 1003,
+			req: DomainPDU{
+				Application: channelJoinRequest,
+				ClientChannelJoinRequest: &ClientChannelJoinRequest{
+					Initiator: 1007,
+					ChannelId: 1003,
+				},
 			},
 
 			expected: []byte{0x38, 0x00, 0x06, 0x03, 0xeb},
@@ -42,9 +48,12 @@ func TestClientMCSChannelJoinRequestPDU_Serialize(t *testing.T) {
 		{
 			name: "join channel 1004",
 
-			req: ClientChannelJoinRequest{
-				Initiator: 1007,
-				ChannelId: 1004,
+			req: DomainPDU{
+				Application: channelJoinRequest,
+				ClientChannelJoinRequest: &ClientChannelJoinRequest{
+					Initiator: 1007,
+					ChannelId: 1004,
+				},
 			},
 
 			expected: []byte{0x38, 0x00, 0x06, 0x03, 0xec},
@@ -68,7 +77,7 @@ func TestServerMCSChannelJoinConfirmPDU_Deserialize(t *testing.T) {
 
 		input []byte
 
-		expected ServerChannelJoinConfirm
+		expected DomainPDU
 	}{
 		{
 			name: "confirm join 1007",
@@ -77,11 +86,14 @@ func TestServerMCSChannelJoinConfirmPDU_Deserialize(t *testing.T) {
 				0x3e, 0x00, 0x00, 0x06, 0x03, 0xef, 0x03, 0xef,
 			},
 
-			expected: ServerChannelJoinConfirm{
-				Result:    0x00,
-				Initiator: 1007,
-				Requested: 1007,
-				ChannelId: 1007,
+			expected: DomainPDU{
+				Application: channelJoinConfirm,
+				ServerChannelJoinConfirm: &ServerChannelJoinConfirm{
+					Result:    0x00,
+					Initiator: 1007,
+					Requested: 1007,
+					ChannelId: 1007,
+				},
 			},
 		},
 		{
@@ -89,11 +101,14 @@ func TestServerMCSChannelJoinConfirmPDU_Deserialize(t *testing.T) {
 
 			input: []byte{0x3e, 0x00, 0x00, 0x06, 0x03, 0xeb, 0x03, 0xeb},
 
-			expected: ServerChannelJoinConfirm{
-				Result:    0x00,
-				Initiator: 1007,
-				Requested: 1003,
-				ChannelId: 1003,
+			expected: DomainPDU{
+				Application: channelJoinConfirm,
+				ServerChannelJoinConfirm: &ServerChannelJoinConfirm{
+					Result:    0x00,
+					Initiator: 1007,
+					Requested: 1003,
+					ChannelId: 1003,
+				},
 			},
 		},
 		{
@@ -101,18 +116,21 @@ func TestServerMCSChannelJoinConfirmPDU_Deserialize(t *testing.T) {
 
 			input: []byte{0x3e, 0x00, 0x00, 0x06, 0x03, 0xec, 0x03, 0xec},
 
-			expected: ServerChannelJoinConfirm{
-				Result:    0x00,
-				Initiator: 1007,
-				Requested: 1004,
-				ChannelId: 1004,
+			expected: DomainPDU{
+				Application: channelJoinConfirm,
+				ServerChannelJoinConfirm: &ServerChannelJoinConfirm{
+					Result:    0x00,
+					Initiator: 1007,
+					Requested: 1004,
+					ChannelId: 1004,
+				},
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var actual ServerChannelJoinConfirm
+			var actual DomainPDU
 
 			require.NoError(t, actual.Deserialize(bytes.NewBuffer(tc.input)))
 			require.Equal(t, tc.expected, actual)

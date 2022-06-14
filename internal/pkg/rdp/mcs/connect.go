@@ -235,6 +235,7 @@ func (p *protocol) Connect(
 		return fmt.Errorf("unsuccessful MCS connect initial; result=%d", resp.ServerConnectResponse.Result)
 	}
 
+	p.channels["global"] = resp.ServerConnectResponse.UserData.UserData.ServerNetworkData.MCSChannelId
 	p.initChannels(channelNames, resp.ServerConnectResponse.UserData.UserData.ServerNetworkData.ChannelIdArray)
 
 	p.skipChannelJoin = resp.ServerConnectResponse.UserData.UserData.ServerCoreData.EarlyCapabilityFlags&0x8 == 0x8

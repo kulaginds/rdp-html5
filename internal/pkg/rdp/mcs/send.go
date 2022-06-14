@@ -37,7 +37,7 @@ func (p *protocol) Send(channelName string, pduData []byte) error {
 	}
 
 	req := DomainPDU{
-		Application: sendDataRequest,
+		Application: SendDataRequest,
 		ClientSendDataRequest: &ClientSendDataRequest{
 			Initiator: p.userId,
 			ChannelId: channelID,

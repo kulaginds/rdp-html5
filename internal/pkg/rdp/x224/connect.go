@@ -146,10 +146,6 @@ func (p *protocol) Connect() error {
 		return ErrUnsupportedRequestedProtocol
 	}
 
-	if err = p.tpktConn.StartTLS(); err != nil {
-		return err
-	}
-
 	p.connected = true
 
 	return nil

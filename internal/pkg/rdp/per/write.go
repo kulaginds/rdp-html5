@@ -7,7 +7,7 @@ import (
 
 func WriteChoice(choice uint8, w io.Writer) {
 	_, _ = w.Write([]byte{
-		choice << 2,
+		choice,
 	})
 }
 

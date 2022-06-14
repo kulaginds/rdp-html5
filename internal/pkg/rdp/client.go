@@ -11,6 +11,7 @@ import (
 )
 
 type client struct {
+	conn      net.Conn
 	x224Layer x224Layer
 	mcsLayer  mcsLayer
 
@@ -23,6 +24,7 @@ type client struct {
 	selectedProtocol       x224.RDPNegotiationProtocol
 	serverNegotiationFlags x224.RDPNegotiationResponseFlag
 	channels               []string
+	shareID                uint32
 }
 
 const (
@@ -30,7 +32,7 @@ const (
 )
 
 func NewClient(
-	hostname, domain, username, password string,
+	hostname, username, password string,
 	desktopWidth, desktopHeight uint16,
 ) (*client, error) {
 	c := client{
@@ -44,12 +46,14 @@ func NewClient(
 		selectedProtocol: x224.RDPNegotiationProtocolSSL,
 	}
 
-	conn, err := net.DialTimeout("tcp", hostname, tcpConnectionTimeout)
+	var err error
+
+	c.conn, err = net.DialTimeout("tcp", hostname, tcpConnectionTimeout)
 	if err != nil {
 		return nil, fmt.Errorf("tcp connect: %w", err)
 	}
 
-	c.x224Layer = x224.New(tpkt.New(conn), c.selectedProtocol)
+	c.x224Layer = x224.New(tpkt.New(&c), c.selectedProtocol)
 	c.mcsLayer = mcs.New(c.x224Layer)
 
 	return &c, nil

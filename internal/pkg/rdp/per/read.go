@@ -9,7 +9,7 @@ import (
 func ReadChoice(r io.Reader) (uint8, error) {
 	var choice uint8
 
-	return choice >> 2, binary.Read(r, binary.BigEndian, &choice)
+	return choice, binary.Read(r, binary.BigEndian, &choice)
 }
 
 func ReadLength(r io.Reader) (int, error) {

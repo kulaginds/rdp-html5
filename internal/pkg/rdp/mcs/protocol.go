@@ -10,14 +10,16 @@ type protocol struct {
 	skipChannelJoin bool
 }
 
-const globalChannel uint16 = 1003
+const (
+	ServerChannelID uint16 = 1002
+)
 
 func New(x224Conn x224Conn) *protocol {
 	return &protocol{
 		x224Conn: x224Conn,
 
 		channels: map[string]uint16{
-			"global": globalChannel,
+			"global": 0,
 		},
 
 		skipChannelJoin: false,

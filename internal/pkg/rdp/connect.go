@@ -28,15 +28,21 @@ func (c *client) Connect() error {
 		return fmt.Errorf("licensing: %w", err)
 	}
 
-	if err = c.capabilitiesExchange(); err != nil {
-		return fmt.Errorf("capabilities exchange: %w", err)
-	}
-
 	return nil
 }
 
 func (c *client) connectionInitiation() error {
-	return c.x224Layer.Connect()
+	var err error
+
+	if err = c.x224Layer.Connect(); err != nil {
+		return err
+	}
+
+	if c.selectedProtocol.IsSSL() {
+		return c.StartTLS()
+	}
+
+	return nil
 }
 
 func (c *client) basicSettingsExchange() error {
@@ -101,30 +107,6 @@ func (c *client) licensing() error {
 
 	if resp.ValidClientMessage.StateTransition != 0x00000002 { // ST_NO_TRANSITION
 		return fmt.Errorf("unknown license state transition: %d", resp.ValidClientMessage.StateTransition)
-	}
-
-	return nil
-}
-
-func (c *client) capabilitiesExchange() error {
-	log.Println("RDP: Server Demand Active")
-
-	_, wire, err := c.mcsLayer.Receive()
-	if err != nil {
-		return err
-	}
-
-	var serverDemandActivePDU ServerDemandActivePDU
-	if err = serverDemandActivePDU.Deserialize(wire); err != nil {
-		return fmt.Errorf("server demand active: %w", err)
-	}
-
-	clientConfirmActivePDU := NewClientConfirmActivePDU(serverDemandActivePDU.ShareID, c.mcsLayer.UserId())
-
-	log.Println("RDP: Client Confirm Active")
-
-	if err = c.mcsLayer.Send("global", clientConfirmActivePDU.Serialize()); err != nil {
-		return fmt.Errorf("client confirm active pdu: %w", err)
 	}
 
 	return nil

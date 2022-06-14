@@ -36,8 +36,8 @@ const (
 	channelAdmitIndication
 	channelExpelRequest
 	channelExpelIndication
-	sendDataRequest
-	sendDataIndication
+	SendDataRequest
+	SendDataIndication
 	uniformSendDataRequest
 	uniformSendDataIndication
 	tokenGrabRequest
@@ -72,7 +72,7 @@ type DomainPDU struct {
 func (pdu *DomainPDU) Serialize() []byte {
 	buf := &bytes.Buffer{}
 
-	per.WriteChoice(uint8(pdu.Application), buf)
+	per.WriteChoice(uint8(pdu.Application<<2), buf)
 
 	var data []byte
 
@@ -83,7 +83,7 @@ func (pdu *DomainPDU) Serialize() []byte {
 		data = pdu.ClientErectDomainRequest.Serialize()
 	case channelJoinRequest:
 		data = pdu.ClientChannelJoinRequest.Serialize()
-	case sendDataRequest:
+	case SendDataRequest:
 		data = pdu.ClientSendDataRequest.Serialize()
 	}
 
@@ -102,7 +102,7 @@ func (pdu *DomainPDU) Deserialize(wire io.Reader) error {
 	if err != nil {
 		return err
 	}
-	pdu.Application = DomainPDUApplication(application)
+	pdu.Application = DomainPDUApplication(application >> 2)
 
 	switch pdu.Application {
 	case attachUserConfirm:
@@ -113,7 +113,7 @@ func (pdu *DomainPDU) Deserialize(wire io.Reader) error {
 		pdu.ServerChannelJoinConfirm = &ServerChannelJoinConfirm{}
 
 		return pdu.ServerChannelJoinConfirm.Deserialize(wire)
-	case sendDataIndication:
+	case SendDataIndication:
 		pdu.ServerSendDataIndication = &ServerSendDataIndication{}
 
 		return pdu.ServerSendDataIndication.Deserialize(wire)
