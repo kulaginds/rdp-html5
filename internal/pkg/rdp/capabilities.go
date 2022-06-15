@@ -18,9 +18,8 @@ func NewGeneralCapabilitySet() *CapabilitySet {
 	return &CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeGeneral,
 		GeneralCapabilitySet: &GeneralCapabilitySet{
-			OSMajorType: 0x0001, // windows
-			OSMinorType: 0x0003, // windows nt
-			ExtraFlags:  0x0004 | 0x0400 | 0x0010 | 0x0001,
+			OSMajorType: 0x0008,          // Chrome OS platform
+			ExtraFlags:  0x0001 | 0x0004, // required: FASTPATH_OUTPUT_SUPPORTED, LONG_CREDENTIALS_SUPPORTED
 		},
 	}
 }
@@ -243,7 +242,7 @@ func NewOrderCapabilitySet() *CapabilitySet {
 	return &CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeOrder,
 		OrderCapabilitySet: &OrderCapabilitySet{
-			OrderFlags:      0x2 | 0x0008,
+			OrderFlags:      0x2 | 0x0008, // NEGOTIATEORDERSUPPORT, ZEROBOUNDSDELTASSUPPORT this flags must be set
 			DesktopSaveSize: 480 * 480,
 		},
 	}
@@ -565,6 +564,7 @@ type PointerCapabilitySet struct {
 	ColorPointerFlag      uint16
 	ColorPointerCacheSize uint16
 	PointerCacheSize      uint16
+	lengthCapability      uint16
 }
 
 func NewPointerCapabilitySet() *CapabilitySet {
@@ -599,6 +599,10 @@ func (s *PointerCapabilitySet) Deserialize(wire io.Reader) error {
 		return err
 	}
 
+	if s.lengthCapability == 4 {
+		return nil
+	}
+
 	err = binary.Read(wire, binary.LittleEndian, &s.PointerCacheSize)
 	if err != nil {
 		return err
@@ -620,9 +624,9 @@ func NewInputCapabilitySet() *CapabilitySet {
 	return &CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeInput,
 		InputCapabilitySet: &InputCapabilitySet{
-			InputFlags:          0x0001 | 0x0004 | 0x0010, // INPUT_FLAG_UNICODE
-			KeyboardLayout:      0x00000409,
-			KeyboardType:        0x00000004,
+			InputFlags:          0x0001 | 0x0004 | 0x0010, // INPUT_FLAG_SCANCODES, INPUT_FLAG_MOUSEX, INPUT_FLAG_UNICODE
+			KeyboardLayout:      0x00000409,               // US
+			KeyboardType:        0x00000004,               // IBM enhanced (101- or 102-key) keyboard
 			KeyboardFunctionKey: 12,
 		},
 	}
@@ -882,12 +886,7 @@ func (s *VirtualChannelCapabilitySet) Serialize() []byte {
 	buf := &bytes.Buffer{}
 
 	_ = binary.Write(buf, binary.LittleEndian, s.Flags)
-	//_ = binary.Write(buf, binary.LittleEndian, s.VCChunkSize)
-
-	// VCChunkSize is ignore
-	// When sent from server to client, this field contains the maximum allowed size of a virtual channel chunk.
-	// When sent from client to server, the value in this field is ignored by the server;
-	// the server determines the maximum virtual channel chunk size.
+	_ = binary.Write(buf, binary.LittleEndian, s.VCChunkSize)
 
 	return buf.Bytes()
 }

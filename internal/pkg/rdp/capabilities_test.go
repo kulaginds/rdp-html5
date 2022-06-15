@@ -117,7 +117,41 @@ func Test_OrderCapabilitySet_Serialize(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
+func Test_OrderCapabilitySet_Serialize2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeOrder,
+		OrderCapabilitySet: &OrderCapabilitySet{
+			OrderFlags:       0xa,
+			OrderSupport:     [32]byte{},
+			textFlags:        0,
+			DesktopSaveSize:  0x38400,
+			textANSICodePage: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("030058000000000000000000000000000000000000000000010014000000010000000a0000000000000000000000000000000000000000000000000000000000000000000000000000000000008403000000000000000000")
+	require.NoError(t, err)
+
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
 func Test_BitmapCacheCapabilitySetRev1(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType:            CapabilitySetTypeBitmapCache,
+		BitmapCacheCapabilitySetRev1: &BitmapCacheCapabilitySetRev1{},
+	}
+
+	expected, err := hex.DecodeString("04002800000000000000000000000000000000000000000000000000000000000000000000000000")
+	require.NoError(t, err)
+
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
+func Test_BitmapCacheCapabilitySetRev2(t *testing.T) {
 	set := CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeBitmapCacheRev2,
 		BitmapCacheCapabilitySetRev2: &BitmapCacheCapabilitySetRev2{
@@ -239,6 +273,25 @@ func Test_InputCapabilitySet_Serialize(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
+func Test_InputCapabilitySet_Serialize2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeInput,
+		InputCapabilitySet: &InputCapabilitySet{
+			InputFlags:          0x0015,
+			KeyboardLayout:      0x00000409,
+			KeyboardType:        4,
+			KeyboardFunctionKey: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("0d005800150000000904000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+	require.NoError(t, err)
+
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
 func Test_SoundCapabilitySet_Serialize(t *testing.T) {
 	set := CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeSound,
@@ -248,6 +301,22 @@ func Test_SoundCapabilitySet_Serialize(t *testing.T) {
 	}
 
 	expected := []byte{0x0c, 0x00, 0x08, 0x00, 0x01, 0x00, 0x00, 0x00}
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
+func Test_SoundCapabilitySet_Serialize2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeSound,
+		SoundCapabilitySet: &SoundCapabilitySet{
+			SoundFlags: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("0c00080000000000")
+	require.NoError(t, err)
+
 	actual := set.Serialize()
 
 	require.Equal(t, expected, actual)
@@ -329,6 +398,23 @@ func Test_GlyphCacheCapabilitySet_Serialize(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
+func Test_GlyphCacheCapabilitySet_Serialize2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeGlyphCache,
+		GlyphCacheCapabilitySet: &GlyphCacheCapabilitySet{
+			FragCache:         0,
+			GlyphSupportLevel: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("10003400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+	require.NoError(t, err)
+
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
 func Test_BrushCapabilitySet(t *testing.T) {
 	set := CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeBrush,
@@ -338,6 +424,22 @@ func Test_BrushCapabilitySet(t *testing.T) {
 	}
 
 	expected := []byte{0x0f, 0x00, 0x08, 0x00, 0x01, 0x00, 0x00, 0x00}
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
+func Test_BrushCapabilitySet2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeBrush,
+		BrushCapabilitySet: &BrushCapabilitySet{
+			BrushSupportLevel: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("0f00080000000000")
+	require.NoError(t, err)
+
 	actual := set.Serialize()
 
 	require.Equal(t, expected, actual)
@@ -359,6 +461,24 @@ func Test_OffscreenBitmapCacheCapabilitySet_Serialize(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
+func Test_OffscreenBitmapCacheCapabilitySet_Serialize2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeOffscreenBitmapCache,
+		OffscreenBitmapCacheCapabilitySet: &OffscreenBitmapCacheCapabilitySet{
+			OffscreenSupportLevel: 0,
+			OffscreenCacheSize:    0,
+			OffscreenCacheEntries: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("11000c000000000000000000")
+	require.NoError(t, err)
+
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
 func Test_VirtualChannelCapabilitySet_Serialize(t *testing.T) {
 	set := CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeVirtualChannel,
@@ -367,7 +487,23 @@ func Test_VirtualChannelCapabilitySet_Serialize(t *testing.T) {
 		},
 	}
 
-	expected := []byte{0x14, 0x00, 0x08, 0x00, 0x01, 0x00, 0x00, 0x00}
+	expected := []byte{0x14, 0x00, 0x0c, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	actual := set.Serialize()
+
+	require.Equal(t, expected, actual)
+}
+
+func Test_VirtualChannelCapabilitySet_Serialize2(t *testing.T) {
+	set := CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeVirtualChannel,
+		VirtualChannelCapabilitySet: &VirtualChannelCapabilitySet{
+			Flags: 0,
+		},
+	}
+
+	expected, err := hex.DecodeString("14000c000000000000000000")
+	require.NoError(t, err)
+
 	actual := set.Serialize()
 
 	require.Equal(t, expected, actual)

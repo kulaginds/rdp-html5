@@ -165,6 +165,8 @@ func (set *CapabilitySet) Serialize() []byte {
 		data = set.DrawNineGridCacheCapabilitySet.Serialize()
 	case CapabilitySetTypeDrawGDIPlus:
 		data = set.DrawGDIPlusCapabilitySet.Serialize()
+	case CapabilitySetTypeMultifragmentUpdate:
+		data = set.MultifragmentUpdateCapabilitySet.Serialize()
 	}
 
 	buf := &bytes.Buffer{}
@@ -176,6 +178,30 @@ func (set *CapabilitySet) Serialize() []byte {
 	buf.Write(data)
 
 	return buf.Bytes()
+}
+
+func (set *CapabilitySet) DeserializeQuick(wire io.Reader) error {
+	var (
+		lengthCapability uint16
+		err              error
+	)
+
+	err = binary.Read(wire, binary.LittleEndian, &set.CapabilitySetType)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &lengthCapability)
+	if err != nil {
+		return err
+	}
+
+	data := make([]byte, lengthCapability-4)
+	if _, err = wire.Read(data); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (set *CapabilitySet) Deserialize(wire io.Reader) error {
@@ -220,7 +246,9 @@ func (set *CapabilitySet) Deserialize(wire io.Reader) error {
 
 		return set.ColorCacheCapabilitySet.Deserialize(wire)
 	case CapabilitySetTypePointer:
-		set.PointerCapabilitySet = &PointerCapabilitySet{}
+		set.PointerCapabilitySet = &PointerCapabilitySet{
+			lengthCapability: lengthCapability - 4,
+		}
 
 		return set.PointerCapabilitySet.Deserialize(wire)
 	case CapabilitySetTypeInput:
@@ -320,7 +348,7 @@ func (pdu *ServerDemandActivePDU) Deserialize(wire io.Reader) error {
 	for i := uint16(0); i < pdu.NumberCapabilities; i++ {
 		var capabilitySet CapabilitySet
 
-		if err = capabilitySet.Deserialize(wire); err != nil {
+		if err = capabilitySet.DeserializeQuick(wire); err != nil {
 			return err
 		}
 
@@ -385,6 +413,67 @@ func (pdu *ClientConfirmActivePDU) Serialize() []byte {
 	buf.Write(capBuf.Bytes())
 
 	return buf.Bytes()
+}
+
+func (pdu *ClientConfirmActivePDU) Deserialize(wire io.Reader) error {
+	var err error
+
+	err = pdu.ShareControlHeader.Deserialize(wire)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.ShareID)
+	if err != nil {
+		return err
+	}
+
+	var originatorID uint16
+	err = binary.Read(wire, binary.LittleEndian, &originatorID)
+	if err != nil {
+		return err
+	}
+
+	var lengthSourceDescriptor uint16
+	err = binary.Read(wire, binary.LittleEndian, &lengthSourceDescriptor)
+	if err != nil {
+		return err
+	}
+
+	var lengthCombinedCapabilities uint16
+	err = binary.Read(wire, binary.LittleEndian, &lengthCombinedCapabilities)
+	if err != nil {
+		return err
+	}
+
+	pdu.SourceDescriptor = make([]byte, lengthSourceDescriptor)
+	_, err = wire.Read(pdu.SourceDescriptor)
+	if err != nil {
+		return err
+	}
+
+	var numberCapabilities uint16
+	err = binary.Read(wire, binary.LittleEndian, &numberCapabilities)
+	if err != nil {
+		return err
+	}
+
+	var padding uint16
+	err = binary.Read(wire, binary.LittleEndian, &padding)
+	if err != nil {
+		return err
+	}
+
+	pdu.CapabilitySets = make([]CapabilitySet, numberCapabilities)
+
+	for i := range pdu.CapabilitySets {
+		err = pdu.CapabilitySets[i].Deserialize(wire)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (c *client) CapabilitiesExchange() error {

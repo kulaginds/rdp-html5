@@ -3,6 +3,7 @@ package rdp
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/mcs"
@@ -188,5 +189,55 @@ func (c *client) ConnectionFinalization() error {
 
 	fontList := NewFontListPDU(c.shareID, c.mcsLayer.UserId())
 
-	return c.mcsLayer.Send("global", fontList.Serialize())
+	err = c.mcsLayer.Send("global", fontList.Serialize())
+	if err != nil {
+		return err
+	}
+
+	var (
+		serverSynchronizeReceived bool
+		controlCooperateReceived  bool
+		grantedControlReceived    bool
+		fontMapReceived           bool
+
+		dataPDU *DataPDU
+		wire    io.Reader
+	)
+
+	for {
+		if serverSynchronizeReceived && controlCooperateReceived && grantedControlReceived && fontMapReceived {
+			return nil
+		}
+
+		_, wire, err = c.mcsLayer.Receive()
+		if err != nil {
+			return err
+		}
+
+		dataPDU = &DataPDU{}
+		if err = dataPDU.Deserialize(wire); err != nil {
+			return err
+		}
+
+		pduType2 := dataPDU.ShareDataHeader.PDUType2
+
+		switch {
+		case pduType2.IsSynchronize():
+			serverSynchronizeReceived = true
+		case pduType2.IsControl():
+			if dataPDU.ControlPDUData.Action == ControlActionCooperate {
+				controlCooperateReceived = true
+			}
+
+			if dataPDU.ControlPDUData.Action == ControlActionGrantedControl {
+				grantedControlReceived = true
+			}
+		case pduType2.IsFontmap():
+			fontMapReceived = true
+		case pduType2.IsErrorInfo():
+			return fmt.Errorf("server error info: %d", dataPDU.ErrorInfoPDUData.ErrorInfo)
+		default:
+			return fmt.Errorf("unknown server message with pduType2 = %d", pduType2)
+		}
+	}
 }

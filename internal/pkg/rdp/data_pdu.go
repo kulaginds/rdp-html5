@@ -91,6 +91,9 @@ const (
 	// PDUType2Fontlist PDUTYPE2_FONTLIST
 	PDUType2Fontlist PDUType2 = 0x27
 
+	// PDUType2Fontmap PDUTYPE2_FONTMAP
+	PDUType2Fontmap PDUType2 = 0x28
+
 	// PDUType2ErrorInfo PDUTYPE2_SET_ERROR_INFO_PDU
 	PDUType2ErrorInfo PDUType2 = 0x2f
 )
@@ -121,6 +124,10 @@ func (t PDUType2) IsFontlist() bool {
 
 func (t PDUType2) IsErrorInfo() bool {
 	return t == PDUType2ErrorInfo
+}
+
+func (t PDUType2) IsFontmap() bool {
+	return t == PDUType2Fontmap
 }
 
 type ShareDataHeader struct {
@@ -253,6 +260,10 @@ func (pdu *DataPDU) Deserialize(wire io.Reader) error {
 		pdu.ControlPDUData = &ControlPDUData{}
 
 		return pdu.ControlPDUData.Deserialize(wire)
+	case pdu.ShareDataHeader.PDUType2.IsFontmap():
+		pdu.FontMapPDUData = &FontMapPDUData{}
+
+		return pdu.FontMapPDUData.Deserialize(wire)
 	case pdu.ShareDataHeader.PDUType2.IsErrorInfo():
 		pdu.ErrorInfoPDUData = &ErrorInfoPDUData{}
 

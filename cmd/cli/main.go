@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -15,7 +14,6 @@ func main() {
 
 		return
 	}
-	defer rdpClient.Close()
 
 	err = rdpClient.Connect()
 	if err != nil {
@@ -30,17 +28,8 @@ func main() {
 		return
 	}
 
-	//if err = rdpClient.ConnectionFinalization(); err != nil {
-	//	log.Println(fmt.Errorf("rdp finalization: %w", err))
-	//
-	//	return
-	//}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	if err = rdpClient.ReaderLoop(ctx); err != nil {
-		log.Println(fmt.Errorf("reader loop: %w", err))
+	if err = rdpClient.ConnectionFinalization(); err != nil {
+		log.Println(fmt.Errorf("rdp finalization: %w", err))
 
 		return
 	}

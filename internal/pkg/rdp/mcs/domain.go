@@ -117,6 +117,10 @@ func (pdu *DomainPDU) Deserialize(wire io.Reader) error {
 		pdu.ServerSendDataIndication = &ServerSendDataIndication{}
 
 		return pdu.ServerSendDataIndication.Deserialize(wire)
+	case SendDataRequest:
+		pdu.ClientSendDataRequest = &ClientSendDataRequest{}
+
+		return pdu.ClientSendDataRequest.Deserialize(wire)
 	}
 
 	return fmt.Errorf("%w: application=%v", ErrUnknownDomainApplication, pdu.Application)

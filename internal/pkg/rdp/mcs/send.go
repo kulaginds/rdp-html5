@@ -2,7 +2,9 @@ package mcs
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
+	"io"
 
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/per"
 )
@@ -24,6 +26,33 @@ func (d *ClientSendDataRequest) Serialize() []byte {
 	buf.Write(d.Data)
 
 	return buf.Bytes()
+}
+
+func (d *ClientSendDataRequest) Deserialize(wire io.Reader) error {
+	var err error
+
+	d.Initiator, err = per.ReadInteger16(1001, wire)
+	if err != nil {
+		return err
+	}
+
+	d.ChannelId, err = per.ReadInteger16(0, wire)
+	if err != nil {
+		return err
+	}
+
+	var magic uint8
+	err = binary.Read(wire, binary.LittleEndian, &magic)
+	if err != nil {
+		return err
+	}
+
+	_, err = per.ReadLength(wire)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *protocol) Send(channelName string, pduData []byte) error {
