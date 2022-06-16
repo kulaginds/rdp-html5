@@ -21,16 +21,4 @@ func main() {
 
 		return
 	}
-
-	if err = rdpClient.CapabilitiesExchange(); err != nil {
-		log.Println(fmt.Errorf("rdp caps: %w", err))
-
-		return
-	}
-
-	if err = rdpClient.ConnectionFinalization(); err != nil {
-		log.Println(fmt.Errorf("rdp finalization: %w", err))
-
-		return
-	}
 }

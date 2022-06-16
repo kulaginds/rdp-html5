@@ -3,9 +3,7 @@ package tpkt
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/hex"
 	"io"
-	"log"
 )
 
 func (p *protocol) Receive() (io.Reader, error) {
@@ -23,8 +21,6 @@ func (p *protocol) Receive() (io.Reader, error) {
 	if _, err := p.conn.Read(data); err != nil {
 		return nil, err
 	}
-
-	log.Printf("TPKT: Receive: %s\n", hex.EncodeToString(data))
 
 	return bytes.NewBuffer(data), nil
 }

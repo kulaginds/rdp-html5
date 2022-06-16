@@ -476,7 +476,7 @@ func (pdu *ClientConfirmActivePDU) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (c *client) CapabilitiesExchange() error {
+func (c *client) capabilitiesExchange() error {
 	_, wire, err := c.mcsLayer.Receive()
 	if err != nil {
 		return err

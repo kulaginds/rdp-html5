@@ -3,8 +3,6 @@ package tpkt
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/hex"
-	"log"
 )
 
 func (p *protocol) Send(pduData []byte) error {
@@ -20,8 +18,6 @@ func (p *protocol) Send(pduData []byte) error {
 	_ = binary.Write(buf, binary.BigEndian, dataLen)
 
 	buf.Write(pduData)
-
-	log.Printf("TPKT: Send: %s\n", hex.EncodeToString(buf.Bytes()))
 
 	if _, err := p.conn.Write(buf.Bytes()); err != nil {
 		return err

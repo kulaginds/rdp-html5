@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/fastpath"
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/mcs"
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/tpkt"
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/x224"
@@ -14,6 +15,7 @@ type client struct {
 	conn      net.Conn
 	x224Layer x224Layer
 	mcsLayer  mcsLayer
+	fastPath  fastPath
 
 	domain   string
 	username string
@@ -55,6 +57,7 @@ func NewClient(
 
 	c.x224Layer = x224.New(tpkt.New(&c), c.selectedProtocol)
 	c.mcsLayer = mcs.New(c.x224Layer)
+	c.fastPath = fastpath.New(&c)
 
 	return &c, nil
 }

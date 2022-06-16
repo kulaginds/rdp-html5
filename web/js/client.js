@@ -1,162 +1,91 @@
 function Client(canvasID) {
     this.canvas = document.getElementById(canvasID);
-
-    this.serverCapabilities = [];
-    this.clientCapabilities = [
-        new GeneralCapability(),
-        new OrderCapability(),
-        new BitmapCapability(
-            0,
-            0x0001, 0x0001, 0x0001,
-            this.canvas.width, this.canvas.height, 0x0000,
-            0x00,
-        ),
-        new InputCapability(
-            INPUT_FLAG_MOUSEX | INPUT_FLAG_UNICODE,
-            0x00000409, 0x00000004, 0x00000000, 12,
-        ),
-    ];
+    this.ctx = this.canvas.getContext("2d");
 }
 
 Client.prototype.connect = function (url) {
-    const self = this;
+    this.socket = new WebSocket(url);
 
-    self.socket = new WebSocket(url);
+    this.socket.onopen = this.initialize.bind(this);
 
-    self.socket.onopen = self.initialize.bind(self);
-
-    self.handleMessage = self.handleMessage.bind(self);
-    self.socket.onmessage = (e) => {
-        e.data.arrayBuffer().then((arrayBuffer) => self.handleMessage(arrayBuffer))
+    this.handleMessage = this.handleMessage.bind(this);
+    this.socket.onmessage = (e) => {
+        e.data.arrayBuffer().then((arrayBuffer) => this.handleMessage(arrayBuffer))
     };
 
-    self.socket.onerror = function (e) {
+    this.socket.onerror = function (e) {
         console.log("error:", e);
     };
 
-    self.socket.onclose = function (e) {
+    this.socket.onclose = function (e) {
         console.log("connection closed")
     };
 };
 
 Client.prototype.initialize = function () {
-    const self = this;
+    const data = new ArrayBuffer(4);
+    const w = new BinaryWriter(data);
 
-    const data = new Uint16Array(2);
-    const dv = new DataView(data.buffer)
+    w.uint16(this.canvas.width, true);
+    w.uint16(this.canvas.height, true);
 
-    dv.setUint16(0, self.canvas.width, true)
-    dv.setUint16(2, self.canvas.height, true)
-
-    self.socket.send(data);
+    this.socket.send(data);
 };
 
 Client.prototype.handleMessage = function (arrayBuffer) {
-    const self = this;
-
     const r = new BinaryReader(arrayBuffer);
+    const header = parseUpdateHeader(r);
+    const data = r.blob(header.size);
 
-    if (!isTPKTValid(r)) {
-        console.warn("unknown TPKT packet:", arrayBuffer);
+    if (header.isCompressed()) {
+        console.warn("compressing is not supported");
+
         return;
     }
 
-    skipX224Header(r);
-    mcsHeader = parseMCSHeader(r);
+    if (header.isBitmap()) {
+        this.handleBitmap(data);
 
-    if (!mcsHeader.isValid()) {
-        console.warn("unknown MCS packet:", arrayBuffer);
         return;
     }
 
-    const pduHeader = parsePDUHeader(r);
+    console.warn("unknown update:", header.updateCode);
+};
 
-    if (pduHeader.isDemandActive()) {
-        self.handleDemandActive(r);
-        return;
+Client.prototype.handleBitmap = function (data) {
+    const r = new BinaryReader(data);
+    const bitmap = parseBitmapUpdate(r);
+
+    this.drawBitmap(bitmap);
+};
+
+Client.prototype.drawBitmap = function (bitmap) {
+    for (let i = 0; i < bitmap.rectangles.length; i++) {
+        this.drawBitmapData(bitmap.rectangles[i]);
+    }
+};
+
+Client.prototype.drawBitmapData = function(bitmapData) {
+    let data = bitmapData.bitmapDataStream;
+    let width = bitmapData.width;
+    let height = bitmapData.height;
+
+    if (bitmapData.isCompressed()) {
+        const output = decompress(bitmapData);
+        data = output.data;
+        width = output.width;
+        height = output.height;
     }
 
-    if (pduHeader.isDeactivateAll()) {
-        self.handleDeactivateAll();
-        return;
-    }
-
-    if (pduHeader.isData()) {
-        self.handleData(arrayBuffer);
-        return;
-    }
-
-    console.warn("unknown pdu:", pduHeader, arrayBuffer);
-};
-
-Client.prototype.handleDemandActive = function (r) {
-    const pdu = parseDemandActive(r);
-
-    this.serverCapabilities = pdu.capabilitySets;
-
-    this.sendConfirmActive(pdu.shareID);
-
-    // start connection finalization
-    this.sendSynchronize(pdu.shareID);
-    this.sendControlCooperate(pdu.shareID);
-    this.sendControlRequestControl(pdu.shareID);
-    this.sendFontList(pdu.shareID);
-};
-
-Client.prototype.sendConfirmActive = function (shareID) {
-    const pdu = new ConfirmActive(shareID, "web-rdp-solution", []);
-    const dataRequest = new DataRequest(USER_ID, GLOBAL_CHANNEL, pdu.serialize())
-    const data = dataRequest.serialize();
-
-    this.socket.send(data);
-};
-
-Client.prototype.handleDeactivateAll = function () {
-    console.log("handleDeactivateAll");
-};
-
-Client.prototype.sendSynchronize = function (shareID) {
-    const pdu = new ClientSynchronize(shareID, USER_ID, SERVER_ID);
-    const dataRequest = new DataRequest(USER_ID, GLOBAL_CHANNEL, pdu.serialize())
-    const data = dataRequest.serialize();
-
-    this.socket.send(data);
-};
-
-Client.prototype.sendControlCooperate = function (shareID) {
-    const pdu = new ClientControl(shareID, USER_ID, 0x0004);
-    const dataRequest = new DataRequest(USER_ID, GLOBAL_CHANNEL, pdu.serialize())
-    const data = dataRequest.serialize();
-
-    this.socket.send(data);
-};
-
-Client.prototype.sendControlRequestControl = function (shareID) {
-    const pdu = new ClientControl(shareID, USER_ID, 0x0001);
-    const dataRequest = new DataRequest(USER_ID, GLOBAL_CHANNEL, pdu.serialize())
-    const data = dataRequest.serialize();
-
-    this.socket.send(data);
-};
-
-Client.prototype.sendFontList = function (shareID) {
-    const pdu = new ClientFontlist(shareID, USER_ID);
-    const dataRequest = new DataRequest(USER_ID, GLOBAL_CHANNEL, pdu.serialize())
-    const data = dataRequest.serialize();
-
-    this.socket.send(data);
-};
-
-Client.prototype.handleData = function (arrayBuffer) {
-    console.log("data:", new Uint8Array(arrayBuffer));
+    const imageData = this.ctx.createImageData(width, height);
+    imageData.data.set(data);
+    this.ctx.putImageData(imageData, bitmapData.destLeft, bitmapData.destTop);
 };
 
 Client.prototype.disconnect = function () {
-    const self = this;
-
-    if (!self.socket) {
+    if (!this.socket) {
         return;
     }
 
-    self.socket.close(1000); // ok
+    this.socket.close(1000); // ok
 };

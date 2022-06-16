@@ -3,16 +3,15 @@ package handler
 import (
 	"context"
 	"encoding/binary"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
 
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp"
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/fastpath"
 )
 
 const (
@@ -27,6 +26,11 @@ const (
 	user     = "Doc"
 	password = "1qazXSW@"
 )
+
+type rdpConn interface {
+	GetUpdate() (*fastpath.UpdatePDU, error)
+	SendInputEvent(data []byte) error
+}
 
 func Connect(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{
@@ -103,7 +107,7 @@ func wsReadCanvasDimensions(wsConn *websocket.Conn) (uint16, uint16, error) {
 	return width, height, nil
 }
 
-func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn io.Writer, cancel context.CancelFunc) {
+func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn rdpConn, cancel context.CancelFunc) {
 	defer func() {
 		log.Println("wsToRdp done")
 		cancel()
@@ -123,9 +127,7 @@ func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn io.Writer, can
 			return
 		}
 
-		log.Printf("JS: Send: %s\n", hex.EncodeToString(data))
-
-		if _, err = rdpConn.Write(data); err != nil {
+		if err = rdpConn.SendInputEvent(data); err != nil {
 			log.Println(fmt.Errorf("failed writing to rdp: %w", err))
 
 			return
@@ -133,17 +135,14 @@ func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn io.Writer, can
 	}
 }
 
-func rdpToWs(ctx context.Context, rdpConn io.Reader, wsConn *websocket.Conn) {
+func rdpToWs(ctx context.Context, rdpConn rdpConn, wsConn *websocket.Conn) {
 	defer func() {
 		log.Println("rdpToWs done")
 	}()
 
 	var (
-		err         error
-		tpktHeader  []byte
-		tpktDataLen uint16
-		tpktData    []byte
-		data        []byte
+		update *fastpath.UpdatePDU
+		err    error
 	)
 
 	for {
@@ -153,34 +152,14 @@ func rdpToWs(ctx context.Context, rdpConn io.Reader, wsConn *websocket.Conn) {
 		default: // pass
 		}
 
-		tpktHeader = make([]byte, 4)
-
-		_, err = io.ReadFull(rdpConn, tpktHeader)
+		update, err = rdpConn.GetUpdate()
 		if err != nil {
-			log.Println(fmt.Errorf("readall err: %w", err))
+			log.Println(fmt.Errorf("get update: %w", err))
+
 			return
 		}
 
-		if tpktHeader[0] != 0x03 {
-			log.Println("unknown tpkt version")
-			return
-		}
-
-		tpktDataLen = binary.BigEndian.Uint16(tpktHeader[2:4])
-
-		tpktData = make([]byte, tpktDataLen-4)
-
-		_, err = io.ReadFull(rdpConn, tpktData)
-		if err != nil {
-			log.Println(fmt.Errorf("read len err: %w", err))
-			return
-		}
-
-		data = append(tpktHeader, tpktData...)
-
-		log.Printf("JS: Receive: %s\n", hex.EncodeToString(data))
-
-		if err = wsConn.WriteMessage(2, data); err != nil {
+		if err = wsConn.WriteMessage(2, update.Data); err != nil {
 			if err == websocket.ErrCloseSent {
 				log.Println("sent to closed websocket")
 

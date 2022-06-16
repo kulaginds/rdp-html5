@@ -169,7 +169,7 @@ func (pdu *FontMapPDUData) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (c *client) ConnectionFinalization() error {
+func (c *client) connectionFinalization() error {
 	var err error
 
 	synchronize := NewSynchronizePDU(c.shareID, c.mcsLayer.UserId())

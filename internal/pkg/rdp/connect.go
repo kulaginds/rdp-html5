@@ -28,6 +28,14 @@ func (c *client) Connect() error {
 		return fmt.Errorf("licensing: %w", err)
 	}
 
+	if err = c.capabilitiesExchange(); err != nil {
+		return fmt.Errorf("capabilities exchange: %w", err)
+	}
+
+	if err = c.connectionFinalization(); err != nil {
+		return fmt.Errorf("connection finalizatioin: %w", err)
+	}
+
 	return nil
 }
 

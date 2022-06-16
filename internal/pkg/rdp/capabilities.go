@@ -18,8 +18,8 @@ func NewGeneralCapabilitySet() *CapabilitySet {
 	return &CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeGeneral,
 		GeneralCapabilitySet: &GeneralCapabilitySet{
-			OSMajorType: 0x0008,          // Chrome OS platform
-			ExtraFlags:  0x0001 | 0x0004, // required: FASTPATH_OUTPUT_SUPPORTED, LONG_CREDENTIALS_SUPPORTED
+			OSMajorType: 0x0008,                   // Chrome OS platform
+			ExtraFlags:  0x0001 | 0x0004 | 0x0400, // required: FASTPATH_OUTPUT_SUPPORTED, LONG_CREDENTIALS_SUPPORTED, NO_BITMAP_COMPRESSION_HDR
 		},
 	}
 }
