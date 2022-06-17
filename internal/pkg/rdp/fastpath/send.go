@@ -68,23 +68,26 @@ func (e *InputEvent) Serialize() []byte {
 }
 
 type InputEventPDU struct {
-	FPInputHeader uint8
-	eventData     []byte
+	action    uint8
+	numEvents uint8
+	flags     uint8
+	eventData []byte
 }
 
 func NewInputEventPDU(eventData []byte) *InputEventPDU {
 	return &InputEventPDU{
-		FPInputHeader: 1 << 2, // action=FASTPATH, numEvents=1, no flags
-		eventData:     eventData,
+		numEvents: 1,
+		eventData: eventData,
 	}
 }
 
 func (pdu *InputEventPDU) Serialize() []byte {
 	buf := &bytes.Buffer{}
 
+	fpInputHeader := pdu.action&0x3 | ((pdu.numEvents & 0xf) << 2) | ((pdu.flags & 0x3) << 6)
 	length := 1 + len(pdu.eventData) // without length bytes
 
-	binary.Write(buf, binary.LittleEndian, pdu.FPInputHeader)
+	binary.Write(buf, binary.LittleEndian, fpInputHeader)
 	pdu.SerializeLength(length, buf)
 	buf.Write(pdu.eventData)
 

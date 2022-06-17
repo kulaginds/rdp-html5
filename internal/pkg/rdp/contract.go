@@ -4,7 +4,16 @@ import (
 	"io"
 
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/fastpath"
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/tpkt"
 )
+
+type tpktLayer interface {
+	Receive() (io.Reader, error)
+	Send(pduData []byte) error
+	Close() error
+	StartHandleFastpath()
+	ReceiveProtocol() (tpkt.Protocol, error)
+}
 
 type x224Layer interface {
 	Connect() error
@@ -26,5 +35,5 @@ type mcsLayer interface {
 
 type fastPath interface {
 	Send(pdu *fastpath.InputEventPDU) error
-	Receive() (*fastpath.UpdatePDU, error)
+	Receive(fpOutputHeader uint8) (*fastpath.UpdatePDU, error)
 }

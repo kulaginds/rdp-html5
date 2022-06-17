@@ -28,71 +28,71 @@ function UpdateHeader() {
 }
 
 UpdateHeader.prototype.isOrders = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_ORDERS === FASTPATH_UPDATETYPE_ORDERS;
+    return this.updateCode === FASTPATH_UPDATETYPE_ORDERS;
 };
 
 UpdateHeader.prototype.isBitmap = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_BITMAP === FASTPATH_UPDATETYPE_BITMAP;
+    return this.updateCode === FASTPATH_UPDATETYPE_BITMAP;
 };
 
 UpdateHeader.prototype.isPalette = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_PALETTE === FASTPATH_UPDATETYPE_PALETTE;
+    return this.updateCode === FASTPATH_UPDATETYPE_PALETTE;
 };
 
 UpdateHeader.prototype.isSynchronize = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_SYNCHRONIZE === FASTPATH_UPDATETYPE_SYNCHRONIZE;
+    return this.updateCode === FASTPATH_UPDATETYPE_SYNCHRONIZE;
 };
 
 UpdateHeader.prototype.isSurfCMDs = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_SURFCMDS === FASTPATH_UPDATETYPE_SURFCMDS;
+    return this.updateCode === FASTPATH_UPDATETYPE_SURFCMDS;
 };
 
 UpdateHeader.prototype.isPTRNull = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_PTR_NULL === FASTPATH_UPDATETYPE_PTR_NULL;
+    return this.updateCode === FASTPATH_UPDATETYPE_PTR_NULL;
 };
 
 UpdateHeader.prototype.isPTRDefault = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_PTR_DEFAULT === FASTPATH_UPDATETYPE_PTR_DEFAULT;
+    return this.updateCode === FASTPATH_UPDATETYPE_PTR_DEFAULT;
 };
 
 UpdateHeader.prototype.isPTRPosition = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_PTR_POSITION === FASTPATH_UPDATETYPE_PTR_POSITION;
+    return this.updateCode === FASTPATH_UPDATETYPE_PTR_POSITION;
 };
 
 UpdateHeader.prototype.isColor = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_COLOR === FASTPATH_UPDATETYPE_COLOR;
+    return this.updateCode === FASTPATH_UPDATETYPE_COLOR;
 };
 
 UpdateHeader.prototype.isCached = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_CACHED === FASTPATH_UPDATETYPE_CACHED;
+    return this.updateCode === FASTPATH_UPDATETYPE_CACHED;
 };
 
 UpdateHeader.prototype.isPointer = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_POINTER === FASTPATH_UPDATETYPE_POINTER;
+    return this.updateCode === FASTPATH_UPDATETYPE_POINTER;
 };
 
 UpdateHeader.prototype.isLargePointer = function () {
-    return this.updateCode & FASTPATH_UPDATETYPE_LARGE_POINTER === FASTPATH_UPDATETYPE_LARGE_POINTER;
+    return this.updateCode === FASTPATH_UPDATETYPE_LARGE_POINTER;
 };
 
 UpdateHeader.prototype.isSingleFragment = function () {
-    return this.fragmentation & FASTPATH_FRAGMENT_SINGLE === FASTPATH_FRAGMENT_SINGLE;
+    return this.fragmentation === FASTPATH_FRAGMENT_SINGLE;
 };
 
 UpdateHeader.prototype.isLastFragment = function () {
-    return this.fragmentation & FASTPATH_FRAGMENT_LAST === FASTPATH_FRAGMENT_LAST;
+    return this.fragmentation === FASTPATH_FRAGMENT_LAST;
 };
 
 UpdateHeader.prototype.isFirstFragment = function () {
-    return this.fragmentation & FASTPATH_FRAGMENT_FIRST === FASTPATH_FRAGMENT_FIRST;
+    return this.fragmentation === FASTPATH_FRAGMENT_FIRST;
 };
 
 UpdateHeader.prototype.isNextFragment = function () {
-    return this.fragmentation & FASTPATH_FRAGMENT_NEXT === FASTPATH_FRAGMENT_NEXT;
+    return this.fragmentation === FASTPATH_FRAGMENT_NEXT;
 };
 
 UpdateHeader.prototype.isCompressed = function () {
-    return this.compression & FASTPATH_OUTPUT_COMPRESSION_USED === FASTPATH_OUTPUT_COMPRESSION_USED;
+    return this.compression === FASTPATH_OUTPUT_COMPRESSION_USED;
 };
 
 function parseUpdateHeader(r) {

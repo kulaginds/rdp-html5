@@ -96,6 +96,9 @@ const (
 
 	// PDUType2ErrorInfo PDUTYPE2_SET_ERROR_INFO_PDU
 	PDUType2ErrorInfo PDUType2 = 0x2f
+
+	// PDUType2SaveSessionInfo PDUTYPE2_SAVE_SESSION_INFO
+	PDUType2SaveSessionInfo PDUType2 = 0x26
 )
 
 func (t PDUType2) IsUpdate() bool {
@@ -128,6 +131,10 @@ func (t PDUType2) IsErrorInfo() bool {
 
 func (t PDUType2) IsFontmap() bool {
 	return t == PDUType2Fontmap
+}
+
+func (t PDUType2) IsSaveSessionInfo() bool {
+	return t == PDUType2SaveSessionInfo
 }
 
 type ShareDataHeader struct {
@@ -268,6 +275,8 @@ func (pdu *DataPDU) Deserialize(wire io.Reader) error {
 		pdu.ErrorInfoPDUData = &ErrorInfoPDUData{}
 
 		return pdu.ErrorInfoPDUData.Deserialize(wire)
+	case pdu.ShareDataHeader.PDUType2.IsSaveSessionInfo(): // ignore
+		return nil
 	}
 
 	return fmt.Errorf("unknown data pdu: %d", pdu.ShareDataHeader.PDUType2)

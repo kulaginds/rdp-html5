@@ -13,6 +13,7 @@ import (
 
 type client struct {
 	conn      net.Conn
+	tpktLayer tpktLayer
 	x224Layer x224Layer
 	mcsLayer  mcsLayer
 	fastPath  fastPath
@@ -55,7 +56,8 @@ func NewClient(
 		return nil, fmt.Errorf("tcp connect: %w", err)
 	}
 
-	c.x224Layer = x224.New(tpkt.New(&c), c.selectedProtocol)
+	c.tpktLayer = tpkt.New(&c)
+	c.x224Layer = x224.New(c.tpktLayer, c.selectedProtocol)
 	c.mcsLayer = mcs.New(c.x224Layer)
 	c.fastPath = fastpath.New(&c)
 

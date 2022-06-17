@@ -624,9 +624,9 @@ func NewInputCapabilitySet() *CapabilitySet {
 	return &CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeInput,
 		InputCapabilitySet: &InputCapabilitySet{
-			InputFlags:          0x0001 | 0x0004 | 0x0010, // INPUT_FLAG_SCANCODES, INPUT_FLAG_MOUSEX, INPUT_FLAG_UNICODE
-			KeyboardLayout:      0x00000409,               // US
-			KeyboardType:        0x00000004,               // IBM enhanced (101- or 102-key) keyboard
+			InputFlags:          0x0001 | 0x0004 | 0x0010 | 0x0020, // INPUT_FLAG_SCANCODES, INPUT_FLAG_MOUSEX, INPUT_FLAG_UNICODE, INPUT_FLAG_FASTPATH_INPUT2
+			KeyboardLayout:      0x00000409,                        // US
+			KeyboardType:        0x00000004,                        // IBM enhanced (101- or 102-key) keyboard
 			KeyboardFunctionKey: 12,
 		},
 	}

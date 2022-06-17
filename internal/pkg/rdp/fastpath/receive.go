@@ -122,25 +122,29 @@ const (
 )
 
 type UpdatePDU struct {
+	fpOutputHeader uint8
+
 	Action UpdatePDUAction
 	Flags  UpdatePDUFlag
 	Data   []byte
 }
 
+func NewUpdatePDU(fpOutputHeader uint8) *UpdatePDU {
+	return &UpdatePDU{
+		fpOutputHeader: fpOutputHeader,
+	}
+}
+
+var ErrUnexpectedX224 = errors.New("unexpected x224")
+
 func (pdu *UpdatePDU) Deserialize(wire io.Reader) error {
 	var err error
 
-	var fpOutputHeader uint8
-	err = binary.Read(wire, binary.LittleEndian, &fpOutputHeader)
-	if err != nil {
-		return err
-	}
-
-	pdu.Action = UpdatePDUAction(fpOutputHeader & 0x3)
-	pdu.Flags = UpdatePDUFlag((fpOutputHeader >> 6) & 0x3)
+	pdu.Action = UpdatePDUAction(pdu.fpOutputHeader & 0x3)
+	pdu.Flags = UpdatePDUFlag((pdu.fpOutputHeader >> 6) & 0x3)
 
 	if pdu.Action == UpdatePDUActionX224 {
-		return errors.New("unexpected x224")
+		return ErrUnexpectedX224
 	}
 
 	if pdu.Flags&UpdatePDUFlagSecureChecksum == UpdatePDUFlagSecureChecksum {
@@ -187,12 +191,11 @@ func (pdu *UpdatePDU) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (i *impl) Receive() (*UpdatePDU, error) {
-	var pdu UpdatePDU
-
+func (i *impl) Receive(fpOutputHeader uint8) (*UpdatePDU, error) {
+	pdu := NewUpdatePDU(fpOutputHeader)
 	if err := pdu.Deserialize(i.conn); err != nil {
 		return nil, err
 	}
 
-	return &pdu, nil
+	return pdu, nil
 }

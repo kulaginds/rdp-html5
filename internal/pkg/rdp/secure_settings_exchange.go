@@ -238,11 +238,15 @@ const (
 func NewClientInfoPDU(domain, username, password string) *ClientInfoPDU {
 	return &ClientInfoPDU{
 		InfoPacket: ClientInfoPacket{
-			Flags:     InfoFlagMouse | InfoFlagUnicode | InfoFlagLogonNotify | InfoFlagLogonErrors | InfoFlagDisableCtrlAltDel | InfoFlagEnableWindowsKey,
-			Domain:    domain,
-			Username:  username,
-			Password:  password,
-			ExtraInfo: ExtendedInfoPacket{},
+			Flags:    InfoFlagMouse | InfoFlagUnicode | InfoFlagAutoLogon | InfoFlagDisableCtrlAltDel | InfoFlagEnableWindowsKey,
+			Domain:   domain,
+			Username: username,
+			Password: password,
+			ExtraInfo: ExtendedInfoPacket{
+				// PERF_DISABLE_WALLPAPER, PERF_DISABLE_FULLWINDOWDRAG, PERF_DISABLE_MENUANIMATIONS,
+				// PERF_DISABLE_THEMING, PERF_DISABLE_CURSOR_SHADOW, PERF_DISABLE_CURSORSETTINGS
+				PerformanceFlags: 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000020 | 0x00000040,
+			},
 		},
 	}
 }

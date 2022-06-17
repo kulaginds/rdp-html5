@@ -7,14 +7,28 @@ import (
 )
 
 func (p *protocol) Receive() (io.Reader, error) {
-	tpktPacket := make([]byte, headerLen)
+	if p.fastpathEnabled {
+		return p.receive(headerLen - 1)
+	}
+
+	return p.receive(headerLen)
+}
+
+func (p *protocol) receive(len int) (io.Reader, error) {
+	tpktPacket := make([]byte, len)
 
 	if _, err := p.conn.Read(tpktPacket); err != nil {
 		return nil, err
 	}
 
-	dataLen := binary.BigEndian.Uint16(tpktPacket[2:4])
-	dataLen -= headerLen
+	if len == 4 {
+		tpktPacket = tpktPacket[2:4]
+	} else {
+		tpktPacket = tpktPacket[1:3]
+	}
+
+	dataLen := binary.BigEndian.Uint16(tpktPacket)
+	dataLen -= uint16(len)
 
 	data := make([]byte, dataLen)
 
