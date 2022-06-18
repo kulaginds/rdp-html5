@@ -10,7 +10,7 @@ package rle
 //
 //}
 
-func BitmapDecompress24(output []uint8, outputWidth int, outputHeight int, inputWidth int, inputHeight int, input []uint8, size int) int {
+func BitmapDecompress24(output []byte, outputWidth uint16, outputHeight uint16, inputWidth uint16, inputHeight uint16, input []byte, size uint16) bool {
 
-	return 0
+	return false
 }
