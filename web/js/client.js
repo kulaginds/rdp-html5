@@ -75,7 +75,6 @@ Client.prototype.handleMessage = function (arrayBuffer) {
 
     const r = new BinaryReader(arrayBuffer);
     const header = parseUpdateHeader(r);
-    const data = r.blob(header.size);
 
     if (header.isCompressed()) {
         console.warn("compressing is not supported");
@@ -84,7 +83,7 @@ Client.prototype.handleMessage = function (arrayBuffer) {
     }
 
     if (header.isBitmap()) {
-        this.handleBitmap(data);
+        this.handleBitmap(r);
 
         return;
     }
@@ -98,28 +97,61 @@ Client.prototype.handleMessage = function (arrayBuffer) {
     console.warn("unknown update:", header.updateCode);
 };
 
-Client.prototype.handleBitmap = function (data) {
-    const r = new BinaryReader(data);
+Client.prototype.handleBitmap = function (r) {
     const bitmap = parseBitmapUpdate(r);
 
     bitmap.rectangles.forEach(Client.prototype.drawBitmapData.bind(this));
 };
+
+function buf2hex(buffer) { // buffer is an ArrayBuffer
+    return [...new Uint8Array(buffer)]
+        .map(x => x.toString(16).padStart(2, '0'))
+        .join('');
+}
 
 Client.prototype.drawBitmapData = function(bitmapData) {
     let data = bitmapData.bitmapDataStream;
     let width = bitmapData.width;
     let height = bitmapData.height;
 
-    if (bitmapData.isCompressed()) {
-        const result = decompress(bitmapData);
+    const imageData = this.ctx.createImageData(width, height);
 
-        data = result.data;
-        width = result.width;
-        height = result.height;
+    if (bitmapData.isCompressed()) {
+        // rle.c
+        // const result = decompress(bitmapData);
+        // data = result.data;
+        // width = result.width;
+        // height = result.height;
+
+        // wsgate
+        // var outB = this.ctx.createImageData(width, height);
+        // wsgate.dRLE16_RGBA(new Uint8Array(bitmapData.bitmapDataStream), bitmapData.bitmapLength, width, outB.data);
+        // this.ctx.putImageData(outB, bitmapData.destLeft, bitmapData.destTop, 0, 0, bitmapData.destRight - bitmapData.destLeft + 1, bitmapData.destBottom - bitmapData.destTop + 1);
+        // return;
+
+        // freerdp
+        // data = decompress_freerdp(bitmapData);
+        // flipV(data, width, height);
+        // const rgbaData = new Uint8Array(width * height * 4);
+        // rgb2rgba(data, width * height * 2, rgbaData);
+        // data = rgbaData;
+
+        // console.log(buf2hex(bitmapData.bitmapDataStream));
+        // if (bitmapData.bitmapDataStream.byteLength > 25) {
+        //     debugger;
+        // }
+
+        // ms
+        decompress_ms(bitmapData, imageData);
+
+        // flipV(data, width, height);
+        // const rgbaData = new Uint8Array(width * height * 4);
+        // rgb2rgba(data, width * height * 2, rgbaData);
+        // data = rgbaData;
+    } else {
+        imageData.data.set(data);
     }
 
-    const imageData = this.ctx.createImageData(width, height);
-    imageData.data.set(data);
     this.ctx.putImageData(imageData, bitmapData.destLeft, bitmapData.destTop);
 };
 

@@ -26,11 +26,11 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 /* Specific rename for RDPY integration */
 #define uint8	unsigned char
 #define uint16	unsigned short
 #define uint32	unsigned int
-#define unimpl(str, code)
 
 #define	 RD_BOOL	int
 #define False	0
@@ -263,7 +263,7 @@ bitmap_decompress1(uint8 * output, int width, int height, uint8 * input, int siz
 					REPEAT(line[x] = 0)
 					break;
 				default:
-					unimpl("bitmap opcode 0x%x\n", opcode);
+					printf("bitmap opcode 0x%x\n", opcode);
 					return False;
 			}
 		}
@@ -344,6 +344,8 @@ bitmap_decompress2(uint8 * output, int width, int height, uint8 * input, int siz
 				break;
 			case 8:	/* Bicolour */
 				CVAL2(input, colour1);
+				CVAL2(input, colour2);
+                break;
 			case 3:	/* Colour */
 				CVAL2(input, colour2);
 				break;
@@ -462,7 +464,7 @@ bitmap_decompress2(uint8 * output, int width, int height, uint8 * input, int siz
 					REPEAT(line[x] = 0)
 					break;
 				default:
-					unimpl("bitmap opcode 0x%x\n", opcode);
+					printf("bitmap opcode 0x%x\n", opcode);
 					return False;
 			}
 		}
@@ -748,7 +750,7 @@ bitmap_decompress3(uint8 * output, int width, int height, uint8 * input, int siz
 					)
 					break;
 				default:
-					unimpl("bitmap opcode 0x%x\n", opcode);
+					printf("bitmap opcode 0x%x\n", opcode);
 					return False;
 			}
 		}
@@ -915,8 +917,12 @@ bitmap_decompress_15(uint8 * output, int output_width, int output_height, int in
 
 int
 bitmap_decompress_16(uint8 * output, int output_width, int output_height, int input_width, int input_height, uint8* input, int size) {
+//	printf("bitmap_decompress_16\n");
+
 	uint8 * temp = (uint8*)malloc(input_width * input_height * 2);
 	RD_BOOL rv = bitmap_decompress2(temp, input_width, input_height, input, size);
+
+	//printf(" bitmap_decompress_16:  %d\n", rv);
 
 	// convert to rgba
 	for (int y = 0; y < output_height; y++) {

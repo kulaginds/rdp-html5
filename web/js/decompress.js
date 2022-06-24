@@ -35,6 +35,10 @@ function decompress (bitmapData) {
         [outputHeap.byteOffset, output_width, output_height, bitmapData.width, bitmapData.height, inputHeap.byteOffset, input.length]
     );
 
+    if (!res) {
+        console.warn("bad bitmap", bitmapData)
+    }
+
     var output = new Uint8ClampedArray(outputHeap.buffer, outputHeap.byteOffset, ouputSize);
 
     Module._free(inputPtr);

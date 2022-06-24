@@ -2,14 +2,18 @@
 <head>
     <title>Web RDP Solution</title>
     <script src="js/binary.js"></script>
-    <script src="js/rle/rle-wasm.js"></script>
-    <script src="js/decompress.js"></script>
+    <script src="js/color.js"></script>
+<!--    <script src="js/rle/rle-wasm.js"></script>-->
+<!--    <script src="js/rle/wsgate.js"></script>-->
+    <script src="js/rle/ms-rle-wasm.js"></script>
+<!--    <script src="js/rle/freerdp-rle-wasm.js"></script>-->
     <script src="js/update/header.js"></script>
     <script src="js/update/bitmap.js"></script>
     <script src="js/input/header.js"></script>
     <script src="js/input/keymap.js"></script>
     <script src="js/input/keyboard.js"></script>
     <script src="js/input/mouse.js"></script>
+    <script src="js/decompress2.js"></script>
     <script src="js/client.js"></script>
 </head>
 <body>
@@ -26,7 +30,7 @@
     const client = new Client("canvas");
 
     function connect() {
-        client.connect("ws://localhost:8080/connect");
+        client.connect("ws://" + window.location.host + "/connect");
     }
 
     function disconnect() {

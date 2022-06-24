@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBitmapDecompress24(t *testing.T) {
+func TestBitmapDecompress16(t *testing.T) {
 	testCases := []struct {
 		name     string
 		input    string
@@ -42,7 +42,7 @@ func TestBitmapDecompress24(t *testing.T) {
 			input, err := hex.DecodeString(tc.input)
 			require.NoError(t, err)
 
-			success := BitmapDecompress24(output, 64, 64, 64, 64, input, uint16(len(input)))
+			success := BitmapDecompress16(output, 64, 64, 64, 64, input, uint16(len(input)))
 			require.True(t, success)
 
 			actual := hex.EncodeToString(output)

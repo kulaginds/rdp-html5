@@ -54,11 +54,14 @@ function parseBitmapData(r) {
     bitmapData.flags = r.uint16(true);
     bitmapData.bitmapLength = r.uint16(true);
 
+    let bitmapDataLength = bitmapData.bitmapLength;
+
     if (bitmapData.isCompressed() && !bitmapData.hasNoBitmapCompressionHDR()) {
         bitmapData.bitmapComprHdr = parseCompressedDataHeader(r);
+        bitmapDataLength -= 8;
     }
 
-    bitmapData.bitmapDataStream = r.blob(bitmapData.bitmapLength);
+    bitmapData.bitmapDataStream = r.blob(bitmapDataLength);
 
     return bitmapData;
 }

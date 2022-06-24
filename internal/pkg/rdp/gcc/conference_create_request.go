@@ -48,12 +48,12 @@ func newClientCoreData(selectedProtocol uint32, desktopWidth, desktopHeight uint
 		KeyboardSubType:        0x00000000,
 		KeyboardFunctionKey:    12,
 		ImeFileName:            [64]byte{},
-		PostBeta2ColorDepth:    0xCA01, // RNS_UD_COLOR_8BPP
+		PostBeta2ColorDepth:    0xCA03, // RNS_UD_COLOR_16BPP_565
 		ClientProductId:        0x0001,
 		SerialNumber:           0x00000000,
-		HighColorDepth:         0x0018,                            // HIGH_COLOR_24BPP
-		SupportedColorDepths:   0x0004 | 0x0002 | 0x0001 | 0x0008, // RNS_UD_15BPP_SUPPORT, RNS_UD_16BPP_SUPPORT, RNS_UD_24BPP_SUPPORT, RNS_UD_32BPP_SUPPORT
-		EarlyCapabilityFlags:   0x0001,                            // RNS_UD_CS_SUPPORT_ERRINFO_PDU
+		HighColorDepth:         0x0010, // HIGH_COLOR_16BPP
+		SupportedColorDepths:   0x0002, // RNS_UD_16BPP_SUPPORT
+		EarlyCapabilityFlags:   0x0001, // RNS_UD_CS_SUPPORT_ERRINFO_PDU
 		ClientDigProductId:     [64]byte{},
 		ConnectionType:         0x00,
 		Pad1octet:              0x00,
