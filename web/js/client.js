@@ -54,6 +54,15 @@ Client.prototype.initialize = function () {
     this.canvas.addEventListener('wheel', this.handleWheel);
 
     this.connected = true;
+
+    const size = 64;
+    const rowDelta = size * 2;
+    const resultSize = size * size * 4;
+
+    this.inputPtr = Module._malloc(rowDelta * size);
+    this.outputPtr = Module._malloc(resultSize);
+    this.flipVTempPtr = Module._malloc(rowDelta);
+    this.pbResultBufferPtr = Module._malloc(resultSize);
 };
 
 Client.prototype.deinitialize = function () {
@@ -66,6 +75,11 @@ Client.prototype.deinitialize = function () {
     this.canvas.removeEventListener('wheel', this.handleWheel);
 
     this.connected = false;
+
+    Module._free(this.inputPtr);
+    Module._free(this.outputPtr);
+    Module._free(this.flipVTempPtr);
+    Module._free(this.pbResultBufferPtr);
 };
 
 Client.prototype.handleMessage = function (arrayBuffer) {
@@ -100,59 +114,40 @@ Client.prototype.handleMessage = function (arrayBuffer) {
 Client.prototype.handleBitmap = function (r) {
     const bitmap = parseBitmapUpdate(r);
 
-    bitmap.rectangles.forEach(Client.prototype.drawBitmapData.bind(this));
-};
+    const size = 64;
+    const rowDelta = size * 2;
+    const resultSize = size * size * 4;
 
-function buf2hex(buffer) { // buffer is an ArrayBuffer
-    return [...new Uint8Array(buffer)]
-        .map(x => x.toString(16).padStart(2, '0'))
-        .join('');
-}
+    const inputPtr = this.inputPtr;
+    const outputPtr = this.outputPtr;
+    const flipVTempPtr = this.flipVTempPtr;
+    const pbResultBufferPtr = this.pbResultBufferPtr;
 
-Client.prototype.drawBitmapData = function(bitmapData) {
-    let data = bitmapData.bitmapDataStream;
-    let width = bitmapData.width;
-    let height = bitmapData.height;
+    bitmap.rectangles.forEach((bitmapData) => {
+        const inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, resultSize);
+        inputHeap.set(new Uint8Array(bitmapData.bitmapDataStream));
 
-    const imageData = this.ctx.createImageData(width, height);
+        const result = Module.ccall('ProcessBitmapData',
+            'number',
+            ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'bool'],
+            [
+                inputPtr, bitmapData.bitmapLength,
+                outputPtr,
+                bitmapData.width * 2, bitmapData.width * bitmapData.height * 2,
+                bitmapData.width, bitmapData.height,
+                flipVTempPtr, pbResultBufferPtr,
+                bitmapData.isCompressed(),
+            ]
+        );
 
-    if (bitmapData.isCompressed()) {
-        // rle.c
-        // const result = decompress(bitmapData);
-        // data = result.data;
-        // width = result.width;
-        // height = result.height;
+        if (!result) {
+            console.log("bad decompress:", bitmapData);
+            return;
+        }
 
-        // wsgate
-        // var outB = this.ctx.createImageData(width, height);
-        // wsgate.dRLE16_RGBA(new Uint8Array(bitmapData.bitmapDataStream), bitmapData.bitmapLength, width, outB.data);
-        // this.ctx.putImageData(outB, bitmapData.destLeft, bitmapData.destTop, 0, 0, bitmapData.destRight - bitmapData.destLeft + 1, bitmapData.destBottom - bitmapData.destTop + 1);
-        // return;
-
-        // freerdp
-        // data = decompress_freerdp(bitmapData);
-        // flipV(data, width, height);
-        // const rgbaData = new Uint8Array(width * height * 4);
-        // rgb2rgba(data, width * height * 2, rgbaData);
-        // data = rgbaData;
-
-        // console.log(buf2hex(bitmapData.bitmapDataStream));
-        // if (bitmapData.bitmapDataStream.byteLength > 25) {
-        //     debugger;
-        // }
-
-        // ms
-        decompress_ms(bitmapData, imageData);
-
-        // flipV(data, width, height);
-        // const rgbaData = new Uint8Array(width * height * 4);
-        // rgb2rgba(data, width * height * 2, rgbaData);
-        // data = rgbaData;
-    } else {
-        imageData.data.set(data);
-    }
-
-    this.ctx.putImageData(imageData, bitmapData.destLeft, bitmapData.destTop);
+        const data = new Uint8ClampedArray(Module.HEAP8.buffer.slice(pbResultBufferPtr, pbResultBufferPtr + resultSize));
+        this.ctx.putImageData(new ImageData(data, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
+    });
 };
 
 Client.prototype.handleKeyDown = function (e) {
@@ -269,8 +264,6 @@ Client.prototype.handleWheel = function (e) {
     e.preventDefault();
     return false;
 };
-
-Client.prototype.handleMouseWheel = function (e) {};
 
 Client.prototype.disconnect = function () {
     if (!this.socket) {

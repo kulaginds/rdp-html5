@@ -182,7 +182,12 @@ func (pdu *UpdatePDU) Deserialize(wire io.Reader) error {
 		return errors.New("too big packet")
 	}
 
-	pdu.Data = make([]byte, length)
+	if len(pdu.Data) != 0 {
+		pdu.Data = pdu.Data[:length]
+	} else {
+		pdu.Data = make([]byte, length)
+	}
+
 	_, err = wire.Read(pdu.Data)
 	if err != nil {
 		return err
@@ -193,6 +198,8 @@ func (pdu *UpdatePDU) Deserialize(wire io.Reader) error {
 
 func (i *impl) Receive(fpOutputHeader uint8) (*UpdatePDU, error) {
 	pdu := NewUpdatePDU(fpOutputHeader)
+	pdu.Data = i.updatePDUDataPool.Get().([]byte)
+	defer i.updatePDUDataPool.Put(pdu.Data)
 	if err := pdu.Deserialize(i.conn); err != nil {
 		return nil, err
 	}

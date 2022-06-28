@@ -5,10 +5,6 @@ func (p *protocol) Close() error {
 		return nil
 	}
 
-	if err := p.tpktConn.Close(); err != nil {
-		return err
-	}
-
 	p.connected = false
 
 	return nil

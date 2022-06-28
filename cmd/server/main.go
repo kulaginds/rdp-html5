@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/handler"
 )
@@ -14,12 +15,10 @@ func main() {
 }
 
 func startServer() error {
-	mux := http.NewServeMux()
-
-	mux.Handle("/", http.FileServer(http.Dir("./web")))
-	mux.HandleFunc("/connect", handler.Connect)
+	http.Handle("/", http.FileServer(http.Dir("./web")))
+	http.HandleFunc("/connect", handler.Connect)
 
 	log.Println("start web-server on :8080")
 
-	return http.ListenAndServe(":8080", mux)
+	return http.ListenAndServe(":8080", nil)
 }

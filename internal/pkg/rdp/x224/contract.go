@@ -7,5 +7,4 @@ import (
 type tpktConn interface {
 	Receive() (io.Reader, error)
 	Send(pduData []byte) error
-	Close() error
 }

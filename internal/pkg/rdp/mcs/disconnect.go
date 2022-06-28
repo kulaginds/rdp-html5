@@ -25,5 +25,5 @@ func (p *protocol) Disconnect() error {
 		return fmt.Errorf("client MCS disconnect ultimatum: %w", err)
 	}
 
-	return p.x224Conn.Close()
+	return nil
 }

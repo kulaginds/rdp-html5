@@ -23,9 +23,9 @@ const (
 	// RegularColorImageRun REGULAR_COLOR_IMAGE
 	// If this value is zero, then the run length is encoded in the byte following the order header and MUST be incremented by 32 to give the final value.
 	RegularColorImageRun Code = 0x4
+)
 
-	// ----
-
+const (
 	// LiteSetForegroundRun LITE_SET_FG_FG_RUN
 	// If run length is zero, then run length is encoded in the byte following and MUST be incremented by 16 to final value.
 	LiteSetForegroundRun Code = 0xC
@@ -38,9 +38,9 @@ const (
 	// The run length is encoded in the four low- order bits of the order header byte and MUST be multiplied by 8 to give the final value.
 	// If this value is zero, then the run length is encoded in the byte following the order header and MUST be incremented by 1 to give the final value.
 	LiteSetForegroundForegroundBackgroundImageRun Code = 0xD
+)
 
-	// ----
-
+const (
 	// MegaMegaBackgroundRun MEGA_MEGA_BG_RUN
 	// Mega form.
 	MegaMegaBackgroundRun Code = 0xF0
@@ -65,9 +65,9 @@ const (
 
 	// MegaMegaColorImage MEGA_MEGA_COLOR_IMAGE
 	MegaMegaColorImage Code = 0xF4
+)
 
-	// ----
-
+const (
 	// SpecialForegroundBackground1Run SPECIAL_FGBG_1
 	// 8-bit bitmask of 0x03.
 	SpecialForegroundBackground1Run Code = 0xF9
@@ -85,13 +85,9 @@ const (
 	BlackRun Code = 0xFE
 )
 
-func BitmapDecompress16(
-	pbSrcBuffer []byte,
-	cbSrcBuffer int,
-	pbDestBuffer []byte,
-	rowDelta int,
-) bool {
-	d := newDecompressor16(pbSrcBuffer, cbSrcBuffer, pbDestBuffer, rowDelta)
+type Pixel uint16
 
-	return d.Decompress()
-}
+const (
+	WhitePixel Pixel = 0xFFFF
+	BlackPixel Pixel = 0x0000
+)

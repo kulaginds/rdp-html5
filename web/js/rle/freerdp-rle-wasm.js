@@ -375,6 +375,27 @@ function uleb128Encode(n) {
   return [(n % 128) | 128, n >> 7];
 }
 
+// Converts a signature like 'vii' into a description of the wasm types, like
+// { parameters: ['i32', 'i32'], results: [] }.
+function sigToWasmTypes(sig) {
+  var typeNames = {
+    'i': 'i32',
+    'j': 'i64',
+    'f': 'f32',
+    'd': 'f64',
+    'p': 'i32',
+  };
+  var type = {
+    parameters: [],
+    results: sig[0] == 'v' ? [] : [typeNames[sig[0]]]
+  };
+  for (var i = 1; i < sig.length; ++i) {
+    assert(sig[i] in typeNames, 'invalid signature char: ' + sig[i]);
+    type.parameters.push(typeNames[sig[i]]);
+  }
+  return type;
+}
+
 // Wraps a JS function as a wasm function with a given signature.
 function convertJsFunctionToWasm(func, sig) {
 
@@ -383,22 +404,7 @@ function convertJsFunctionToWasm(func, sig) {
   // Otherwise, construct a minimal wasm module importing the JS function and
   // re-exporting it.
   if (typeof WebAssembly.Function == "function") {
-    var typeNames = {
-      'i': 'i32',
-      'j': 'i64',
-      'f': 'f32',
-      'd': 'f64',
-      'p': 'i32',
-    };
-    var type = {
-      parameters: [],
-      results: sig[0] == 'v' ? [] : [typeNames[sig[0]]]
-    };
-    for (var i = 1; i < sig.length; ++i) {
-      assert(sig[i] in typeNames, 'invalid signature char: ' + sig[i]);
-      type.parameters.push(typeNames[sig[i]]);
-    }
-    return new WebAssembly.Function(type, func);
+    return new WebAssembly.Function(sigToWasmTypes(sig), func);
   }
 
   // The module is static, with the exception of the type section, which is
@@ -1210,7 +1216,7 @@ function checkStackCookie() {
   var cookie1 = HEAPU32[((max)>>2)];
   var cookie2 = HEAPU32[(((max)+(4))>>2)];
   if (cookie1 != 0x2135467 || cookie2 != 0x89BACDFE) {
-    abort('Stack overflow! Stack cookie has been overwritten, expected hex dwords 0x89BACDFE and 0x2135467, but received 0x' + cookie2.toString(16) + ' 0x' + cookie1.toString(16));
+    abort('Stack overflow! Stack cookie has been overwritten at 0x' + max.toString(16) + ', expected hex dwords 0x89BACDFE and 0x2135467, but received 0x' + cookie2.toString(16) + ' 0x' + cookie1.toString(16));
   }
   // Also test the global address 0 for integrity.
   if (HEAPU32[0] !== 0x63736d65 /* 'emsc' */) abort('Runtime error: The application has corrupted its heap memory area (address zero)!');
@@ -1253,9 +1259,10 @@ function preRun() {
 }
 
 function initRuntime() {
-  checkStackCookie();
   assert(!runtimeInitialized);
   runtimeInitialized = true;
+
+  checkStackCookie();
 
   
   callRuntimeCallbacks(__ATINIT__);
@@ -1614,6 +1621,13 @@ function createWasm() {
         !isDataURI(wasmBinaryFile) &&
         // Don't use streaming for file:// delivered objects in a webview, fetch them synchronously.
         !isFileURI(wasmBinaryFile) &&
+        // Avoid instantiateStreaming() on Node.js environment for now, as while
+        // Node.js v18.1.0 implements it, it does not have a full fetch()
+        // implementation yet.
+        //
+        // Reference:
+        //   https://github.com/emscripten-core/emscripten/pull/16917
+        !ENVIRONMENT_IS_NODE &&
         typeof fetch == 'function') {
       return fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(function(response) {
         // Suppress closure warning here since the upstream definition for
@@ -1718,11 +1732,12 @@ var ASM_CONSTS = {
     }
 
   
-    /** @param {number} ptr
-        @param {string} type
-        @param {number|boolean=} noSafe */
-  function getValue(ptr, type = 'i8', noSafe) {
-      if (type.endsWith('*')) type = 'u32';
+    /**
+     * @param {number} ptr
+     * @param {string} type
+     */
+  function getValue(ptr, type = 'i8') {
+      if (type.endsWith('*')) type = 'i32';
       switch (type) {
         case 'i1': return HEAP8[((ptr)>>0)];
         case 'i8': return HEAP8[((ptr)>>0)];
@@ -1777,12 +1792,13 @@ var ASM_CONSTS = {
     }
 
   
-    /** @param {number} ptr
-        @param {number} value
-        @param {string} type
-        @param {number|boolean=} noSafe */
-  function setValue(ptr, value, type = 'i8', noSafe) {
-      if (type.endsWith('*')) type = 'u32';
+    /**
+     * @param {number} ptr
+     * @param {number} value
+     * @param {string} type
+     */
+  function setValue(ptr, value, type = 'i8') {
+      if (type.endsWith('*')) type = 'i32';
       switch (type) {
         case 'i1': HEAP8[((ptr)>>0)] = value; break;
         case 'i8': HEAP8[((ptr)>>0)] = value; break;
@@ -1928,7 +1944,7 @@ var _rle_decompress = Module["_rle_decompress"] = createExportWrapper("rle_decom
 var ___errno_location = Module["___errno_location"] = createExportWrapper("__errno_location");
 
 /** @type {function(...*):?} */
-var ___stdio_exit = Module["___stdio_exit"] = createExportWrapper("__stdio_exit");
+var _fflush = Module["_fflush"] = createExportWrapper("fflush");
 
 /** @type {function(...*):?} */
 var _malloc = Module["_malloc"] = createExportWrapper("malloc");
@@ -2224,8 +2240,8 @@ function stackCheckInit() {
   // This is normally called automatically during __wasm_call_ctors but need to
   // get these values before even running any of the ctors so we call it redundantly
   // here.
-  // TODO(sbc): Move writeStackCookie to native to to avoid this.
   _emscripten_stack_init();
+  // TODO(sbc): Move writeStackCookie to native to to avoid this.
   writeStackCookie();
 }
 
@@ -2237,7 +2253,7 @@ function run(args) {
     return;
   }
 
-  stackCheckInit();
+    stackCheckInit();
 
   preRun();
 
@@ -2299,8 +2315,7 @@ function checkUnflushedContent() {
     has = true;
   }
   try { // it doesn't matter if it fails
-    var flush = null;
-    if (flush) flush();
+    _fflush(0);
   } catch(e) {}
   out = oldOut;
   err = oldErr;

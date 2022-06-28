@@ -17,8 +17,6 @@ import (
 const (
 	webSocketReadBufferSize  = 8192
 	webSocketWriteBufferSize = 8192 * 2
-	rdpMaxPackageSize        = 16 * 1024
-	tpktAndX224HeadersLen    = 4 + 3
 )
 
 const (

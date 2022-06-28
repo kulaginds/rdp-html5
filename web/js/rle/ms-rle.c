@@ -10,7 +10,7 @@
 UINT
 GetColorDepth()
 {
- return 16;
+    return 16;
 }
 
 //
@@ -27,10 +27,7 @@ GetColorDepth()
 // Writes a pixel to the specified buffer.
 //
 VOID
-WritePixel(
- BYTE* pbBuffer,
- PIXEL pixel
- )
+WritePixel(BYTE* pbBuffer, PIXEL pixel)
 {
     pbBuffer[0] = pixel & 0xFF;
     pbBuffer[1] = (pixel >> 8) & 0xFF;
@@ -40,9 +37,7 @@ WritePixel(
 // Reads a pixel from the specified buffer.
 //
 PIXEL
-ReadPixel(
- BYTE* pbBuffer
- )
+ReadPixel(BYTE* pbBuffer)
 {
     return (PIXEL) (pbBuffer)[0] | ((pbBuffer)[1] << 8);
 }
@@ -53,35 +48,33 @@ ReadPixel(
 UINT
 GetPixelSize()
 {
- UINT colorDepth = GetColorDepth();
+    UINT colorDepth = GetColorDepth();
 
- if (colorDepth == 8)
- {
-     return 1;
- }
+    if (colorDepth == 8)
+    {
+        return 1;
+    }
 
- if (colorDepth == 15 || colorDepth == 16)
- {
-     return 2;
- }
+    if (colorDepth == 15 || colorDepth == 16)
+    {
+        return 2;
+    }
 
- if (colorDepth == 24)
- {
-     return 3;
- }
+    if (colorDepth == 24)
+    {
+        return 3;
+    }
 
- return 0;
+    return 0;
 }
 
 //
 // Returns a pointer to the next pixel in the specified buffer.
 //
 BYTE*
-NextPixel(
- BYTE* pbBuffer
- )
+NextPixel(BYTE* pbBuffer)
 {
- return pbBuffer + GetPixelSize();
+    return pbBuffer + GetPixelSize();
 }
 
 //
@@ -89,9 +82,7 @@ NextPixel(
 // order code ID.
 //
 UINT
-ExtractCodeId(
- BYTE bOrderHdr
- )
+ExtractCodeId(BYTE bOrderHdr)
 {
     if ((bOrderHdr & 0xC0) != 0xC0)
     {
@@ -119,9 +110,7 @@ ExtractCodeId(
 // TRUE as 0x01 is the code ID for a Regular Foreground Run Order.
 //
 BOOL
-IsRegularCode(
- UINT codeId
- )
+IsRegularCode(UINT codeId)
 {
     switch (codeId) {
     case REGULAR_BG_RUN:
@@ -141,9 +130,7 @@ IsRegularCode(
 // TRUE as 0x0E is the code ID for a Lite Dithered Run Order.
 //
 BOOL
-IsLiteCode(
- UINT codeId
- )
+IsLiteCode(UINT codeId)
 {
     switch (codeId) {
     case LITE_SET_FG_FG_RUN:
@@ -162,9 +149,7 @@ IsLiteCode(
 // Run Order.
 //
 BOOL
-IsMegaMegaCode(
- UINT codeId
- )
+IsMegaMegaCode(UINT codeId)
 {
     switch (codeId) {
     case MEGA_MEGA_BG_RUN:
@@ -187,29 +172,29 @@ IsMegaMegaCode(
 PIXEL
 GetColorBlack()
 {
- UINT colorDepth = GetColorDepth();
+    UINT colorDepth = GetColorDepth();
 
- if (colorDepth == 8)
- {
-     return (PIXEL) 0x00;
- }
+    if (colorDepth == 8)
+    {
+        return (PIXEL) 0x00;
+    }
 
- if (colorDepth == 15)
- {
-     return (PIXEL) 0x0000;
- }
+    if (colorDepth == 15)
+    {
+        return (PIXEL) 0x0000;
+    }
 
- if (colorDepth == 16)
- {
-     return (PIXEL) 0x0000;
- }
+    if (colorDepth == 16)
+    {
+        return (PIXEL) 0x0000;
+    }
 
- if (colorDepth == 24)
- {
-     return (PIXEL) 0x000000;
- }
+    if (colorDepth == 24)
+    {
+        return (PIXEL) 0x000000;
+    }
 
- return 0;
+    return 0;
 }
 
 //
@@ -218,44 +203,44 @@ GetColorBlack()
 PIXEL
 GetColorWhite()
 {
- UINT colorDepth = GetColorDepth();
+    UINT colorDepth = GetColorDepth();
 
- if (colorDepth == 8)
- {
-     //
-     // Palette entry #255 holds black.
-     //
-     return (PIXEL) 0xFF;
- }
+    if (colorDepth == 8)
+    {
+        //
+        // Palette entry #255 holds black.
+        //
+        return (PIXEL) 0xFF;
+    }
 
- if (colorDepth == 15)
- {
-     //
-     // 5 bits per RGB component:
-     // 0111 1111 1111 1111 (binary)
-     //
-     return (PIXEL) 0x7FFF;
- }
+    if (colorDepth == 15)
+    {
+        //
+        // 5 bits per RGB component:
+        // 0111 1111 1111 1111 (binary)
+        //
+        return (PIXEL) 0x7FFF;
+    }
 
- if (colorDepth == 16)
- {
-     //
-     // 5 bits for red, 6 bits for green, 5 bits for green:
-     // 1111 1111 1111 1111 (binary)
-     //
-     return (PIXEL) 0xFFFF;
- }
+    if (colorDepth == 16)
+    {
+        //
+        // 5 bits for red, 6 bits for green, 5 bits for green:
+        // 1111 1111 1111 1111 (binary)
+        //
+        return (PIXEL) 0xFFFF;
+    }
 
- if (colorDepth == 24)
- {
-     //
-     // 8 bits per RGB component:
-     // 1111 1111 1111 1111 1111 1111 (binary)
-     //
-     return (PIXEL) 0xFFFFFF;
- }
+    if (colorDepth == 24)
+    {
+        //
+        // 8 bits per RGB component:
+        // 1111 1111 1111 1111 1111 1111 (binary)
+        //
+        return (PIXEL) 0xFFFFFF;
+    }
 
- return 0;
+    return 0;
 }
 
 //
@@ -263,10 +248,7 @@ GetColorWhite()
 // order header and optional run length.
 //
 BYTE*
-AdvanceOverOrderHeader(
- UINT codeId,
- BYTE* pbOrderHdr
- )
+AdvanceOverOrderHeader(UINT codeId, BYTE* pbOrderHdr)
 {
     UINT32 advance = 1;
     UINT runLength;
@@ -303,23 +285,21 @@ AdvanceOverOrderHeader(
 // Image Order.
 //
 UINT
-ExtractRunLengthRegularFgBg(
- BYTE* pbOrderHdr
- )
+ExtractRunLengthRegularFgBg(BYTE* pbOrderHdr)
 {
- UINT runLength;
+    UINT runLength;
 
- runLength = *pbOrderHdr AND g_MaskRegularRunLength;
- if (runLength == 0)
- {
-     runLength = *(pbOrderHdr + 1) + 1;
- }
- else
- {
-     runLength = runLength * 8;
- }
+    runLength = *pbOrderHdr AND g_MaskRegularRunLength;
+    if (runLength == 0)
+    {
+        runLength = *(pbOrderHdr + 1) + 1;
+    }
+    else
+    {
+        runLength = runLength * 8;
+    }
 
- return runLength;
+    return runLength;
 }
 
 //
@@ -327,255 +307,238 @@ ExtractRunLengthRegularFgBg(
 // Image Order.
 //
 UINT
-ExtractRunLengthLiteFgBg(
- BYTE* pbOrderHdr
- )
+ExtractRunLengthLiteFgBg(BYTE* pbOrderHdr)
 {
- UINT runLength;
+    UINT runLength;
 
- runLength = *pbOrderHdr AND g_MaskLiteRunLength;
- if (runLength == 0)
- {
-     runLength = *(pbOrderHdr + 1) + 1;
- }
- else
- {
-     runLength = runLength * 8;
- }
+    runLength = *pbOrderHdr AND g_MaskLiteRunLength;
+    if (runLength == 0)
+    {
+        runLength = *(pbOrderHdr + 1) + 1;
+    }
+    else
+    {
+        runLength = runLength * 8;
+    }
 
- return runLength;
+    return runLength;
 }
 
 //
 // Extract the run length of a regular-form compression order.
 //
 UINT
-ExtractRunLengthRegular(
- BYTE* pbOrderHdr
- )
+ExtractRunLengthRegular(BYTE* pbOrderHdr)
 {
- UINT runLength;
+    UINT runLength;
 
- runLength = *pbOrderHdr AND g_MaskRegularRunLength;
- if (runLength == 0)
- {
-     //
-     // An extended (MEGA) run.
-     //
-     runLength = *(pbOrderHdr + 1) + 32;
- }
+    runLength = *pbOrderHdr AND g_MaskRegularRunLength;
+    if (runLength == 0)
+    {
+        //
+        // An extended (MEGA) run.
+        //
+        runLength = *(pbOrderHdr + 1) + 32;
+    }
 
- return runLength;
+    return runLength;
 }
 
 //
 // Extract the run length of a lite-form compression order.
 //
 UINT
-ExtractRunLengthLite(
- BYTE* pbOrderHdr
- )
+ExtractRunLengthLite(BYTE* pbOrderHdr)
 {
- UINT runLength;
+    UINT runLength;
 
- runLength = *pbOrderHdr AND g_MaskLiteRunLength;
- if (runLength == 0)
- {
-     //
-     // An extended (MEGA) run.
-     //
-     runLength = *(pbOrderHdr + 1) + 16;
- }
+    runLength = *pbOrderHdr AND g_MaskLiteRunLength;
+    if (runLength == 0)
+    {
+        //
+        // An extended (MEGA) run.
+        //
+        runLength = *(pbOrderHdr + 1) + 16;
+    }
 
- return runLength;
+    return runLength;
 }
 
 //
 // Extract the run length of a MEGA_MEGA-type compression order.
 //
 UINT
-ExtractRunLengthMegaMega(
- BYTE* pbOrderHdr
- )
+ExtractRunLengthMegaMega(BYTE* pbOrderHdr)
 {
- UINT runLength;
+    UINT runLength;
 
- pbOrderHdr = pbOrderHdr + 1;
- runLength = ((UINT16) pbOrderHdr[0]) OR ((UINT16) pbOrderHdr[1] << 8);
+    pbOrderHdr = pbOrderHdr + 1;
+    runLength = ((UINT16) pbOrderHdr[0]) OR ((UINT16) pbOrderHdr[1] << 8);
 
- return runLength;
+    return runLength;
 }
 
 //
 // Extract the run length of a compression order.
 //
 UINT
-ExtractRunLength(
- UINT code,
- BYTE* pbOrderHdr
- )
+ExtractRunLength(UINT code, BYTE* pbOrderHdr)
 {
- UINT runLength;
+    UINT runLength;
 
- if (code == REGULAR_FGBG_IMAGE)
- {
-     runLength = ExtractRunLengthRegularFgBg(pbOrderHdr);
- }
- else if (code == LITE_SET_FG_FGBG_IMAGE)
- {
-     runLength = ExtractRunLengthLiteFgBg(pbOrderHdr);
- }
- else if (IsRegularCode(code))
- {
-     runLength = ExtractRunLengthRegular(pbOrderHdr);
- }
- else if (IsLiteCode(code))
- {
-     runLength = ExtractRunLengthLite(pbOrderHdr);
- }
- else if (IsMegaMegaCode(code))
- {
-     runLength = ExtractRunLengthMegaMega(pbOrderHdr);
- }
- else
- {
-     runLength = 0;
- }
+    if (code == REGULAR_FGBG_IMAGE)
+    {
+        runLength = ExtractRunLengthRegularFgBg(pbOrderHdr);
+    }
+    else if (code == LITE_SET_FG_FGBG_IMAGE)
+    {
+        runLength = ExtractRunLengthLiteFgBg(pbOrderHdr);
+    }
+    else if (IsRegularCode(code))
+    {
+        runLength = ExtractRunLengthRegular(pbOrderHdr);
+    }
+    else if (IsLiteCode(code))
+    {
+        runLength = ExtractRunLengthLite(pbOrderHdr);
+    }
+    else if (IsMegaMegaCode(code))
+    {
+        runLength = ExtractRunLengthMegaMega(pbOrderHdr);
+    }
+    else
+    {
+        runLength = 0;
+    }
 
- return runLength;
+    return runLength;
 }
 
 //
 // Write a foreground/background image to a destination buffer.
 //
 BYTE*
-WriteFgBgImage(
- BYTE* pbDest,
- UINT rowDelta,
- BYTE bitmask,
- PIXEL fgPel,
- UINT cBits
- )
+WriteFgBgImage(BYTE* pbDest, UINT rowDelta, BYTE bitmask, PIXEL fgPel, UINT cBits)
 {
- PIXEL xorPixel;
+    PIXEL xorPixel;
 
- xorPixel = ReadPixel(pbDest - rowDelta);
- if (bitmask AND g_MaskBit0)
- {
-     WritePixel(pbDest, xorPixel XOR fgPel);
- }
- else
- {
-     WritePixel(pbDest, xorPixel);
- }
- pbDest = NextPixel(pbDest);
- cBits = cBits - 1;
+    xorPixel = ReadPixel(pbDest - rowDelta);
+    if (bitmask AND g_MaskBit0)
+    {
+        WritePixel(pbDest, xorPixel XOR fgPel);
+    }
+    else
+    {
+        WritePixel(pbDest, xorPixel);
+    }
+    pbDest = NextPixel(pbDest);
+    cBits = cBits - 1;
 
- if (cBits > 0)
- {
-     xorPixel = ReadPixel(pbDest - rowDelta);
-     if (bitmask AND g_MaskBit1)
-     {
-         WritePixel(pbDest, xorPixel XOR fgPel);
-     }
-     else
-     {
-         WritePixel(pbDest, xorPixel);
-     }
-     pbDest = NextPixel(pbDest);
-     cBits = cBits - 1;
+    if (cBits > 0)
+    {
+        xorPixel = ReadPixel(pbDest - rowDelta);
+        if (bitmask AND g_MaskBit1)
+        {
+            WritePixel(pbDest, xorPixel XOR fgPel);
+        }
+        else
+        {
+            WritePixel(pbDest, xorPixel);
+        }
+        pbDest = NextPixel(pbDest);
+        cBits = cBits - 1;
 
-     if (cBits > 0)
-     {
-         xorPixel = ReadPixel(pbDest - rowDelta);
-         if (bitmask AND g_MaskBit2)
-         {
-             WritePixel(pbDest, xorPixel XOR fgPel);
-         }
-         else
-         {
-             WritePixel(pbDest, xorPixel);
-         }
-         pbDest = NextPixel(pbDest);
-         cBits = cBits - 1;
+        if (cBits > 0)
+        {
+            xorPixel = ReadPixel(pbDest - rowDelta);
+            if (bitmask AND g_MaskBit2)
+            {
+                WritePixel(pbDest, xorPixel XOR fgPel);
+            }
+            else
+            {
+                WritePixel(pbDest, xorPixel);
+            }
+            pbDest = NextPixel(pbDest);
+            cBits = cBits - 1;
 
-         if (cBits > 0)
-         {
-             xorPixel = ReadPixel(pbDest - rowDelta);
-             if (bitmask AND g_MaskBit3)
-             {
-                 WritePixel(pbDest, xorPixel XOR fgPel);
-             }
-             else
-             {
-                 WritePixel(pbDest, xorPixel);
-             }
-             pbDest = NextPixel(pbDest);
-             cBits = cBits - 1;
+            if (cBits > 0)
+            {
+                xorPixel = ReadPixel(pbDest - rowDelta);
+                if (bitmask AND g_MaskBit3)
+                {
+                    WritePixel(pbDest, xorPixel XOR fgPel);
+                }
+                else
+                {
+                    WritePixel(pbDest, xorPixel);
+                }
+                pbDest = NextPixel(pbDest);
+                cBits = cBits - 1;
 
-             if (cBits > 0)
-             {
-                 xorPixel = ReadPixel(pbDest - rowDelta);
-                 if (bitmask AND g_MaskBit4)
-                 {
-                     WritePixel(pbDest, xorPixel XOR fgPel);
-                 }
-                 else
-                 {
-                     WritePixel(pbDest, xorPixel);
-                 }
-                 pbDest = NextPixel(pbDest);
-                 cBits = cBits - 1;
+                if (cBits > 0)
+                {
+                    xorPixel = ReadPixel(pbDest - rowDelta);
+                    if (bitmask AND g_MaskBit4)
+                    {
+                        WritePixel(pbDest, xorPixel XOR fgPel);
+                    }
+                    else
+                    {
+                        WritePixel(pbDest, xorPixel);
+                    }
+                    pbDest = NextPixel(pbDest);
+                    cBits = cBits - 1;
 
-                 if (cBits > 0)
-                 {
-                     xorPixel = ReadPixel(pbDest - rowDelta);
-                     if (bitmask AND g_MaskBit5)
-                     {
-                         WritePixel(pbDest, xorPixel XOR fgPel);
-                     }
-                     else
-                     {
-                         WritePixel(pbDest, xorPixel);
-                     }
-                     pbDest = NextPixel(pbDest);
-                     cBits = cBits - 1;
+                    if (cBits > 0)
+                    {
+                        xorPixel = ReadPixel(pbDest - rowDelta);
+                        if (bitmask AND g_MaskBit5)
+                        {
+                            WritePixel(pbDest, xorPixel XOR fgPel);
+                        }
+                        else
+                        {
+                            WritePixel(pbDest, xorPixel);
+                        }
+                        pbDest = NextPixel(pbDest);
+                        cBits = cBits - 1;
 
-                     if (cBits > 0)
-                     {
-                         xorPixel = ReadPixel(pbDest - rowDelta);
-                         if (bitmask AND g_MaskBit6)
-                         {
-                             WritePixel(pbDest, xorPixel XOR fgPel);
-                         }
-                         else
-                         {
-                             WritePixel(pbDest, xorPixel);
-                         }
-                         pbDest = NextPixel(pbDest);
-                         cBits = cBits - 1;
+                        if (cBits > 0)
+                        {
+                            xorPixel = ReadPixel(pbDest - rowDelta);
+                            if (bitmask AND g_MaskBit6)
+                            {
+                                WritePixel(pbDest, xorPixel XOR fgPel);
+                            }
+                            else
+                            {
+                                WritePixel(pbDest, xorPixel);
+                            }
+                            pbDest = NextPixel(pbDest);
+                            cBits = cBits - 1;
 
-                         if (cBits > 0)
-                         {
-                             xorPixel = ReadPixel(pbDest - rowDelta);
-                             if (bitmask AND g_MaskBit7)
-                             {
-                                 WritePixel(pbDest, xorPixel XOR fgPel);
-                             }
-                             else
-                             {
-                                 WritePixel(pbDest, xorPixel);
-                             }
-                             pbDest = NextPixel(pbDest);
-                         }
-                     }
-                 }
-             }
-         }
-     }
- }
+                            if (cBits > 0)
+                            {
+                                xorPixel = ReadPixel(pbDest - rowDelta);
+                                if (bitmask AND g_MaskBit7)
+                                {
+                                    WritePixel(pbDest, xorPixel XOR fgPel);
+                                }
+                                else
+                                {
+                                    WritePixel(pbDest, xorPixel);
+                                }
+                                pbDest = NextPixel(pbDest);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
- return pbDest;
+    return pbDest;
 }
 
 //
@@ -583,122 +546,117 @@ WriteFgBgImage(
 // for the first line of compressed data.
 //
 BYTE*
-WriteFirstLineFgBgImage(
- BYTE* pbDest,
- BYTE bitmask,
- PIXEL fgPel,
- UINT cBits
- )
+WriteFirstLineFgBgImage(BYTE* pbDest, BYTE bitmask, PIXEL fgPel, UINT cBits)
 {
- if (bitmask AND g_MaskBit0)
- {
-     WritePixel(pbDest, fgPel);
- }
- else
- {
-     WritePixel(pbDest, GetColorBlack());
- }
- pbDest = NextPixel(pbDest);
- cBits = cBits - 1;
+    if (bitmask AND g_MaskBit0)
+    {
+        WritePixel(pbDest, fgPel);
+    }
+    else
+    {
+        WritePixel(pbDest, GetColorBlack());
+    }
+    pbDest = NextPixel(pbDest);
+    cBits = cBits - 1;
 
- if (cBits > 0)
- {
-     if (bitmask AND g_MaskBit1)
-     {
-         WritePixel(pbDest, fgPel);
-     }
-     else
-     {
-         WritePixel(pbDest, GetColorBlack());
-     }
-     pbDest = NextPixel(pbDest);
-     cBits = cBits - 1;
+    if (cBits > 0)
+    {
+        if (bitmask AND g_MaskBit1)
+        {
+            WritePixel(pbDest, fgPel);
+        }
+        else
+        {
+            WritePixel(pbDest, GetColorBlack());
+        }
+        pbDest = NextPixel(pbDest);
+        cBits = cBits - 1;
 
-     if (cBits > 0)
-     {
-         if (bitmask AND g_MaskBit2)
-         {
-             WritePixel(pbDest, fgPel);
-         }
-         else
-         {
-             WritePixel(pbDest, GetColorBlack());
-         }
-         pbDest = NextPixel(pbDest);
-         cBits = cBits - 1;
+        if (cBits > 0)
+        {
+            if (bitmask AND g_MaskBit2)
+            {
+                WritePixel(pbDest, fgPel);
+            }
+            else
+            {
+                WritePixel(pbDest, GetColorBlack());
+            }
+            pbDest = NextPixel(pbDest);
+            cBits = cBits - 1;
 
-         if (cBits > 0)
-         {
-             if (bitmask AND g_MaskBit3)
-             {
-                 WritePixel(pbDest, fgPel);
-             }
-             else
-             {
-                 WritePixel(pbDest, GetColorBlack());
-             }
-             pbDest = NextPixel(pbDest);
-             cBits = cBits - 1;
+            if (cBits > 0)
+            {
+                if (bitmask AND g_MaskBit3)
+                {
+                    WritePixel(pbDest, fgPel);
+                }
+                else
+                {
+                    WritePixel(pbDest, GetColorBlack());
+                }
+                pbDest = NextPixel(pbDest);
+                cBits = cBits - 1;
 
-             if (cBits > 0)
-             {
-                 if (bitmask AND g_MaskBit4)
-                 {
-                     WritePixel(pbDest, fgPel);
-                 }
-                 else
-                 {
-                     WritePixel(pbDest, GetColorBlack());
-                 }
-                 pbDest = NextPixel(pbDest);
-                 cBits = cBits - 1;
+                if (cBits > 0)
+                {
+                    if (bitmask AND g_MaskBit4)
+                    {
+                        WritePixel(pbDest, fgPel);
+                    }
+                    else
+                    {
+                        WritePixel(pbDest, GetColorBlack());
+                    }
+                    pbDest = NextPixel(pbDest);
+                    cBits = cBits - 1;
 
-                 if (cBits > 0)
-                 {
-                     if (bitmask AND g_MaskBit5)
-                     {
-                         WritePixel(pbDest, fgPel);
-                     }
-                     else
-                     {
-                         WritePixel(pbDest, GetColorBlack());
-                     }
-                     pbDest = NextPixel(pbDest);
-                     cBits = cBits - 1;
+                    if (cBits > 0)
+                    {
+                        if (bitmask AND g_MaskBit5)
+                        {
+                            WritePixel(pbDest, fgPel);
+                        }
+                        else
+                        {
+                            WritePixel(pbDest, GetColorBlack());
+                        }
+                        pbDest = NextPixel(pbDest);
+                        cBits = cBits - 1;
 
-                     if (cBits > 0)
-                     {
-                         if (bitmask AND g_MaskBit6)
-                         {
-                             WritePixel(pbDest, fgPel);
-                         }
-                         else
-                         {
-                             WritePixel(pbDest, GetColorBlack());
-                         }
-                         pbDest = NextPixel(pbDest);
-                         cBits = cBits - 1;
+                        if (cBits > 0)
+                        {
+                            if (bitmask AND g_MaskBit6)
+                            {
+                                WritePixel(pbDest, fgPel);
+                            }
+                            else
+                            {
+                                WritePixel(pbDest, GetColorBlack());
+                            }
+                            pbDest = NextPixel(pbDest);
+                            cBits = cBits - 1;
 
-                         if (cBits > 0)
-                         {
-                             if (bitmask AND g_MaskBit7)
-                             {
-                                 WritePixel(pbDest, fgPel);
-                             }
-                             else
-                             {
-                                 WritePixel(pbDest, GetColorBlack());
-                             }
-                             pbDest = NextPixel(pbDest);
-                         }
-                     }
-                 }
-             }
-         }
-     }
- }
+                            if (cBits > 0)
+                            {
+                                if (bitmask AND g_MaskBit7)
+                                {
+                                    WritePixel(pbDest, fgPel);
+                                }
+                                else
+                                {
+                                    WritePixel(pbDest, GetColorBlack());
+                                }
+                                pbDest = NextPixel(pbDest);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
- return pbDest;
+    return pbDest;
 }
 
 //
@@ -733,11 +691,11 @@ RleDecompress(
         //
         if (fFirstLine)
         {
-         if (pbDest - pbDestBuffer >= rowDelta)
-         {
-             fFirstLine = FALSE;
-             fInsertFgPel = FALSE;
-         }
+            if (pbDest - pbDestBuffer >= rowDelta)
+            {
+                fFirstLine = FALSE;
+                fInsertFgPel = FALSE;
+            }
         }
 
         //
@@ -749,53 +707,52 @@ RleDecompress(
         //
         // Handle Background Run Orders.
         //
-        if (code == REGULAR_BG_RUN OR
-         code == MEGA_MEGA_BG_RUN)
+        if (code == REGULAR_BG_RUN OR code == MEGA_MEGA_BG_RUN)
         {
-         runLength = ExtractRunLength(code, pbSrc);
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            runLength = ExtractRunLength(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         if (fFirstLine)
-         {
-             if (fInsertFgPel)
-             {
-                 WritePixel(pbDest, fgPel);
-                 pbDest = NextPixel(pbDest);
-                 runLength = runLength - 1;
-             }
-             while (runLength > 0)
-             {
-                 WritePixel(pbDest, GetColorBlack());
-                 pbDest = NextPixel(pbDest);
-                 runLength = runLength - 1;
-             }
-         }
-         else
-         {
-             if (fInsertFgPel)
-             {
-                 WritePixel(
+            if (fFirstLine)
+            {
+                if (fInsertFgPel)
+                {
+                    WritePixel(pbDest, fgPel);
+                    pbDest = NextPixel(pbDest);
+                    runLength = runLength - 1;
+                }
+                while (runLength > 0)
+                {
+                    WritePixel(pbDest, GetColorBlack());
+                    pbDest = NextPixel(pbDest);
+                    runLength = runLength - 1;
+                }
+            }
+            else
+            {
+                if (fInsertFgPel)
+                {
+                    WritePixel(
                      pbDest,
                      ReadPixel(pbDest - rowDelta) XOR fgPel
                      );
-                 pbDest = NextPixel(pbDest);
-                 runLength = runLength - 1;
-             }
+                    pbDest = NextPixel(pbDest);
+                    runLength = runLength - 1;
+                }
 
-             while (runLength > 0)
-             {
-                 WritePixel(pbDest, ReadPixel(pbDest - rowDelta));
-                 pbDest = NextPixel(pbDest);
-                 runLength = runLength - 1;
-             }
-         }
+                while (runLength > 0)
+                {
+                    WritePixel(pbDest, ReadPixel(pbDest - rowDelta));
+                    pbDest = NextPixel(pbDest);
+                    runLength = runLength - 1;
+                }
+            }
 
-         //
-         // A follow-on background run order will need a
-         // foreground pel inserted.
-         //
-         fInsertFgPel = TRUE;
-         continue;
+            //
+            // A follow-on background run order will need a
+            // foreground pel inserted.
+            //
+            fInsertFgPel = TRUE;
+            continue;
         }
 
         //
@@ -807,191 +764,182 @@ RleDecompress(
         //
         // Handle Foreground Run Orders.
         //
-        if (code == REGULAR_FG_RUN OR
-         code == MEGA_MEGA_FG_RUN OR
-         code == LITE_SET_FG_FG_RUN OR
-         code == MEGA_MEGA_SET_FG_RUN)
+        if (code == REGULAR_FG_RUN OR code == MEGA_MEGA_FG_RUN OR
+            code == LITE_SET_FG_FG_RUN OR code == MEGA_MEGA_SET_FG_RUN)
         {
-         runLength = ExtractRunLength(code, pbSrc);
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            runLength = ExtractRunLength(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         if (code == LITE_SET_FG_FG_RUN OR
-             code == MEGA_MEGA_SET_FG_RUN)
-         {
-             fgPel = ReadPixel(pbSrc);
-             pbSrc = NextPixel(pbSrc);
-         }
+            if (code == LITE_SET_FG_FG_RUN OR code == MEGA_MEGA_SET_FG_RUN)
+            {
+                fgPel = ReadPixel(pbSrc);
+                pbSrc = NextPixel(pbSrc);
+            }
 
-         while (runLength > 0)
-         {
-             if (fFirstLine)
-             {
-                 WritePixel(pbDest, fgPel);
-                 pbDest = NextPixel(pbDest);
-             }
-             else
-             {
-                 WritePixel(
-                     pbDest,
-                     ReadPixel(pbDest - rowDelta) XOR fgPel
-                     );
-                 pbDest = NextPixel(pbDest);
-             }
+            while (runLength > 0)
+            {
+            if (fFirstLine)
+            {
+                WritePixel(pbDest, fgPel);
+                pbDest = NextPixel(pbDest);
+            }
+            else
+            {
+                WritePixel(
+                    pbDest,
+                    ReadPixel(pbDest - rowDelta) XOR fgPel
+                );
+                pbDest = NextPixel(pbDest);
+            }
 
-             runLength = runLength - 1;
-         }
+                runLength = runLength - 1;
+            }
 
-         continue;
+            continue;
         }
 
         //
         // Handle Dithered Run Orders.
         //
-        if (code == LITE_DITHERED_RUN OR
-         code == MEGA_MEGA_DITHERED_RUN)
+        if (code == LITE_DITHERED_RUN OR code == MEGA_MEGA_DITHERED_RUN)
         {
-         runLength = ExtractRunLength(code, pbSrc);
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            runLength = ExtractRunLength(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         pixelA = ReadPixel(pbSrc);
-         pbSrc = NextPixel(pbSrc);
-         pixelB = ReadPixel(pbSrc);
-         pbSrc = NextPixel(pbSrc);
+            pixelA = ReadPixel(pbSrc);
+            pbSrc = NextPixel(pbSrc);
+            pixelB = ReadPixel(pbSrc);
+            pbSrc = NextPixel(pbSrc);
 
-         while (runLength > 0)
-         {
-             WritePixel(pbDest, pixelA);
-             pbDest = NextPixel(pbDest);
-             WritePixel(pbDest, pixelB);
-             pbDest = NextPixel(pbDest);
+            while (runLength > 0)
+            {
+                WritePixel(pbDest, pixelA);
+                pbDest = NextPixel(pbDest);
+                WritePixel(pbDest, pixelB);
+                pbDest = NextPixel(pbDest);
 
-             runLength = runLength - 1;
-         }
+                runLength = runLength - 1;
+            }
 
-         continue;
+            continue;
         }
 
         //
         // Handle Color Run Orders.
         //
-        if (code == REGULAR_COLOR_RUN OR
-         code == MEGA_MEGA_COLOR_RUN)
+        if (code == REGULAR_COLOR_RUN OR code == MEGA_MEGA_COLOR_RUN)
         {
-         runLength = ExtractRunLength(code, pbSrc);
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            runLength = ExtractRunLength(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         pixelA = ReadPixel(pbSrc);
-         pbSrc = NextPixel(pbSrc);
+            pixelA = ReadPixel(pbSrc);
+            pbSrc = NextPixel(pbSrc);
 
-         while (runLength > 0)
-         {
-             WritePixel(pbDest, pixelA);
-             pbDest = NextPixel(pbDest);
+            while (runLength > 0)
+            {
+                WritePixel(pbDest, pixelA);
+                pbDest = NextPixel(pbDest);
 
-             runLength = runLength - 1;
-         }
+                runLength = runLength - 1;
+            }
 
-         continue;
+            continue;
         }
 
         //
         // Handle Foreground/Background Image Orders.
         //
-        if (code == REGULAR_FGBG_IMAGE OR
-         code == MEGA_MEGA_FGBG_IMAGE OR
-         code == LITE_SET_FG_FGBG_IMAGE OR
-         code == MEGA_MEGA_SET_FGBG_IMAGE)
+        if (code == REGULAR_FGBG_IMAGE OR code == MEGA_MEGA_FGBG_IMAGE OR
+            code == LITE_SET_FG_FGBG_IMAGE OR code == MEGA_MEGA_SET_FGBG_IMAGE)
         {
-         runLength = ExtractRunLength(code, pbSrc);
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            runLength = ExtractRunLength(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         if (code == LITE_SET_FG_FGBG_IMAGE OR
-             code == MEGA_MEGA_SET_FGBG_IMAGE)
-         {
-             fgPel = ReadPixel(pbSrc);
-             pbSrc = NextPixel(pbSrc);
-         }
+            if (code == LITE_SET_FG_FGBG_IMAGE OR code == MEGA_MEGA_SET_FGBG_IMAGE)
+            {
+                fgPel = ReadPixel(pbSrc);
+                pbSrc = NextPixel(pbSrc);
+            }
 
-         while (runLength > 8)
-         {
-             bitmask = *pbSrc;
-             pbSrc = pbSrc + 1;
+            while (runLength > 8)
+            {
+                bitmask = *pbSrc;
+                pbSrc = pbSrc + 1;
 
-             if (fFirstLine)
-             {
-                 pbDest = WriteFirstLineFgBgImage(
-                     pbDest,
-                     bitmask,
-                     fgPel,
-                     8
-                     );
-             }
-             else
-             {
-                 pbDest = WriteFgBgImage(
-                     pbDest,
-                     rowDelta,
-                     bitmask,
-                     fgPel,
-                     8
-                     );
-             }
+                if (fFirstLine)
+                {
+                    pbDest = WriteFirstLineFgBgImage(
+                        pbDest,
+                        bitmask,
+                        fgPel,
+                        8
+                    );
+                }
+                else
+                {
+                    pbDest = WriteFgBgImage(
+                        pbDest,
+                        rowDelta,
+                        bitmask,
+                        fgPel,
+                        8
+                    );
+                }
 
-             runLength = runLength - 8;
-         }
+                runLength = runLength - 8;
+            }
 
-         if (runLength > 0)
-         {
-             bitmask = *pbSrc;
-             pbSrc = pbSrc + 1;
+            if (runLength > 0)
+            {
+                bitmask = *pbSrc;
+                pbSrc = pbSrc + 1;
 
-             if (fFirstLine)
-             {
-                 pbDest = WriteFirstLineFgBgImage(
-                     pbDest,
-                     bitmask,
-                     fgPel,
-                     runLength
-                     );
-             }
-             else
-             {
-                 pbDest = WriteFgBgImage(
-                     pbDest,
-                     rowDelta,
-                     bitmask,
-                     fgPel,
-                     runLength
-                     );
-             }
-         }
+                if (fFirstLine)
+                {
+                    pbDest = WriteFirstLineFgBgImage(
+                        pbDest,
+                        bitmask,
+                        fgPel,
+                        runLength
+                    );
+                }
+                else
+                {
+                    pbDest = WriteFgBgImage(
+                        pbDest,
+                        rowDelta,
+                        bitmask,
+                        fgPel,
+                        runLength
+                    );
+                }
+            }
 
-         continue;
+            continue;
         }
 
         //
         // Handle Color Image Orders.
         //
-        if (code == REGULAR_COLOR_IMAGE OR
-         code == MEGA_MEGA_COLOR_IMAGE)
+        if (code == REGULAR_COLOR_IMAGE OR code == MEGA_MEGA_COLOR_IMAGE)
         {
-         UINT byteCount;
+            UINT byteCount;
 
-         runLength = ExtractRunLength(code, pbSrc);
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            runLength = ExtractRunLength(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         byteCount = runLength * GetPixelSize();
+            byteCount = runLength * GetPixelSize();
 
-         while (byteCount > 0)
-         {
-             *pbDest = *pbSrc;
-             pbDest = pbDest + 1;
-             pbSrc = pbSrc + 1;
+            while (byteCount > 0)
+            {
+                *pbDest = *pbSrc;
+                pbDest = pbDest + 1;
+                pbSrc = pbSrc + 1;
 
-             byteCount = byteCount - 1;
-         }
+                byteCount = byteCount - 1;
+            }
 
-         continue;
+            continue;
         }
 
         //
@@ -999,29 +947,29 @@ RleDecompress(
         //
         if (code == SPECIAL_FGBG_1)
         {
-        pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         if (fFirstLine)
-         {
-             pbDest = WriteFirstLineFgBgImage(
-                 pbDest,
-                 g_MaskSpecialFgBg1,
-                 fgPel,
-                 8
-                 );
-         }
-         else
-         {
-             pbDest = WriteFgBgImage(
-                 pbDest,
-                 rowDelta,
-                 g_MaskSpecialFgBg1,
-                 fgPel,
-                 8
-                 );
-         }
+            if (fFirstLine)
+            {
+                pbDest = WriteFirstLineFgBgImage(
+                    pbDest,
+                    g_MaskSpecialFgBg1,
+                    fgPel,
+                    8
+                );
+            }
+            else
+            {
+                pbDest = WriteFgBgImage(
+                    pbDest,
+                    rowDelta,
+                    g_MaskSpecialFgBg1,
+                    fgPel,
+                    8
+                );
+            }
 
-         continue;
+            continue;
         }
 
         //
@@ -1029,29 +977,29 @@ RleDecompress(
         //
         if (code == SPECIAL_FGBG_2)
         {
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         if (fFirstLine)
-         {
-             pbDest = WriteFirstLineFgBgImage(
-                 pbDest,
-                 g_MaskSpecialFgBg2,
-                 fgPel,
-                 8
-                 );
-         }
-         else
-         {
-             pbDest = WriteFgBgImage(
-                 pbDest,
-                 rowDelta,
-                 g_MaskSpecialFgBg2,
-                 fgPel,
-                 8
-                 );
-         }
+            if (fFirstLine)
+            {
+                pbDest = WriteFirstLineFgBgImage(
+                    pbDest,
+                    g_MaskSpecialFgBg2,
+                    fgPel,
+                    8
+                );
+            }
+            else
+            {
+                pbDest = WriteFgBgImage(
+                    pbDest,
+                    rowDelta,
+                    g_MaskSpecialFgBg2,
+                    fgPel,
+                    8
+                );
+            }
 
-         continue;
+            continue;
         }
 
         //
@@ -1059,12 +1007,12 @@ RleDecompress(
         //
         if (code == WHITE)
         {
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         WritePixel(pbDest, GetColorWhite());
-         pbDest = NextPixel(pbDest);
+            WritePixel(pbDest, GetColorWhite());
+            pbDest = NextPixel(pbDest);
 
-         continue;
+            continue;
         }
 
         //
@@ -1072,12 +1020,12 @@ RleDecompress(
         //
         if (code == BLACK)
         {
-         pbSrc = AdvanceOverOrderHeader(code, pbSrc);
+            pbSrc = AdvanceOverOrderHeader(code, pbSrc);
 
-         WritePixel(pbDest, GetColorBlack());
-         pbDest = NextPixel(pbDest);
+            WritePixel(pbDest, GetColorBlack());
+            pbDest = NextPixel(pbDest);
 
-         continue;
+            continue;
         }
 
         return FALSE;
@@ -1139,28 +1087,32 @@ VOID rgb2rgba(BYTE* inA, UINT inLength, BYTE* outA)
 }
 
 BOOL
-RleDecompressAndFlipAndRGBA(
+ProcessBitmapData(
  BYTE* pbSrcBuffer, // Source buffer containing compressed bitmap
  UINT cbSrcBuffer, // Size of source buffer in bytes
  BYTE* pbDestBuffer, // Destination buffer
  UINT rowDelta, // Scanline length in bytes
- UINT ouputSize,
+ UINT outputSize,
  UINT width,
  UINT height,
  BYTE* flipVTempPtr,
- BYTE* pbResultBuffer
+ BYTE* pbResultBuffer,
+ BOOL isCompressed
  )
 {
-    BOOL result = RleDecompress(pbSrcBuffer, cbSrcBuffer, pbDestBuffer, rowDelta);
+    if (isCompressed) {
+        BOOL result = RleDecompress(pbSrcBuffer, cbSrcBuffer, pbDestBuffer, rowDelta);
 
-    if (result == FALSE)
-    {
-        return result;
+        if (result == FALSE)
+        {
+            return FALSE;
+        }
+    } else {
+        pbDestBuffer = pbSrcBuffer;
     }
 
     flipV(pbDestBuffer, width, height, flipVTempPtr);
-    rgb2rgba(pbDestBuffer, ouputSize, pbResultBuffer);
-//    memcpy(pbDestBuffer, temp, ouputSize);
+    rgb2rgba(pbDestBuffer, outputSize, pbResultBuffer);
 
     return TRUE;
 }

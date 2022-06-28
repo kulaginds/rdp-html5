@@ -10,7 +10,6 @@ import (
 type tpktLayer interface {
 	Receive() (io.Reader, error)
 	Send(pduData []byte) error
-	Close() error
 	StartHandleFastpath()
 	ReceiveProtocol() (tpkt.Protocol, error)
 }
