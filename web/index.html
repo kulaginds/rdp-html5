@@ -1,6 +1,7 @@
 <html lang="eu">
 <head>
     <title>Web RDP Solution</title>
+    <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
     <script src="js/binary.js"></script>
 <!--    <script src="js/color.js"></script>-->
 <!--    <script src="js/rle/rle-wasm.js"></script>-->
@@ -25,6 +26,46 @@
 <div>
     <canvas id="canvas" width="1024" height="768"></canvas>
 </div>
+
+<script id="vertex-shader-2d" type="x-shader/x-vertex">
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+
+uniform vec2 u_resolution;
+
+varying vec2 v_texCoord;
+
+void main() {
+   // convert the rectangle from pixels to 0.0 to 1.0
+   vec2 zeroToOne = a_position / u_resolution;
+
+   // convert from 0->1 to 0->2
+   vec2 zeroToTwo = zeroToOne * 2.0;
+
+   // convert from 0->2 to -1->+1 (clipspace)
+   vec2 clipSpace = zeroToTwo - 1.0;
+
+   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+
+   // pass the texCoord to the fragment shader
+   // The GPU will interpolate this value between points.
+   v_texCoord = a_texCoord;
+}
+</script>
+
+<script id="fragment-shader-2d" type="x-shader/x-fragment">
+precision mediump float;
+
+// our texture
+uniform sampler2D u_image;
+
+// the texCoords passed in from the vertex shader.
+varying vec2 v_texCoord;
+
+void main() {
+   gl_FragColor = texture2D(u_image, v_texCoord);
+}
+</script>
 
 <script>
     const client = new Client("canvas");
