@@ -198,8 +198,7 @@ func (pdu *UpdatePDU) Deserialize(wire io.Reader) error {
 
 func (i *impl) Receive(fpOutputHeader uint8) (*UpdatePDU, error) {
 	pdu := NewUpdatePDU(fpOutputHeader)
-	pdu.Data = i.updatePDUDataPool.Get().([]byte)
-	defer i.updatePDUDataPool.Put(pdu.Data)
+	pdu.Data = i.updatePDUData
 	if err := pdu.Deserialize(i.conn); err != nil {
 		return nil, err
 	}

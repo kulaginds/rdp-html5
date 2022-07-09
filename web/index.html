@@ -1,7 +1,6 @@
 <html lang="eu">
 <head>
     <title>Web RDP Solution</title>
-    <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
     <script src="js/binary.js"></script>
 <!--    <script src="js/color.js"></script>-->
 <!--    <script src="js/rle/rle-wasm.js"></script>-->
@@ -54,7 +53,7 @@ void main() {
 </script>
 
 <script id="fragment-shader-2d" type="x-shader/x-fragment">
-precision mediump float;
+precision lowp float;
 
 // our texture
 uniform sampler2D u_image;

@@ -40,8 +40,6 @@
 
     ctx.putImageData(new ImageData(new Uint8ClampedArray(data), 64, 64), 0, 0);
   }
-
-  // canvas2d();
 </script>
 
 <script id="vertex-shader-2d" type="x-shader/x-vertex">
@@ -71,7 +69,7 @@ void main() {
 </script>
 
 <script id="fragment-shader-2d" type="x-shader/x-fragment">
-precision mediump float;
+precision lowp float;
 
 // our texture
 uniform sampler2D u_image;
@@ -113,6 +111,7 @@ void main() {
     // look up where the vertex data needs to go.
     var positionLocation = gl.getAttribLocation(program, "a_position");
     var texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
+    var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
 
     // --
 
@@ -148,9 +147,6 @@ void main() {
 
     // Upload the image into the texture.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-    // lookup uniforms
-    var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
 
     // Turn on the position attribute
     gl.enableVertexAttribArray(positionLocation);
@@ -190,6 +186,8 @@ void main() {
     var offset = 0;
     var count = 6;
     gl.drawArrays(primitiveType, offset, count);
+
+    gl.deleteTexture(texture);
   }
 
   function setRectangle(gl, x, y, width, height) {
@@ -213,6 +211,7 @@ void main() {
   }
 
   webgl();
+  // canvas2d();
 </script>
 </body>
 </html>

@@ -1,9 +1,7 @@
 function Client(canvasID) {
     this.canvas = document.getElementById(canvasID);
-    // this.ctx = this.canvas.getContext("2d");
-    this.ctx = this.canvas.getContext("webgl", {preserveDrawingBuffer:true});
+    this.ctx = this.canvas.getContext("2d");
     this.connected = false;
-
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -64,116 +62,6 @@ Client.prototype.initialize = function () {
     this.outputPtr = Module._malloc(resultSize);
     this.flipVTempPtr = Module._malloc(rowDelta);
     this.pbResultBufferPtr = Module._malloc(resultSize);
-
-    this.initGL();
-};
-
-Client.prototype.initGL = function () {
-    const gl = this.ctx;
-
-    // setup GLSL program
-    var program = webglUtils.createProgramFromScripts(gl, ["vertex-shader-2d", "fragment-shader-2d"]);
-    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(program);
-
-    this.positionLocation = gl.getAttribLocation(program, "a_position");
-    this.texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
-    this.positionBuffer = gl.createBuffer();
-    this.texcoordBuffer = gl.createBuffer();
-    this.resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-};
-
-function setRectangle(gl, x, y, width, height) {
-    var x1 = x;
-    var x2 = x + width;
-    var y1 = y;
-    var y2 = y + height;
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        x1, y1,
-        x2, y1,
-        x1, y2,
-        x1, y2,
-        x2, y1,
-        x2, y2,
-    ]), gl.STATIC_DRAW);
-}
-
-Client.prototype.putImageData = function (image, x, y) {
-    const gl = this.ctx;
-
-    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
-
-    // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-    // Set a rectangle the same size as the image.
-    setRectangle(gl, x, y, image.width, image.height);
-
-    // provide texture coordinates for the rectangle.
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        0.0,  0.0,
-        1.0,  0.0,
-        0.0,  1.0,
-        0.0,  1.0,
-        1.0,  0.0,
-        1.0,  1.0,
-    ]), gl.STATIC_DRAW);
-
-    // Create a texture.
-    var texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-    // Upload the image into the texture.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-    // Turn on the position attribute
-    gl.enableVertexAttribArray(this.positionLocation);
-
-    // Bind the position buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-
-    // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    var size = 2;          // 2 components per iteration
-    var type = gl.FLOAT;   // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;        // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-        this.positionLocation, size, type, normalize, stride, offset);
-
-    // Turn on the texcoord attribute
-    gl.enableVertexAttribArray(this.texcoordLocation);
-
-    // bind the texcoord buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
-
-    // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
-    var size = 2;          // 2 components per iteration
-    var type = gl.FLOAT;   // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;        // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-        this.texcoordLocation, size, type, normalize, stride, offset);
-
-    // set the resolution
-    gl.uniform2f(this.resolutionLocation, gl.canvas.width, gl.canvas.height);
-
-    // Draw the rectangle.
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 6;
-
-    gl.drawArrays(primitiveType, offset, count);
 };
 
 Client.prototype.deinitialize = function () {
@@ -257,7 +145,7 @@ Client.prototype.handleBitmap = function (r) {
         }
 
         const data = new Uint8ClampedArray(Module.HEAP8.buffer.slice(pbResultBufferPtr, pbResultBufferPtr + resultSize));
-        this.putImageData(new ImageData(data, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
+        this.ctx.putImageData(new ImageData(data, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
     });
 };
 
