@@ -571,7 +571,8 @@ func NewPointerCapabilitySet() *CapabilitySet {
 	return &CapabilitySet{
 		CapabilitySetType: CapabilitySetTypePointer,
 		PointerCapabilitySet: &PointerCapabilitySet{
-			ColorPointerCacheSize: 20,
+			ColorPointerFlag: 1, // color mouse cursors are supported
+			PointerCacheSize: 25,
 		},
 	}
 }

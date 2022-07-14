@@ -6,9 +6,9 @@ const FASTPATH_UPDATETYPE_SURFCMDS = 0x4;
 const FASTPATH_UPDATETYPE_PTR_NULL = 0x5;
 const FASTPATH_UPDATETYPE_PTR_DEFAULT = 0x6;
 const FASTPATH_UPDATETYPE_PTR_POSITION = 0x8;
-const FASTPATH_UPDATETYPE_COLOR = 0x9;
-const FASTPATH_UPDATETYPE_CACHED = 0xa;
-const FASTPATH_UPDATETYPE_POINTER = 0xb;
+const FASTPATH_UPDATETYPE_PTR_COLOR = 0x9;
+const FASTPATH_UPDATETYPE_PTR_CACHED = 0xa;
+const FASTPATH_UPDATETYPE_PTR_NEW = 0xb;
 const FASTPATH_UPDATETYPE_LARGE_POINTER = 0xc;
 
 const FASTPATH_FRAGMENT_SINGLE = 0x0;
@@ -47,6 +47,13 @@ UpdateHeader.prototype.isSurfCMDs = function () {
     return this.updateCode === FASTPATH_UPDATETYPE_SURFCMDS;
 };
 
+UpdateHeader.prototype.isPointer = function () {
+    return this.isPTRNull() || this.isPTRDefault()
+        || this.isPTRPosition() || this.isPTRColor()
+        || this.isPTRCached() || this.isPTRNew()
+        || this.isLargePointer();
+};
+
 UpdateHeader.prototype.isPTRNull = function () {
     return this.updateCode === FASTPATH_UPDATETYPE_PTR_NULL;
 };
@@ -59,16 +66,16 @@ UpdateHeader.prototype.isPTRPosition = function () {
     return this.updateCode === FASTPATH_UPDATETYPE_PTR_POSITION;
 };
 
-UpdateHeader.prototype.isColor = function () {
-    return this.updateCode === FASTPATH_UPDATETYPE_COLOR;
+UpdateHeader.prototype.isPTRColor = function () {
+    return this.updateCode === FASTPATH_UPDATETYPE_PTR_COLOR;
 };
 
-UpdateHeader.prototype.isCached = function () {
-    return this.updateCode === FASTPATH_UPDATETYPE_CACHED;
+UpdateHeader.prototype.isPTRCached = function () {
+    return this.updateCode === FASTPATH_UPDATETYPE_PTR_CACHED;
 };
 
-UpdateHeader.prototype.isPointer = function () {
-    return this.updateCode === FASTPATH_UPDATETYPE_POINTER;
+UpdateHeader.prototype.isPTRNew = function () {
+    return this.updateCode === FASTPATH_UPDATETYPE_PTR_NEW;
 };
 
 UpdateHeader.prototype.isLargePointer = function () {

@@ -53,7 +53,7 @@ func newClientCoreData(selectedProtocol uint32, desktopWidth, desktopHeight uint
 		SerialNumber:           0x00000000,
 		HighColorDepth:         0x0010, // HIGH_COLOR_16BPP
 		SupportedColorDepths:   0x0002, // RNS_UD_16BPP_SUPPORT
-		EarlyCapabilityFlags:   0x0001, // RNS_UD_CS_SUPPORT_ERRINFO_PDU
+		EarlyCapabilityFlags:   ECFSupportErrInfoPDU,
 		ClientDigProductId:     [64]byte{},
 		ConnectionType:         0x00,
 		Pad1octet:              0x00,

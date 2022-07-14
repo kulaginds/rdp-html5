@@ -238,6 +238,9 @@ func (p *protocol) Connect(
 	p.channels["global"] = resp.ServerConnectResponse.UserData.UserData.ServerNetworkData.MCSChannelId
 	p.initChannels(channelNames, resp.ServerConnectResponse.UserData.UserData.ServerNetworkData.ChannelIdArray)
 
+	log.Printf("MCS: Server Connect Response: earlyCapabilityFlags: %d\n", resp.ServerConnectResponse.UserData.UserData.ServerCoreData.EarlyCapabilityFlags)
+
+	// RNS_UD_SC_SKIP_CHANNELJOIN_SUPPORTED = 0x00000008
 	p.skipChannelJoin = resp.ServerConnectResponse.UserData.UserData.ServerCoreData.EarlyCapabilityFlags&0x8 == 0x8
 	p.connected = true
 

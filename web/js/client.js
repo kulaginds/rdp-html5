@@ -1,14 +1,17 @@
 function Client(canvasID) {
     this.canvas = document.getElementById(canvasID);
     this.ctx = this.canvas.getContext("2d");
+    this.pointerCacheCanvas = document.getElementById("pointer-cache");
+    this.pointerCacheCanvasCtx = this.pointerCacheCanvas.getContext("2d");
     this.connected = false;
+    this.pointerCache = {};
+
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleWheel = this.handleWheel.bind(this);
-
     this.initialize = this.initialize.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.deinitialize = this.deinitialize.bind(this);
@@ -79,6 +82,12 @@ Client.prototype.deinitialize = function () {
     Module._free(this.outputPtr);
     Module._free(this.flipVTempPtr);
     Module._free(this.pbResultBufferPtr);
+
+    Object.entries(this.pointerCache).forEach(([index, style]) => {
+        document.getElementsByTagName('head')[0].removeChild(style);
+    });
+    this.pointerCache = {};
+    this.canvas.classList = [];
 };
 
 Client.prototype.handleMessage = function (arrayBuffer) {
@@ -101,9 +110,9 @@ Client.prototype.handleMessage = function (arrayBuffer) {
         return;
     }
 
-    if (header.isColor() || header.isPTRDefault() || header.isPTRNull()) {
-        // pointer cache update
-        // or set pointer style
+    if (header.isPointer()) {
+        this.handlePointer(header, r);
+
         return;
     }
 
@@ -114,7 +123,6 @@ Client.prototype.handleBitmap = function (r) {
     const bitmap = parseBitmapUpdate(r);
 
     const size = 64;
-    const rowDelta = size * 2;
     const resultSize = size * size * 4;
 
     const inputPtr = this.inputPtr;
@@ -147,6 +155,66 @@ Client.prototype.handleBitmap = function (r) {
         const data = new Uint8ClampedArray(Module.HEAP8.buffer.slice(pbResultBufferPtr, pbResultBufferPtr + resultSize));
         this.ctx.putImageData(new ImageData(data, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
     });
+};
+
+Client.prototype.handlePointer = function (header, r) {
+    if (header.isPTRNull()) {
+        this.canvas.classList = ['pointer-cache-null'];
+
+        return;
+    }
+
+    if (header.isPTRDefault()) {
+        this.canvas.classList = ['pointer-cache-default'];
+
+        return;
+    }
+
+    if (header.isPTRColor()) {
+        console.warn("ptr color is unsupported")
+
+        return;
+    }
+
+    if (header.isPTRNew()) {
+        console.log('ptr new');
+
+        const newPointerUpdate = parseNewPointerUpdate(r);
+        this.pointerCacheCanvasCtx.putImageData(newPointerUpdate.getImageData(this.pointerCacheCanvasCtx), 0, 0)
+
+        const url = this.pointerCacheCanvas.toDataURL('image/webp', 1);
+
+        if (newPointerUpdate.cacheIndex in Object.keys(this.pointerCache)) {
+            document.getElementsByTagName('head')[0].removeChild(this.pointerCache[newPointerUpdate.cacheIndex]);
+
+            delete this.pointerCache[newPointerUpdate.cacheIndex];
+        }
+
+        const style = document.createElement('style');
+        const className = 'pointer-cache-' + newPointerUpdate.cacheIndex
+        style.innerHTML = '.' + className + ' {cursor:url("' + url + '"),auto}';
+
+        document.getElementsByTagName('head')[0].appendChild(style);
+
+        this.pointerCache[newPointerUpdate.cacheIndex] = style;
+
+        this.canvas.classList = [className];
+
+        return;
+    }
+
+    if (header.isPTRCached()) {
+        console.log('ptr cached');
+
+        const cacheIndex = r.uint16(true);
+        const className = 'pointer-cache-' + cacheIndex;
+
+        this.canvas.classList = [className];
+
+        return;
+    }
+
+    console.log("unknown cursor:", header.updateCode);
 };
 
 Client.prototype.handleKeyDown = function (e) {
