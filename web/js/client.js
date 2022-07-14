@@ -88,6 +88,8 @@ Client.prototype.deinitialize = function () {
     });
     this.pointerCache = {};
     this.canvas.classList = [];
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 };
 
 Client.prototype.handleMessage = function (arrayBuffer) {
@@ -177,8 +179,6 @@ Client.prototype.handlePointer = function (header, r) {
     }
 
     if (header.isPTRNew()) {
-        console.log('ptr new');
-
         const newPointerUpdate = parseNewPointerUpdate(r);
         this.pointerCacheCanvasCtx.putImageData(newPointerUpdate.getImageData(this.pointerCacheCanvasCtx), 0, 0)
 
@@ -192,7 +192,7 @@ Client.prototype.handlePointer = function (header, r) {
 
         const style = document.createElement('style');
         const className = 'pointer-cache-' + newPointerUpdate.cacheIndex
-        style.innerHTML = '.' + className + ' {cursor:url("' + url + '"),auto}';
+        style.innerHTML = '.' + className + ' {cursor:url("' + url + '") ' + newPointerUpdate.x + ' ' + newPointerUpdate.y + ', auto}';
 
         document.getElementsByTagName('head')[0].appendChild(style);
 
@@ -204,8 +204,6 @@ Client.prototype.handlePointer = function (header, r) {
     }
 
     if (header.isPTRCached()) {
-        console.log('ptr cached');
-
         const cacheIndex = r.uint16(true);
         const className = 'pointer-cache-' + cacheIndex;
 

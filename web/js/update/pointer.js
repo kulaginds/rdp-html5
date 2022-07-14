@@ -27,8 +27,31 @@ NewPointerUpdate.prototype.getImageData = function (pointerCtx) {
     }
 
     for (let y = 0; y < this.height; y++) {
+        let andBits = this.andMaskData[andStep * (this.height - y - 1)];
+        let andBit = 0x80;
+
         for (let x = 0; x < this.width; x++) {
+            let andPixel = 0;
             let xorPixel = this.getPixel(xorStep * (this.height - y - 1) + xorBytesPerPixel * x);
+
+            if (this.andMaskData)
+            {
+                andPixel = (andBits & andBit) ? 1 : 0;
+
+                if (!(andBit >>= 1))
+                {
+                    andBits++;
+                    andBit = 0x80;
+                }
+            }
+
+            if (andPixel)
+            {
+                if (xorPixel === 0xFF000000) /* black -> transparent */
+                    xorPixel = 0x00000000;
+                else if (xorPixel === 0xFFFFFFFF) /* white -> inverted */
+                    xorPixel = invertedPointerColor(x, y);
+            }
 
             putPixelToImageData(imageData, y * this.width + x, xorPixel);
         }
@@ -36,6 +59,10 @@ NewPointerUpdate.prototype.getImageData = function (pointerCtx) {
 
     return imageData;
 };
+
+function invertedPointerColor(x, y) {
+    return ((x + y) & 1) ? 0x000000FF : 0xFFFFFFFF;
+}
 
 NewPointerUpdate.prototype.getPixel = function(i) {
     const src = this.xorMaskData;
