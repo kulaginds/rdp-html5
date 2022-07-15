@@ -218,6 +218,12 @@ Client.prototype.handlePointer = function (header, r) {
         return;
     }
 
+    if (header.isPTRPosition()) {
+        console.warn("ptr position is unsupported")
+
+        return;
+    }
+
     console.log("unknown cursor:", header.updateCode);
 };
 
