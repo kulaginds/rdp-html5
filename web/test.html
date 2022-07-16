@@ -1,20 +1,9 @@
 <html lang="eu">
 <head>
   <title>Web RDP Solution</title>
-  <script src="js/binary.js"></script>
-  <script src="js/color.js"></script>
-  <!--    <script src="js/rle/rle-wasm.js"></script>-->
-  <!--    <script src="js/rle/wsgate.js"></script>-->
   <script src="js/rle/ms-rle-wasm.js"></script>
-  <!--    <script src="js/rle/freerdp-rle-wasm.js"></script>-->
-  <script src="js/update/header.js"></script>
-  <script src="js/update/bitmap.js"></script>
-  <script src="js/input/header.js"></script>
-  <script src="js/input/keymap.js"></script>
-  <script src="js/input/keyboard.js"></script>
-  <script src="js/input/mouse.js"></script>
-  <script src="js/decompress2.js"></script>
-  <script src="js/client.js"></script>
+  <script src="js/color.js"></script>
+  <script src="js/binary.js"></script>
 </head>
 <body>
 <div>
@@ -22,12 +11,6 @@
 </div>
 
 <script>
-  function hex2buf(hex) {
-    return new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
-      return parseInt(h, 16)
-    }))
-  }
-
   function canvas2d() {
     const ctx = document.getElementById("canvas").getContext("2d");
 
@@ -40,6 +23,59 @@
 
     ctx.putImageData(new ImageData(new Uint8ClampedArray(data), 64, 64), 0, 0);
   }
+
+  function renderRLE(hex) {
+    const ctx = document.getElementById("canvas").getContext("2d");
+
+    const rleData = hex2buf(hex);
+    const rgb16Data = rleDecompress(rleData, true);
+
+    console.log(buf2hex(rgb16Data));
+
+    flipV(rgb16Data, 64, 64);
+
+    const rgbaData = new Uint8Array(64*64*4);
+    rgb2rgba(rgb16Data, rgb16Data.byteLength, rgbaData);
+
+    ctx.putImageData(new ImageData(new Uint8ClampedArray(rgbaData), 64, 64), 0, 0);
+  }
+
+  function rleDecompress(rleData) {
+    const size = 64;
+    const rowDelta = size * 2;
+    const resultSize = size * size * 2;
+    const inputPtr = Module._malloc(rowDelta * size);
+    const outputPtr = Module._malloc(resultSize);
+    const inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, resultSize);
+    inputHeap.set(new Uint8Array(rleData));
+
+    const result = Module.ccall('RleDecompress',
+      'number',
+      ['number', 'number', 'number', 'number'],
+      [
+        inputPtr, rleData.buffer.byteLength,
+        outputPtr,
+        size * 2,
+      ]
+    );
+
+    if (!result) {
+      console.log("bad decompress:", rleData);
+      return;
+    }
+
+    const rgb16Data = new Uint8ClampedArray(Module.HEAP8.buffer.slice(outputPtr, outputPtr + resultSize));
+
+    Module._free(inputPtr);
+    Module._free(outputPtr);
+
+    return rgb16Data;
+  }
+
+  // canvas2d();
+  window.onload = function () {
+    renderRLE("001c840000000000000000f0000ac0304529c030dbdef04802c028b29409c027610809fdc02659ce0a811ce7c0258a52f02901d0879ef787080000000000800f0c0000000000c018404e06000000000000000300");
+  };
 </script>
 
 <script id="vertex-shader-2d" type="x-shader/x-vertex">
@@ -210,8 +246,7 @@ void main() {
     render(new ImageData(new Uint8ClampedArray(data), 64, 64));
   }
 
-  webgl();
-  // canvas2d();
+  // webgl();
 </script>
 </body>
 </html>

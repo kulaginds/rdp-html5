@@ -80,3 +80,15 @@ BinaryWriter.prototype.bytes = function (bytes) {
 BinaryWriter.prototype.skip = function(length) {
     this.offset += length;
 };
+
+function buf2hex(buffer) { // buffer is an ArrayBuffer
+    return [...new Uint8Array(buffer)]
+        .map(x => x.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+function hex2buf(hex) {
+    return new Uint8Array(hex.match(/[\da-f]{2}/gi).map(function (h) {
+        return parseInt(h, 16)
+    }))
+}
