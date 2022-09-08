@@ -11,6 +11,12 @@ import (
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/x224"
 )
 
+type RemoteApp struct {
+	App        string
+	WorkingDir string
+	Args       string
+}
+
 type client struct {
 	conn      net.Conn
 	tpktLayer tpktLayer
@@ -23,6 +29,9 @@ type client struct {
 	password string
 
 	desktopWidth, desktopHeight uint16
+
+	remoteApp *RemoteApp
+	railState RailState
 
 	selectedProtocol       x224.RDPNegotiationProtocol
 	serverNegotiationFlags x224.RDPNegotiationResponseFlag

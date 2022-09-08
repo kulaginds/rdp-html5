@@ -130,15 +130,13 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
 Client.prototype.handleBitmap = function (r) {
     const bitmap = parseBitmapUpdate(r);
 
-    const size = 64;
-    const resultSize = size * size * 4;
-
     const inputPtr = this.inputPtr;
     const outputPtr = this.outputPtr;
     const flipVTempPtr = this.flipVTempPtr;
     const pbResultBufferPtr = this.pbResultBufferPtr;
 
     bitmap.rectangles.forEach((bitmapData) => {
+        const resultSize = bitmapData.width * bitmapData.height * 4;
         const inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, resultSize);
         inputHeap.set(new Uint8Array(bitmapData.bitmapDataStream));
 

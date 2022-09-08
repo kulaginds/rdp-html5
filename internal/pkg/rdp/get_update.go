@@ -14,11 +14,23 @@ func (c *client) GetUpdate() (*fastpath.UpdatePDU, error) {
 	}
 
 	if protocol.IsX224() {
-		var wire io.Reader
+		var (
+			channelName string
+			wire        io.Reader
+		)
 
-		_, wire, err = c.mcsLayer.Receive()
+		channelName, wire, err = c.mcsLayer.Receive()
 		if err != nil {
 			return nil, err
+		}
+
+		if channelName == "rail" {
+			err = c.handleRail(wire)
+			if err != nil {
+				return nil, err
+			}
+
+			return c.GetUpdate()
 		}
 
 		var data DataPDU

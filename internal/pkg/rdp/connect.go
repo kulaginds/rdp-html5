@@ -81,6 +81,10 @@ func (c *client) channelConnection() error {
 func (c *client) secureSettingsExchange() error {
 	clientInfoPDU := NewClientInfoPDU(c.domain, c.username, c.password)
 
+	if c.remoteApp != nil {
+		clientInfoPDU.InfoPacket.Flags |= InfoFlagRail
+	}
+
 	log.Println("RDP: Client Info")
 
 	if err := c.mcsLayer.Send("global", clientInfoPDU.Serialize()); err != nil {

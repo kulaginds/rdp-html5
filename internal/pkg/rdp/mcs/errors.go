@@ -8,4 +8,5 @@ var (
 	ErrUnknownConnectApplication = errors.New("unknown connect application")
 	ErrUnknownDomainApplication  = errors.New("unknown domain application")
 	ErrUnknownChannel            = errors.New("unknown channel")
+	ErrDisconnectUltimatum       = errors.New("disconnect ultimatum")
 )

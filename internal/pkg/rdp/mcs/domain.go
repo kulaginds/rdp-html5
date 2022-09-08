@@ -121,6 +121,8 @@ func (pdu *DomainPDU) Deserialize(wire io.Reader) error {
 		pdu.ClientSendDataRequest = &ClientSendDataRequest{}
 
 		return pdu.ClientSendDataRequest.Deserialize(wire)
+	case disconnectProviderUltimatum:
+		return ErrDisconnectUltimatum
 	}
 
 	return fmt.Errorf("%w: application=%v", ErrUnknownDomainApplication, pdu.Application)

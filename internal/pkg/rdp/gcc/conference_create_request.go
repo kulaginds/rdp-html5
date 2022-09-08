@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/per"
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/utf16"
 )
 
 type ClientCoreData struct {
@@ -34,16 +35,14 @@ type ClientCoreData struct {
 
 func newClientCoreData(selectedProtocol uint32, desktopWidth, desktopHeight uint16) *ClientCoreData {
 	data := ClientCoreData{
-		Version:        rdpVersion5Plus,
-		DesktopWidth:   desktopWidth,
-		DesktopHeight:  desktopHeight,
-		ColorDepth:     0xCA01,     // RNS_UD_COLOR_8BPP
-		SASSequence:    0xAA03,     // RNS_UD_SAS_DEL
-		KeyboardLayout: 0x00000409, // US
-		ClientBuild:    0xece,
-		ClientName: [32]byte{
-			'w', 'e', 'b', '-', 'r', 'd', 'p', '-', 's', 'o', 'l', 'u', 't', 'i', 'o', 'n',
-		},
+		Version:                rdpVersion5Plus,
+		DesktopWidth:           desktopWidth,
+		DesktopHeight:          desktopHeight,
+		ColorDepth:             0xCA01,     // RNS_UD_COLOR_8BPP
+		SASSequence:            0xAA03,     // RNS_UD_SAS_DEL
+		KeyboardLayout:         0x00000409, // US
+		ClientBuild:            0xece,
+		ClientName:             [32]byte{},
 		KeyboardType:           keyboardTypeIBM101or102Keys,
 		KeyboardSubType:        0x00000000,
 		KeyboardFunctionKey:    12,
@@ -133,6 +132,8 @@ func NewConferenceCreateRequest(
 
 func (data ClientCoreData) Serialize() []byte {
 	const dataLen uint16 = 216
+
+	copy(data.ClientName[:], utf16.Encode("web-rdp"))
 
 	buf := bytes.NewBuffer(make([]byte, 0, dataLen))
 

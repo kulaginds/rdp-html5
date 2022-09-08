@@ -121,6 +121,8 @@ type CapabilitySet struct {
 	DesktopCompositionCapabilitySet     *DesktopCompositionCapabilitySet
 	SurfaceCommandsCapabilitySet        *SurfaceCommandsCapabilitySet
 	BitmapCodecsCapabilitySet           *BitmapCodecsCapabilitySet
+	RailCapabilitySet                   *RailCapabilitySet
+	WindowListCapabilitySet             *WindowListCapabilitySet
 }
 
 func (set *CapabilitySet) Serialize() []byte {
@@ -167,6 +169,10 @@ func (set *CapabilitySet) Serialize() []byte {
 		data = set.DrawGDIPlusCapabilitySet.Serialize()
 	case CapabilitySetTypeMultifragmentUpdate:
 		data = set.MultifragmentUpdateCapabilitySet.Serialize()
+	case CapabilitySetTypeRail:
+		data = set.RailCapabilitySet.Serialize()
+	case CapabilitySetTypeWindow:
+		data = set.WindowListCapabilitySet.Serialize()
 	}
 
 	buf := &bytes.Buffer{}
@@ -503,6 +509,10 @@ func (c *client) capabilitiesExchange() error {
 		*NewVirtualChannelCapabilitySet(),
 		*NewSoundCapabilitySet(),
 		*NewMultifragmentUpdateCapabilitySet(),
+	}
+
+	if c.remoteApp != nil {
+		req.CapabilitySets = append(req.CapabilitySets, *NewRailCapabilitySet(), *NewWindowListCapabilitySet())
 	}
 
 	return c.mcsLayer.Send("global", req.Serialize())

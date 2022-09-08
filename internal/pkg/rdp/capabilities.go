@@ -1411,3 +1411,49 @@ func (s *BitmapCodecsCapabilitySet) Deserialize(wire io.Reader) error {
 
 	return nil
 }
+
+type RailCapabilitySet struct {
+	RailSupportLevel uint32
+}
+
+func NewRailCapabilitySet() *CapabilitySet {
+	return &CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeRail,
+		RailCapabilitySet: &RailCapabilitySet{
+			RailSupportLevel: 1, // TS_RAIL_LEVEL_SUPPORTED
+		},
+	}
+}
+
+func (s *RailCapabilitySet) Serialize() []byte {
+	buf := &bytes.Buffer{}
+
+	binary.Write(buf, binary.LittleEndian, s.RailSupportLevel)
+
+	return buf.Bytes()
+}
+
+type WindowListCapabilitySet struct {
+	WndSupportLevel     uint32
+	NumIconCaches       uint8
+	NumIconCacheEntries uint16
+}
+
+func NewWindowListCapabilitySet() *CapabilitySet {
+	return &CapabilitySet{
+		CapabilitySetType: CapabilitySetTypeWindow,
+		WindowListCapabilitySet: &WindowListCapabilitySet{
+			WndSupportLevel: 0, // TS_WINDOW_LEVEL_NOT_SUPPORTED
+		},
+	}
+}
+
+func (s *WindowListCapabilitySet) Serialize() []byte {
+	buf := &bytes.Buffer{}
+
+	binary.Write(buf, binary.LittleEndian, s.WndSupportLevel)
+	binary.Write(buf, binary.LittleEndian, s.NumIconCaches)
+	binary.Write(buf, binary.LittleEndian, s.NumIconCacheEntries)
+
+	return buf.Bytes()
+}

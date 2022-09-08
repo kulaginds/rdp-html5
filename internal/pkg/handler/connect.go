@@ -77,6 +77,9 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rdpClient.Close()
 
+	//rdpClient.SetRemoteApp("C:\\agent\\agent.exe", ".\\Downloads\\cbct1.zip", "C:\\Users\\Doc")
+	//rdpClient.SetRemoteApp("explore", "", "")
+
 	if err = rdpClient.Connect(); err != nil {
 		log.Println(fmt.Errorf("rdp connect: %w", err))
 		wsConn.WriteMessage(1, []byte(`{"error": "rdp connect"}`))

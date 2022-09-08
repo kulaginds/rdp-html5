@@ -31,7 +31,7 @@ function buf2RGBA(inA, inI, outA, outI) {
     var pelR = (pel & 0xF800) >> 11;
     var pelG = (pel & 0x7E0) >> 5;
     var pelB = pel & 0x1F;
-    // 656 -> 888
+    // 565 -> 888
     pelR = (pelR << 3 & ~0x7) | (pelR >> 2);
     pelG = (pelG << 2 & ~0x3) | (pelG >> 4);
     pelB = (pelB << 3 & ~0x7) | (pelB >> 2);

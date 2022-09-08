@@ -206,7 +206,7 @@ func (c *client) connectionFinalization() error {
 
 	for {
 		if serverSynchronizeReceived && controlCooperateReceived && grantedControlReceived && fontMapReceived {
-			return nil
+			break
 		}
 
 		_, wire, err = c.mcsLayer.Receive()
@@ -240,4 +240,10 @@ func (c *client) connectionFinalization() error {
 			return fmt.Errorf("unknown server message with pduType2 = %d", pduType2)
 		}
 	}
+
+	if c.remoteApp != nil {
+		c.railState = RailStateInitializing
+	}
+
+	return nil
 }
