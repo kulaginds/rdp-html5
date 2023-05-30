@@ -1,5 +1,9 @@
-function Client(canvasID) {
+function Client(websocketURL, canvasID, hostID, userID, passwordID) {
+    this.websocketURL = websocketURL;
     this.canvas = document.getElementById(canvasID);
+    this.hostEl = document.getElementById(hostID);
+    this.userEl = document.getElementById(userID);
+    this.passwordEl = document.getElementById(passwordID);
     this.ctx = this.canvas.getContext("2d");
     this.pointerCacheCanvas = document.getElementById("pointer-cache");
     this.pointerCacheCanvasCtx = this.pointerCacheCanvas.getContext("2d");
@@ -15,10 +19,29 @@ function Client(canvasID) {
     this.initialize = this.initialize.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.deinitialize = this.deinitialize.bind(this);
+
+    if (localStorage.getItem("host") && localStorage.getItem("host").length > 0) {
+        this.hostEl.value = localStorage.getItem("host");
+        this.userEl.value = localStorage.getItem("user");
+        this.passwordEl.value = localStorage.getItem("password");
+    }
 }
 
-Client.prototype.connect = function (url) {
-    this.socket = new WebSocket(url);
+Client.prototype.connect = function () {
+    if (this.hostEl.value.length === 0 || this.userEl.value === 0 || this.passwordEl.value === 0) {
+        alert("Проверьте параметры подключения");
+
+        return;
+    }
+
+    const url = new URL(this.websocketURL);
+    url.searchParams.set('host', this.hostEl.value);
+    url.searchParams.set('user', this.userEl.value);
+    url.searchParams.set('password', this.passwordEl.value);
+    url.searchParams.set('width', this.canvas.width);
+    url.searchParams.set('height', this.canvas.height);
+
+    this.socket = new WebSocket(url.toString());
 
     this.socket.onopen = this.initialize;
 
@@ -32,6 +55,10 @@ Client.prototype.connect = function (url) {
     };
 
     this.socket.onclose = this.deinitialize;
+
+    localStorage.setItem("host", this.hostEl.value);
+    localStorage.setItem("user", this.userEl.value);
+    localStorage.setItem("password", this.passwordEl.value);
 };
 
 Client.prototype.initialize = function () {
@@ -39,13 +66,13 @@ Client.prototype.initialize = function () {
         return;
     }
 
-    const data = new ArrayBuffer(4);
-    const w = new BinaryWriter(data);
-
-    w.uint16(this.canvas.width, true);
-    w.uint16(this.canvas.height, true);
-
-    this.socket.send(data);
+    // const data = new ArrayBuffer(4);
+    // const w = new BinaryWriter(data);
+    //
+    // w.uint16(this.canvas.width, true);
+    // w.uint16(this.canvas.height, true);
+    //
+    // this.socket.send(data);
 
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 
@@ -17,12 +18,6 @@ import (
 const (
 	webSocketReadBufferSize  = 8192
 	webSocketWriteBufferSize = 8192 * 2
-)
-
-const (
-	host     = "192.168.1.2:3389"
-	user     = "Doc"
-	password = "1qazXSW@"
 )
 
 type rdpConn interface {
@@ -58,18 +53,23 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
 
-	var (
-		width  uint16
-		height uint16
-	)
-
-	width, height, err = wsReadCanvasDimensions(wsConn)
+	width, err := strconv.Atoi(r.URL.Query().Get("width"))
 	if err != nil {
-		log.Println(fmt.Errorf("ws read canvas dimensions: %w", err))
+		log.Println(fmt.Errorf("get width: %w", err))
+		w.Write([]byte(`{"error": "incorrect width"}`))
+
 		return
 	}
 
-	rdpClient, err := rdp.NewClient(host, user, password, width, height)
+	height, err := strconv.Atoi(r.URL.Query().Get("height"))
+	if err != nil {
+		log.Println(fmt.Errorf("get height: %w", err))
+		w.Write([]byte(`{"error": "incorrect height"}`))
+
+		return
+	}
+
+	rdpClient, err := rdp.NewClient(r.URL.Query().Get("host"), r.URL.Query().Get("user"), r.URL.Query().Get("password"), width, height)
 	if err != nil {
 		log.Println(fmt.Errorf("rdp init: %w", err))
 		wsConn.WriteMessage(1, []byte(`{"error": "rdp connect"}`))

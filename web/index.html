@@ -18,8 +18,13 @@
 </head>
 <body>
 <div>
-    <button onclick="connect()">Connect</button>
-    <button onclick="disconnect()">Disconnect</button>
+    <form onsubmit="client.connect(); return false">
+        <input type="text" id="host" name="host" placeholder="host:port" />
+        <input type="text" id="user" name="user" placeholder="user" />
+        <input type="password" id="password" name="password" placeholder="password" />
+        <button type="submit">Connect</button>
+        <button onclick="client.disconnect()">Disconnect</button>
+    </form>
 </div>
 
 <div>
@@ -28,15 +33,7 @@
 </div>
 
 <script>
-    const client = new Client("canvas");
-
-    function connect() {
-        client.connect("ws://" + window.location.host + "/connect");
-    }
-
-    function disconnect() {
-        client.disconnect();
-    }
+    const client = new Client("ws://" + window.location.host + "/connect", "canvas", "host", "user", "password");
 </script>
 </body>
 </html>

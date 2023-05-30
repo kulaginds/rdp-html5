@@ -45,15 +45,15 @@ const (
 
 func NewClient(
 	hostname, username, password string,
-	desktopWidth, desktopHeight uint16,
+	desktopWidth, desktopHeight int,
 ) (*client, error) {
 	c := client{
 		domain:   "",
 		username: username,
 		password: password,
 
-		desktopWidth:  desktopWidth,
-		desktopHeight: desktopHeight,
+		desktopWidth:  uint16(desktopWidth),
+		desktopHeight: uint16(desktopHeight),
 
 		selectedProtocol: x224.RDPNegotiationProtocolSSL,
 	}
