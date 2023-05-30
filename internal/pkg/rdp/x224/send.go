@@ -1,16 +1,62 @@
 package x224
 
-import "bytes"
+import (
+	"bytes"
+	"encoding/binary"
+	"io"
+)
 
-func (p *Protocol) Send(pduData []byte) error {
-	buf := bytes.NewBuffer(make([]byte, 0, 3+len(pduData)))
+type Data struct {
+	LI       uint8
+	DTROA    uint8
+	NREOT    uint8
+	UserData []byte
+}
 
-	buf.Write([]byte{
-		0x02, // packet size
-		0xF0, // message type TPDU_DATA
-		0x80, // EOT flag is up, which indicates that current TPDU is the last data unit of a complete TPDU sequence
-	})
-	buf.Write(pduData)
+func (pdu *Data) Serialize() []byte {
+	buf := new(bytes.Buffer)
 
-	return p.tpktConn.Send(buf.Bytes())
+	binary.Write(buf, binary.LittleEndian, pdu.LI)
+	binary.Write(buf, binary.LittleEndian, pdu.DTROA)
+	binary.Write(buf, binary.LittleEndian, pdu.NREOT)
+
+	buf.Write(pdu.UserData)
+
+	return buf.Bytes()
+}
+
+func (pdu *Data) Deserialize(wire io.Reader) error {
+	err := binary.Read(wire, binary.LittleEndian, &pdu.LI)
+	if err != nil {
+		return err
+	}
+
+	if pdu.LI != fixedPartLen {
+		return ErrWrongDataLength
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.DTROA)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.NREOT)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+const fixedPartLen uint8 = 0x02
+
+func (p *Protocol) Send(userData []byte) error {
+	req := Data{
+		LI:       fixedPartLen,
+		DTROA:    0xF0, // message type TPDU_DATA
+		NREOT:    0x80, // EOT flag is up, which indicates that current TPDU is the last data unit of a complete TPDU sequence
+		UserData: userData,
+	}
+
+	return p.tpktConn.Send(req.Serialize())
 }
