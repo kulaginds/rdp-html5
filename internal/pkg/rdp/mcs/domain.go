@@ -70,7 +70,7 @@ type DomainPDU struct {
 }
 
 func (pdu *DomainPDU) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	per.WriteChoice(uint8(pdu.Application<<2), buf)
 

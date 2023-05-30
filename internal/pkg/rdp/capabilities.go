@@ -25,7 +25,7 @@ func NewGeneralCapabilitySet() *CapabilitySet {
 }
 
 func (s *GeneralCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.OSMajorType)
 	_ = binary.Write(buf, binary.LittleEndian, s.OSMinorType)
@@ -135,7 +135,7 @@ func NewBitmapCapabilitySet(desktopWidth, desktopHeight uint16) *CapabilitySet {
 }
 
 func (s *BitmapCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.PreferredBitsPerPixel)
 	_ = binary.Write(buf, binary.LittleEndian, s.Receive1BitPerPixel)
@@ -249,7 +249,7 @@ func NewOrderCapabilitySet() *CapabilitySet {
 }
 
 func (s *OrderCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(make([]byte, 16))                            // terminalDescriptor
 	_ = binary.Write(buf, binary.LittleEndian, uint32(0))  // padding
@@ -385,7 +385,7 @@ func NewBitmapCacheCapabilitySetRev1() *CapabilitySet {
 }
 
 func (s *BitmapCacheCapabilitySetRev1) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(make([]byte, 24)) // padding
 	_ = binary.Write(buf, binary.LittleEndian, &s.Cache0Entries)
@@ -460,7 +460,7 @@ func NewBitmapCacheCapabilitySetRev2() *CapabilitySet {
 }
 
 func (s *BitmapCacheCapabilitySetRev2) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, &s.CacheFlags)
 	_ = binary.Write(buf, binary.LittleEndian, uint8(0)) // padding
@@ -538,7 +538,7 @@ type ColorCacheCapabilitySet struct {
 }
 
 func (s *ColorCacheCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, &s.ColorTableCacheSize)
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // padding
@@ -578,7 +578,7 @@ func NewPointerCapabilitySet() *CapabilitySet {
 }
 
 func (s *PointerCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.ColorPointerFlag)
 	_ = binary.Write(buf, binary.LittleEndian, s.ColorPointerCacheSize)
@@ -634,7 +634,7 @@ func NewInputCapabilitySet() *CapabilitySet {
 }
 
 func (s *InputCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.InputFlags)
 	_ = binary.Write(buf, binary.LittleEndian, uint16(0)) // padding
@@ -714,7 +714,7 @@ func NewBrushCapabilitySet() *CapabilitySet {
 }
 
 func (s *BrushCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, uint32(s.BrushSupportLevel))
 
@@ -731,7 +731,7 @@ type CacheDefinition struct {
 }
 
 func (d *CacheDefinition) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, d.CacheEntries)
 	_ = binary.Write(buf, binary.LittleEndian, d.CacheMaximumCellSize)
@@ -785,7 +785,7 @@ func NewGlyphCacheCapabilitySet() *CapabilitySet {
 }
 
 func (s *GlyphCacheCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	for i := range s.GlyphCache {
 		buf.Write(s.GlyphCache[i].Serialize())
@@ -841,7 +841,7 @@ func NewOffscreenBitmapCacheCapabilitySet() *CapabilitySet {
 }
 
 func (s *OffscreenBitmapCacheCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.OffscreenSupportLevel)
 	_ = binary.Write(buf, binary.LittleEndian, s.OffscreenCacheSize)
@@ -884,7 +884,7 @@ func NewVirtualChannelCapabilitySet() *CapabilitySet {
 }
 
 func (s *VirtualChannelCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.Flags)
 	_ = binary.Write(buf, binary.LittleEndian, s.VCChunkSize)
@@ -915,7 +915,7 @@ type DrawNineGridCacheCapabilitySet struct {
 }
 
 func (s *DrawNineGridCacheCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.drawNineGridSupportLevel)
 	binary.Write(buf, binary.LittleEndian, s.drawNineGridCacheSize)
@@ -954,7 +954,7 @@ type GDICacheEntries struct {
 }
 
 func (e *GDICacheEntries) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, e.GdipGraphicsCacheEntries)
 	binary.Write(buf, binary.LittleEndian, e.GdipBrushCacheEntries)
@@ -1004,7 +1004,7 @@ type GDICacheChunkSize struct {
 }
 
 func (s *GDICacheChunkSize) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.GdipGraphicsCacheChunkSize)
 	binary.Write(buf, binary.LittleEndian, s.GdipObjectBrushCacheChunkSize)
@@ -1047,7 +1047,7 @@ type GDIImageCacheProperties struct {
 }
 
 func (p *GDIImageCacheProperties) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, p.GdipObjectImageCacheChunkSize)
 	binary.Write(buf, binary.LittleEndian, p.GdipObjectImageCacheTotalSize)
@@ -1087,7 +1087,7 @@ type DrawGDIPlusCapabilitySet struct {
 }
 
 func (s *DrawGDIPlusCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.drawGDIPlusSupportLevel)
 	binary.Write(buf, binary.LittleEndian, s.GdipVersion)
@@ -1148,7 +1148,7 @@ func NewSoundCapabilitySet() *CapabilitySet {
 }
 
 func (s *SoundCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, s.SoundFlags)
 	_ = binary.Write(buf, binary.LittleEndian, uint16(0))
@@ -1211,7 +1211,7 @@ func (s *BitmapCacheHostSupportCapabilitySet) Deserialize(wire io.Reader) error 
 type ControlCapabilitySet struct{}
 
 func (s *ControlCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // controlFlags
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // remoteDetachFlag
@@ -1230,7 +1230,7 @@ func (s *ControlCapabilitySet) Deserialize(wire io.Reader) error {
 type WindowActivationCapabilitySet struct{}
 
 func (s *WindowActivationCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // helpKeyFlag
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // helpKeyIndexFlag
@@ -1249,7 +1249,7 @@ func (s *WindowActivationCapabilitySet) Deserialize(wire io.Reader) error {
 type ShareCapabilitySet struct{}
 
 func (s *ShareCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // nodeID
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // pad2octets
@@ -1268,7 +1268,7 @@ type FontCapabilitySet struct {
 }
 
 func (s *FontCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.fontSupportFlags)
 	binary.Write(buf, binary.LittleEndian, uint16(0)) // padding
@@ -1299,7 +1299,7 @@ func NewMultifragmentUpdateCapabilitySet() *CapabilitySet {
 }
 
 func (s *MultifragmentUpdateCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, &s.MaxRequestSize)
 
@@ -1426,7 +1426,7 @@ func NewRailCapabilitySet() *CapabilitySet {
 }
 
 func (s *RailCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.RailSupportLevel)
 
@@ -1449,7 +1449,7 @@ func NewWindowListCapabilitySet() *CapabilitySet {
 }
 
 func (s *WindowListCapabilitySet) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.WndSupportLevel)
 	binary.Write(buf, binary.LittleEndian, s.NumIconCaches)

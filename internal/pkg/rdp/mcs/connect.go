@@ -35,7 +35,7 @@ func (pdu *ConnectPDU) Serialize() []byte {
 		data = pdu.ClientConnectInitial.Serialize()
 	}
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	ber.WriteApplicationTag(uint8(pdu.Application), len(data), buf)
 	buf.Write(data)
@@ -126,7 +126,7 @@ func NewClientMCSConnectInitialPDU(
 }
 
 func (pdu *ClientConnectInitial) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	ber.WriteOctetString(pdu.calledDomainSelector, buf)
 	ber.WriteOctetString(pdu.callingDomainSelector, buf)

@@ -16,7 +16,7 @@ type ClientChannelJoinRequest struct {
 }
 
 func (pdu *ClientChannelJoinRequest) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	per.WriteInteger16(pdu.Initiator, 1001, buf)
 	per.WriteInteger16(pdu.ChannelId, 0, buf)

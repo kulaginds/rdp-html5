@@ -11,7 +11,7 @@ import (
 type ClientErectDomainRequest struct{}
 
 func (pdu *ClientErectDomainRequest) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	per.WriteInteger(0, buf)
 	per.WriteInteger(0, buf)

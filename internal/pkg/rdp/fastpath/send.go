@@ -39,7 +39,7 @@ type InputEvent struct {
 }
 
 func (e *InputEvent) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	// event flags in higher 5 bits
 	// event code in lower 3 bits
@@ -82,7 +82,7 @@ func NewInputEventPDU(eventData []byte) *InputEventPDU {
 }
 
 func (pdu *InputEventPDU) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	fpInputHeader := pdu.action&0x3 | ((pdu.numEvents & 0xf) << 2) | ((pdu.flags & 0x3) << 6)
 	length := 1 + len(pdu.eventData) // without length bytes

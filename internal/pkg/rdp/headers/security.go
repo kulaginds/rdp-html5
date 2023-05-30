@@ -7,7 +7,7 @@ import (
 )
 
 func WrapSecurityFlag(flag uint16, data []byte) []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, flag)
 	buf.Write([]byte{0x00, 0x00}) // flagsHi

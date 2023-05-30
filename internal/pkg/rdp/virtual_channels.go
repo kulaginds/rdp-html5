@@ -43,7 +43,7 @@ type ChannelPDUHeader struct {
 }
 
 func (h *ChannelPDUHeader) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint32(8))
 	binary.Write(buf, binary.LittleEndian, uint32(h.Flags))

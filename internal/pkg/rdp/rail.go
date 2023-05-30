@@ -155,7 +155,7 @@ func (pdu *RailPDU) Serialize() []byte {
 
 	pdu.header.OrderLength = uint16(8 + 4 + len(data))
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(pdu.channelHeader.Serialize())
 	buf.Write(pdu.header.Serialize())
@@ -201,7 +201,7 @@ type RailPDUHeader struct {
 }
 
 func (h *RailPDUHeader) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(h.OrderType))
 	binary.Write(buf, binary.LittleEndian, h.OrderLength)
@@ -246,7 +246,7 @@ func NewRailHandshakePDU() *RailPDU {
 }
 
 func (pdu *RailPDUHandshake) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, pdu.buildNumber)
 
@@ -283,7 +283,7 @@ func NewRailClientInfoPDU() *RailPDU {
 }
 
 func (pdu *RailPDUClientInfo) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, pdu.Flags)
 
@@ -311,7 +311,7 @@ func NewRailPDUClientSystemParamUpdate(systemParam uint32, body uint8) *RailPDU 
 }
 
 func (pdu *RailPDUClientSystemParamUpdate) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, pdu.SystemParam)
 	binary.Write(buf, binary.LittleEndian, pdu.Body)
@@ -395,7 +395,7 @@ func (pdu *RailPDUClientExecute) Serialize() []byte {
 	arguments := utf16.Encode(pdu.Arguments)
 	argumentsLen := uint16(len(arguments))
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, pdu.Flags)
 	binary.Write(buf, binary.LittleEndian, exeOrFileLength)

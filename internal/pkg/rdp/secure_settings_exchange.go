@@ -21,7 +21,7 @@ type SystemTime struct {
 }
 
 func (t *SystemTime) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, t.Year)
 	binary.Write(buf, binary.LittleEndian, t.Month)
@@ -46,7 +46,7 @@ type TimeZoneInformation struct {
 }
 
 func (i *TimeZoneInformation) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, i.Bias)
 	binary.Write(buf, binary.LittleEndian, i.StandardName)
@@ -78,7 +78,7 @@ type ExtendedInfoPacket struct {
 }
 
 func (p *ExtendedInfoPacket) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(0x0002)) // ClientAddressFamily = AF_INET
 	binary.Write(buf, binary.LittleEndian, uint16(2))      // cbClientAddress
@@ -141,7 +141,7 @@ func (p *ClientInfoPacket) Serialize() []byte {
 		cbWorkingDir = uint16(len(workingDir) - 2)
 	}
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, p.CodePage)
 	binary.Write(buf, binary.LittleEndian, uint32(p.Flags))

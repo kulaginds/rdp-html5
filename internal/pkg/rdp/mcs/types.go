@@ -45,8 +45,8 @@ type domainParameters struct {
 	protocolVersion int
 }
 
-func (params domainParameters) Serialize() []byte {
-	buf := &bytes.Buffer{}
+func (params *domainParameters) Serialize() []byte {
+	buf := new(bytes.Buffer)
 
 	ber.WriteInteger(params.maxChannelIds, buf)
 	ber.WriteInteger(params.maxUserIds, buf)

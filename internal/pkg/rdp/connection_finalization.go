@@ -29,7 +29,7 @@ func NewSynchronizePDU(shareID uint32, userId uint16) *DataPDU {
 }
 
 func (pdu *SynchronizePDUData) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, uint16(pdu.MessageType))
 	_ = binary.Write(buf, binary.LittleEndian, uint16(mcs.ServerChannelID)) // targetUser
@@ -86,7 +86,7 @@ func NewControlPDU(shareID uint32, userId uint16, action ControlAction) *DataPDU
 }
 
 func (pdu *ControlPDUData) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, uint16(pdu.Action))
 	_ = binary.Write(buf, binary.LittleEndian, pdu.GrantID)
@@ -125,7 +125,7 @@ func NewFontListPDU(shareID uint32, userId uint16) *DataPDU {
 }
 
 func (pdu *FontListPDUData) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	_ = binary.Write(buf, binary.LittleEndian, uint16(0x0000)) // numberFonts
 	_ = binary.Write(buf, binary.LittleEndian, uint16(0x0000)) // totalNumFonts

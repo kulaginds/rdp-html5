@@ -59,7 +59,7 @@ func (pdu *ClientConnectionRequestPDU) Serialize() []byte {
 		cookieHeader = "Cookie: mstshash="
 	)
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	// routingToken or cookie
 	if pdu.RoutingToken != "" {

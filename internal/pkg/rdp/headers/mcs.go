@@ -8,7 +8,7 @@ import (
 )
 
 func WrapMCSDomainPDU(tag uint8, data []byte) []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.WriteByte(tag << 2) // per-encoded DomainMCSPDU choice
 	buf.Write(data)

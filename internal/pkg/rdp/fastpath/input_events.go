@@ -49,7 +49,7 @@ func NewUnicodeKeyboardEvent(unicodeCode uint16) *InputEvent {
 }
 
 func (e *unicodeKeyboardEvent) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, e.UnicodeCode)
 
@@ -85,7 +85,7 @@ func NewMouseEvent(pointerFlags, xPos, yPos uint16) *InputEvent {
 }
 
 func (e *mouseEvent) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, e.pointerFlags)
 	binary.Write(buf, binary.LittleEndian, e.xPos)
@@ -118,7 +118,7 @@ func NewExtendedMouseEvent(pointerFlags, xPos, yPos uint16) *InputEvent {
 }
 
 func (e *extendedMouseEvent) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, e.pointerFlags)
 	binary.Write(buf, binary.LittleEndian, e.xPos)
@@ -155,7 +155,7 @@ func NewQualityOfExperienceEvent(timestamp uint32) *InputEvent {
 }
 
 func (e *qualityOfExperience) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, e.timestamp)
 

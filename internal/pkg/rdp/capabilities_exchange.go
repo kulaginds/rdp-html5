@@ -175,7 +175,7 @@ func (set *CapabilitySet) Serialize() []byte {
 		data = set.WindowListCapabilitySet.Serialize()
 	}
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	lengthCapability := uint16(4 + len(data))
 
@@ -403,7 +403,7 @@ func (pdu *ClientConfirmActivePDU) Serialize() []byte {
 	pdu.ShareControlHeader.PDUType = PDUTypeConfirmActive
 	pdu.ShareControlHeader.TotalLength = 6 + 4 + 2 + 2 + 2 + lengthSourceDescriptor + lengthCombinedCapabilities
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(pdu.ShareControlHeader.Serialize())
 	_ = binary.Write(buf, binary.LittleEndian, pdu.ShareID)

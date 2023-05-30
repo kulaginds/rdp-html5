@@ -16,7 +16,7 @@ type ClientSendDataRequest struct {
 }
 
 func (d *ClientSendDataRequest) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	per.WriteInteger16(d.Initiator, 1001, buf)
 	per.WriteInteger16(d.ChannelId, 0, buf)

@@ -195,7 +195,7 @@ func (data ClientSecurityData) Serialize() []byte {
 }
 
 func (s ChannelDefinitionStructure) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, s.Name)
 	binary.Write(buf, binary.LittleEndian, s.Options)
@@ -225,13 +225,13 @@ func newClientNetworkData(channelNames []string) *ClientNetworkData {
 func (data ClientNetworkData) Serialize() []byte {
 	const headerLen = 8
 
-	chBuf := &bytes.Buffer{}
+	chBuf := new(bytes.Buffer)
 
 	for _, channelDef := range data.ChannelDefArray {
 		chBuf.Write(channelDef.Serialize())
 	}
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(0xC003))                // header type CS_NET
 	binary.Write(buf, binary.LittleEndian, uint16(headerLen+chBuf.Len())) // packet size
@@ -246,7 +246,7 @@ func (data ClientNetworkData) Serialize() []byte {
 func (d ClientClusterData) Serialize() []byte {
 	const dataLen uint16 = 12
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, uint16(0xC004)) // header type CS_CLUSTER
 	binary.Write(buf, binary.LittleEndian, dataLen)        // packet size
@@ -258,7 +258,7 @@ func (d ClientClusterData) Serialize() []byte {
 }
 
 func (ud ConferenceCreateRequestUserData) Serialize() []byte {
-	buf := bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(ud.ClientCoreData.Serialize())
 
@@ -273,7 +273,7 @@ func (ud ConferenceCreateRequestUserData) Serialize() []byte {
 }
 
 func (r *ConferenceCreateRequest) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	userData := r.UserData.Serialize()
 

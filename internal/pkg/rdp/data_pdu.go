@@ -53,7 +53,7 @@ func newShareControlHeader(pduType PDUType, pduSource uint16) *ShareControlHeade
 }
 
 func (header *ShareControlHeader) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, header.TotalLength)
 	binary.Write(buf, binary.LittleEndian, uint16(header.PDUType))
@@ -157,7 +157,7 @@ func newShareDataHeader(shareID uint32, pduSource uint16, pduType PDUType, pduTy
 }
 
 func (header *ShareDataHeader) Serialize() []byte {
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(header.ShareControlHeader.Serialize())
 	binary.Write(buf, binary.LittleEndian, header.ShareID)
@@ -243,7 +243,7 @@ func (pdu *DataPDU) Serialize() []byte {
 	pdu.ShareDataHeader.ShareControlHeader.TotalLength = uint16(18 + len(data))
 	pdu.ShareDataHeader.UncompressedLength = uint16(4 + len(data))
 
-	buf := &bytes.Buffer{}
+	buf := new(bytes.Buffer)
 
 	buf.Write(pdu.ShareDataHeader.Serialize())
 	buf.Write(data)
