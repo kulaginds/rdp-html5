@@ -36,7 +36,7 @@ func (pdu *ServerAttachUserConfirm) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (p *protocol) AttachUser() error {
+func (p *Protocol) AttachUser() error {
 	if !p.connected {
 		return ErrNotConnected
 	}

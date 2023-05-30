@@ -55,7 +55,7 @@ func (d *ClientSendDataRequest) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (p *protocol) Send(channelName string, pduData []byte) error {
+func (p *Protocol) Send(channelName string, pduData []byte) error {
 	if !p.connected {
 		return ErrNotConnected
 	}

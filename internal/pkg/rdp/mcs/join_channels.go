@@ -61,7 +61,7 @@ func (pdu *ServerChannelJoinConfirm) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (p *protocol) JoinChannels() error {
+func (p *Protocol) JoinChannels() error {
 	if !p.connected {
 		return ErrNotConnected
 	}

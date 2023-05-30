@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func (p *protocol) Receive() (io.Reader, error) {
+func (p *Protocol) Receive() (io.Reader, error) {
 	if p.fastpathEnabled {
 		return p.receive(headerLen - 1)
 	}
@@ -14,7 +14,7 @@ func (p *protocol) Receive() (io.Reader, error) {
 	return p.receive(headerLen)
 }
 
-func (p *protocol) receive(len int) (io.Reader, error) {
+func (p *Protocol) receive(len int) (io.Reader, error) {
 	tpktPacket := make([]byte, len)
 
 	if _, err := p.conn.Read(tpktPacket); err != nil {

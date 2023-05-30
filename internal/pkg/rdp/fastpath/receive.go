@@ -196,7 +196,7 @@ func (pdu *UpdatePDU) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (i *impl) Receive(fpOutputHeader uint8) (*UpdatePDU, error) {
+func (i *Protocol) Receive(fpOutputHeader uint8) (*UpdatePDU, error) {
 	pdu := NewUpdatePDU(fpOutputHeader)
 	pdu.Data = i.updatePDUData
 	if err := pdu.Deserialize(i.conn); err != nil {

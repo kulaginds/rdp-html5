@@ -38,7 +38,7 @@ func (d *ServerSendDataIndication) Deserialize(wire io.Reader) error {
 }
 
 // Receive returns channelName, reader or error
-func (p *protocol) Receive() (string, io.Reader, error) {
+func (p *Protocol) Receive() (string, io.Reader, error) {
 	if !p.connected {
 		return "", nil, ErrNotConnected
 	}

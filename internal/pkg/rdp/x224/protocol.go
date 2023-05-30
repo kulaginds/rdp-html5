@@ -1,18 +1,13 @@
 package x224
 
-type protocol struct {
-	tpktConn tpktConn
+import "github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/tpkt"
 
-	requestedProtocols     RDPNegotiationProtocol
-	connected              bool
-	ServerNegotiationFlags RDPNegotiationResponseFlag
+type Protocol struct {
+	tpktConn *tpkt.Protocol
 }
 
-func New(tpktConn tpktConn, requestedProtocols RDPNegotiationProtocol) *protocol {
-	return &protocol{
+func New(tpktConn *tpkt.Protocol) *Protocol {
+	return &Protocol{
 		tpktConn: tpktConn,
-
-		requestedProtocols: requestedProtocols,
-		connected:          false,
 	}
 }

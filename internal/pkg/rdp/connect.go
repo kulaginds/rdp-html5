@@ -1,8 +1,12 @@
 package rdp
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
+	"strings"
 )
 
 func (c *client) Connect() error {
@@ -41,12 +45,112 @@ func (c *client) Connect() error {
 	return nil
 }
 
+// ClientConnectionRequestPDU Client X.224 Connection Request PDU
+type ClientConnectionRequestPDU struct {
+	RoutingToken       string // one of RoutingToken or Cookie ending CR+LF
+	Cookie             string
+	NegotiationRequest NegotiationRequest // RDP Negotiation Request
+	CorrelationInfo    CorrelationInfo    // Correlation Info
+}
+
+func (pdu *ClientConnectionRequestPDU) Serialize() []byte {
+	const (
+		CRLF         = "\r\n"
+		cookieHeader = "Cookie: mstshash="
+	)
+
+	buf := &bytes.Buffer{}
+
+	// routingToken or cookie
+	if pdu.RoutingToken != "" {
+		buf.WriteString(strings.Trim(pdu.RoutingToken, CRLF) + CRLF)
+	} else if pdu.Cookie != "" {
+		buf.WriteString(cookieHeader + strings.Trim(pdu.Cookie, CRLF) + CRLF)
+	}
+
+	// rdpNegReq
+	buf.Write(pdu.NegotiationRequest.Serialize())
+
+	// rdpCorrelationInfo
+	if pdu.NegotiationRequest.Flags.IsCorrelationInfoPresent() {
+		buf.Write(pdu.CorrelationInfo.Serialize())
+	}
+
+	return buf.Bytes()
+}
+
+type ServerConnectionConfirmPDU struct {
+	Type   NegotiationType
+	Flags  NegotiationResponseFlag // RDP Negotiation Response flags
+	length uint16
+	data   uint32 // RDP Negotiation Response selectedProtocol or RDP Negotiation Failure failureCode
+}
+
+func (pdu *ServerConnectionConfirmPDU) SelectedProtocol() NegotiationProtocol {
+	return NegotiationProtocol(pdu.data)
+}
+
+func (pdu *ServerConnectionConfirmPDU) FailureCode() NegotiationFailureCode {
+	return NegotiationFailureCode(pdu.data)
+}
+
+func (pdu *ServerConnectionConfirmPDU) Deserialize(wire io.Reader) error {
+	err := binary.Read(wire, binary.LittleEndian, &pdu.Type)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.Flags)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.length)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *client) connectionInitiation() error {
 	var err error
 
-	if err = c.x224Layer.Connect(); err != nil {
+	req := ClientConnectionRequestPDU{
+		NegotiationRequest: NegotiationRequest{
+			RequestedProtocols: c.selectedProtocol,
+		},
+	}
+
+	var (
+		resp ServerConnectionConfirmPDU
+		wire io.Reader
+	)
+
+	if wire, err = c.x224Layer.Connect(req.Serialize()); err != nil {
 		return err
 	}
+
+	if err = resp.Deserialize(wire); err != nil {
+		return err
+	}
+
+	if resp.Type.IsFailure() {
+		return fmt.Errorf("negotiation faliure: failureCode = %d", resp.FailureCode())
+	}
+
+	c.serverNegotiationFlags = resp.Flags
+
+	if !resp.SelectedProtocol().IsSSL() {
+		return ErrUnsupportedRequestedProtocol
+	}
+
+	log.Println("Server negotiation flags: " + c.serverNegotiationFlags.String())
 
 	if c.selectedProtocol.IsSSL() {
 		return c.StartTLS()

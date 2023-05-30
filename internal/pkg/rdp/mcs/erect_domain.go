@@ -19,7 +19,7 @@ func (pdu *ClientErectDomainRequest) Serialize() []byte {
 	return buf.Bytes()
 }
 
-func (p *protocol) ErectDomain() error {
+func (p *Protocol) ErectDomain() error {
 	if !p.connected {
 		return ErrNotConnected
 	}

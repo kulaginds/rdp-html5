@@ -1,7 +1,9 @@
 package mcs
 
-type protocol struct {
-	x224Conn x224Conn
+import "github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/x224"
+
+type Protocol struct {
+	x224Conn *x224.Protocol
 
 	connected bool
 	channels  map[string]uint16
@@ -14,8 +16,8 @@ const (
 	ServerChannelID uint16 = 1002
 )
 
-func New(x224Conn x224Conn) *protocol {
-	return &protocol{
+func New(x224Conn *x224.Protocol) *Protocol {
+	return &Protocol{
 		x224Conn: x224Conn,
 
 		channels: map[string]uint16{

@@ -1,5 +1,5 @@
 package mcs
 
-func (p *protocol) UserId() uint16 {
+func (p *Protocol) UserId() uint16 {
 	return p.userId
 }

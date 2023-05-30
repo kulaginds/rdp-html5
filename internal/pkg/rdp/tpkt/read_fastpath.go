@@ -1,5 +1,5 @@
 package tpkt
 
-func (p *protocol) StartHandleFastpath() {
+func (p *Protocol) StartHandleFastpath() {
 	p.fastpathEnabled = true
 }

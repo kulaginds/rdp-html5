@@ -195,7 +195,7 @@ func (pdu *ServerConnectResponse) Deserialize(wire io.Reader) error {
 	return pdu.UserData.Deserialize(wire)
 }
 
-func (p *protocol) Connect(
+func (p *Protocol) Connect(
 	selectedProtocol uint32,
 	desktopWidth, desktopHeight uint16,
 	channelNames []string,
@@ -247,7 +247,7 @@ func (p *protocol) Connect(
 	return nil
 }
 
-func (p *protocol) initChannels(channelNames []string, channelIDArray []uint16) {
+func (p *Protocol) initChannels(channelNames []string, channelIDArray []uint16) {
 	if p.channels == nil {
 		p.channels = make(map[string]uint16, len(channelNames))
 	}

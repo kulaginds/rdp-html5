@@ -40,7 +40,7 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(fmt.Errorf("upgrade websocket: %w", err))
-		w.Write([]byte(`{"error": "init websocket"}`))
+
 		return
 	}
 
@@ -56,7 +56,6 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	width, err := strconv.Atoi(r.URL.Query().Get("width"))
 	if err != nil {
 		log.Println(fmt.Errorf("get width: %w", err))
-		w.Write([]byte(`{"error": "incorrect width"}`))
 
 		return
 	}
@@ -64,15 +63,18 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	height, err := strconv.Atoi(r.URL.Query().Get("height"))
 	if err != nil {
 		log.Println(fmt.Errorf("get height: %w", err))
-		w.Write([]byte(`{"error": "incorrect height"}`))
 
 		return
 	}
 
-	rdpClient, err := rdp.NewClient(r.URL.Query().Get("host"), r.URL.Query().Get("user"), r.URL.Query().Get("password"), width, height)
+	host := r.URL.Query().Get("host")
+	user := r.URL.Query().Get("user")
+	password := r.URL.Query().Get("password")
+
+	rdpClient, err := rdp.NewClient(host, user, password, width, height)
 	if err != nil {
 		log.Println(fmt.Errorf("rdp init: %w", err))
-		wsConn.WriteMessage(1, []byte(`{"error": "rdp connect"}`))
+
 		return
 	}
 	defer rdpClient.Close()
@@ -82,7 +84,7 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 
 	if err = rdpClient.Connect(); err != nil {
 		log.Println(fmt.Errorf("rdp connect: %w", err))
-		wsConn.WriteMessage(1, []byte(`{"error": "rdp connect"}`))
+
 		return
 	}
 

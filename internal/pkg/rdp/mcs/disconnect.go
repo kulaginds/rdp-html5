@@ -14,7 +14,7 @@ func (pdu *ClientDisconnectUltimatumRequest) Serialize() []byte {
 	}
 }
 
-func (p *protocol) Disconnect() error {
+func (p *Protocol) Disconnect() error {
 	if !p.connected {
 		return nil
 	}

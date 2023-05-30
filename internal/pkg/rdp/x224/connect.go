@@ -6,147 +6,119 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"strings"
-
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/headers"
 )
 
-// ClientConnectionRequestPDU Client X.224 Connection Request PDU
-type ClientConnectionRequestPDU struct {
-	RoutingToken       string // one of RoutingToken or Cookie ending CR+LF
-	Cookie             string
-	RDPNegReq          RDPNegotiationRequest // RDP Negotiation Request
-	RDPCorrelationInfo RDPCorrelationInfo    // Correlation Info
+type ConnectionRequest struct {
+	li           uint8
+	CRCDT        uint8
+	DSTREF       uint16
+	SRCREF       uint16
+	ClassOption  uint8
+	VariablePart []byte // unsupported
+	UserData     []byte
 }
 
-func (pdu *ClientConnectionRequestPDU) Serialize() []byte {
-	const (
-		CRLF         = "\r\n"
-		cookieHeader = "Cookie: mstshash="
-	)
+func (pdu *ConnectionRequest) Serialize() []byte {
+	const x224FixedPartLen = 6 // without length indicator (LI)
 
-	buf := &bytes.Buffer{}
+	pdu.li = uint8(x224FixedPartLen + len(pdu.UserData))
 
-	// routingToken or cookie
-	if pdu.RoutingToken != "" {
-		buf.WriteString(strings.Trim(pdu.RoutingToken, CRLF) + CRLF)
-	} else if pdu.Cookie != "" {
-		buf.WriteString(cookieHeader + strings.Trim(pdu.Cookie, CRLF) + CRLF)
-	}
+	buf := new(bytes.Buffer)
 
-	// rdpNegReq
-	buf.Write(pdu.RDPNegReq.Serialize())
+	_ = binary.Write(buf, binary.LittleEndian, pdu.li)
+	_ = binary.Write(buf, binary.LittleEndian, pdu.CRCDT)
+	_ = binary.Write(buf, binary.LittleEndian, pdu.DSTREF)
+	_ = binary.Write(buf, binary.LittleEndian, pdu.SRCREF)
+	_ = binary.Write(buf, binary.LittleEndian, pdu.ClassOption)
 
-	// rdpCorrelationInfo
-	if pdu.RDPNegReq.Flags.IsCorrelationInfoPresent() {
-		buf.Write(pdu.RDPCorrelationInfo.Serialize())
-	}
+	buf.Write(pdu.UserData)
 
-	return headers.WrapX224ConnectionRequestPDU(buf.Bytes())
+	return buf.Bytes()
 }
 
-type ServerConnectionConfirmPDU struct {
-	Type  RDPNegotiationType
-	Flags RDPNegotiationResponseFlag // RDP Negotiation Response flags
-	data  uint32                     // RDP Negotiation Response selectedProtocol or RDP Negotiation Failure failureCode
+type ConnectionConfirm struct {
+	LI          uint8
+	CCCDT       uint8
+	DSTREF      uint16
+	SRCREF      uint16
+	ClassOption uint8
 }
 
-func (pdu ServerConnectionConfirmPDU) SelectedProtocol() RDPNegotiationProtocol {
-	return RDPNegotiationProtocol(pdu.data)
-}
-
-func (pdu ServerConnectionConfirmPDU) FailureCode() RDPNegotiationFailureCode {
-	return RDPNegotiationFailureCode(pdu.data)
-}
-
-func (pdu *ServerConnectionConfirmPDU) Deserialize(wire io.Reader) error {
+func (pdu *ConnectionConfirm) Deserialize(wire io.Reader) error {
 	const (
 		fixedPartLen    uint8 = 0x06
 		variablePartLen uint8 = 0x08
 		packetLen             = fixedPartLen + variablePartLen
 	)
 
-	var li uint8
+	err := binary.Read(wire, binary.LittleEndian, &pdu.LI)
+	if err != nil {
+		return err
+	}
 
-	binary.Read(wire, binary.LittleEndian, &li)
-
-	if li != packetLen {
+	if pdu.LI != packetLen {
 		return ErrSmallConnectionConfirmLength
 	}
 
-	packetData := make([]byte, li)
+	err = binary.Read(wire, binary.LittleEndian, &pdu.CCCDT)
+	if err != nil {
+		return err
+	}
 
-	wire.Read(packetData)
-
-	ccCdt := packetData[0]
-
-	if ccCdt&0xf0 != 0xd0 { // connection confirm code
+	if pdu.CCCDT&0xf0 != 0xd0 { // connection confirm code
 		return ErrWrongConnectionConfirmCode
 	}
 
-	// skip unused fields
-	packetData = packetData[fixedPartLen:]
-
-	pdu.Type = RDPNegotiationType(packetData[0])
-
-	if pdu.Type.IsResponse() {
-		pdu.Flags = RDPNegotiationResponseFlag(packetData[1])
+	err = binary.Read(wire, binary.LittleEndian, &pdu.DSTREF)
+	if err != nil {
+		return err
 	}
 
-	pdu.data = binary.LittleEndian.Uint32(packetData[4:8])
+	err = binary.Read(wire, binary.LittleEndian, &pdu.SRCREF)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.ClassOption)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (p *protocol) Connect() error {
-	if p.connected {
-		return nil
-	}
-
-	if !p.requestedProtocols.IsSSL() {
-		return ErrUnsupportedRequestedProtocol
-	}
-
+func (p *Protocol) Connect(userData []byte) (io.Reader, error) {
 	var (
 		wire io.Reader
 		err  error
 	)
 
-	req := ClientConnectionRequestPDU{
-		RDPNegReq: RDPNegotiationRequest{
-			RequestedProtocols: p.requestedProtocols,
-		},
+	req := ConnectionRequest{
+		CRCDT:        0xE0, // TPDU_CONNECTION_REQUEST
+		DSTREF:       0,
+		SRCREF:       0,
+		ClassOption:  0,
+		VariablePart: nil,
+		UserData:     userData,
 	}
 
 	log.Println("X224: Client Connection Request")
 
 	if err = p.tpktConn.Send(req.Serialize()); err != nil {
-		return fmt.Errorf("client connection request: %w", err)
+		return nil, fmt.Errorf("client connection request: %w", err)
 	}
 
 	log.Println("X224: Server Connection Confirm")
 
 	wire, err = p.tpktConn.Receive()
 	if err != nil {
-		return fmt.Errorf("recieve connection response: %w", err)
+		return nil, fmt.Errorf("recieve connection response: %w", err)
 	}
 
-	var resp ServerConnectionConfirmPDU
+	var resp ConnectionConfirm
 	if err = resp.Deserialize(wire); err != nil {
-		return fmt.Errorf("server connection confirm: %w", err)
+		return nil, fmt.Errorf("server connection confirm: %w", err)
 	}
 
-	if resp.Type.IsFailure() {
-		return fmt.Errorf("negotiation faliure: failureCode = %d", resp.FailureCode())
-	}
-
-	p.ServerNegotiationFlags = resp.Flags
-
-	if !resp.SelectedProtocol().IsSSL() {
-		return ErrUnsupportedRequestedProtocol
-	}
-
-	p.connected = true
-
-	return nil
+	return wire, nil
 }

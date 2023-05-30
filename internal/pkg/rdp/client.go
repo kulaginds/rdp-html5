@@ -19,10 +19,10 @@ type RemoteApp struct {
 
 type client struct {
 	conn      net.Conn
-	tpktLayer tpktLayer
-	x224Layer x224Layer
-	mcsLayer  mcsLayer
-	fastPath  fastPath
+	tpktLayer *tpkt.Protocol
+	x224Layer *x224.Protocol
+	mcsLayer  *mcs.Protocol
+	fastPath  *fastpath.Protocol
 
 	domain   string
 	username string
@@ -33,8 +33,8 @@ type client struct {
 	remoteApp *RemoteApp
 	railState RailState
 
-	selectedProtocol       x224.RDPNegotiationProtocol
-	serverNegotiationFlags x224.RDPNegotiationResponseFlag
+	selectedProtocol       NegotiationProtocol
+	serverNegotiationFlags NegotiationResponseFlag
 	channels               []string
 	shareID                uint32
 }
@@ -55,7 +55,7 @@ func NewClient(
 		desktopWidth:  uint16(desktopWidth),
 		desktopHeight: uint16(desktopHeight),
 
-		selectedProtocol: x224.RDPNegotiationProtocolSSL,
+		selectedProtocol: NegotiationProtocolSSL,
 	}
 
 	var err error
@@ -66,7 +66,7 @@ func NewClient(
 	}
 
 	c.tpktLayer = tpkt.New(&c)
-	c.x224Layer = x224.New(c.tpktLayer, c.selectedProtocol)
+	c.x224Layer = x224.New(c.tpktLayer)
 	c.mcsLayer = mcs.New(c.x224Layer)
 	c.fastPath = fastpath.New(&c)
 

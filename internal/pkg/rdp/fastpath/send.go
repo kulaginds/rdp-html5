@@ -109,7 +109,7 @@ func (pdu *InputEventPDU) SerializeLength(value int, w io.Writer) error {
 	return nil
 }
 
-func (i *impl) Send(pdu *InputEventPDU) error {
+func (i *Protocol) Send(pdu *InputEventPDU) error {
 	data := pdu.Serialize()
 
 	_, err := i.conn.Write(data)

@@ -14,7 +14,7 @@ const (
 func WrapX224ConnectionRequestPDU(data []byte) []byte {
 	pduLen := uint8(x224FixedPartLen + len(data))
 
-	buf := bytes.NewBuffer(make([]byte, 0, pduLen))
+	buf := new(bytes.Buffer)
 
 	buf.Write([]byte{
 		pduLen,     // LI

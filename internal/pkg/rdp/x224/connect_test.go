@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestClientConnectionRequestPDU_Serialize from MS-RDPBCGR protocol examples 4.1.1.
+// TestClientConnectionRequestPDU_Serialize from MS-RDPBCGR Protocol examples 4.1.1.
 // without TPKT header
 func TestClientConnectionRequestPDU_Serialize(t *testing.T) {
 	var req ClientConnectionRequestPDU
@@ -25,7 +25,7 @@ func TestClientConnectionRequestPDU_Serialize(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-// TestServerConnectionConfirmPDU_Deserialize from MS-RDPBCGR protocol examples 4.1.2.
+// TestServerConnectionConfirmPDU_Deserialize from MS-RDPBCGR Protocol examples 4.1.2.
 // without TPKT header
 func TestServerConnectionConfirmPDU_Deserialize(t *testing.T) {
 	var actual ServerConnectionConfirmPDU

@@ -11,7 +11,7 @@ type tpktLayer interface {
 	Receive() (io.Reader, error)
 	Send(pduData []byte) error
 	StartHandleFastpath()
-	ReceiveProtocol() (tpkt.Protocol, error)
+	ReceiveProtocol() (tpkt.ProtocolCode, error)
 }
 
 type x224Layer interface {

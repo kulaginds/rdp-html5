@@ -4,13 +4,13 @@ import (
 	"io"
 )
 
-type protocol struct {
+type Protocol struct {
 	conn            io.ReadWriteCloser
 	fastpathEnabled bool
 }
 
-func New(conn io.ReadWriteCloser) *protocol {
-	return &protocol{
+func New(conn io.ReadWriteCloser) *Protocol {
+	return &Protocol{
 		conn: conn,
 	}
 }

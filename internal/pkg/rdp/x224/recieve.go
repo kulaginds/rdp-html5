@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func (p *protocol) Receive() (io.Reader, error) {
+func (p *Protocol) Receive() (io.Reader, error) {
 	const fixedPartLen uint8 = 0x02
 
 	wire, err := p.tpktConn.Receive()

@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 )
 
-func (p *protocol) Send(pduData []byte) error {
+func (p *Protocol) Send(pduData []byte) error {
 	buf := bytes.NewBuffer(make([]byte, 0, headerLen+len(pduData)))
 	dataLen := uint16(headerLen + len(pduData))
 
