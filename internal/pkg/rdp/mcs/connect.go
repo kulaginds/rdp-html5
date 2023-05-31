@@ -80,11 +80,7 @@ type ClientConnectInitial struct {
 	userData              *gcc.ConferenceCreateRequest
 }
 
-func NewClientMCSConnectInitialPDU(
-	selectedProtocol uint32,
-	desktopWidth, desktopHeight uint16,
-	channelNames []string,
-) *ClientConnectInitial {
+func NewClientMCSConnectInitial(userData []byte) *ClientConnectInitial {
 	pdu := ClientConnectInitial{
 		calledDomainSelector:  []byte{0x01},
 		callingDomainSelector: []byte{0x01},
@@ -119,7 +115,7 @@ func NewClientMCSConnectInitialPDU(
 			maxMCSPDUsize:   65535,
 			protocolVersion: 2,
 		},
-		userData: gcc.NewConferenceCreateRequest(selectedProtocol, desktopWidth, desktopHeight, channelNames),
+		userData: gcc.NewConferenceCreateRequest(userData),
 	}
 
 	return &pdu
@@ -195,64 +191,33 @@ func (pdu *ServerConnectResponse) Deserialize(wire io.Reader) error {
 	return pdu.UserData.Deserialize(wire)
 }
 
-func (p *Protocol) Connect(
-	selectedProtocol uint32,
-	desktopWidth, desktopHeight uint16,
-	channelNames []string,
-) error {
-	if p.connected {
-		return nil
-	}
-
+func (p *Protocol) Connect(userData []byte) (io.Reader, error) {
 	req := ConnectPDU{
-		Application: connectInitial,
-		ClientConnectInitial: NewClientMCSConnectInitialPDU(
-			selectedProtocol,
-			desktopWidth, desktopHeight,
-			channelNames,
-		),
+		Application:          connectInitial,
+		ClientConnectInitial: NewClientMCSConnectInitial(userData),
 	}
 
 	log.Println("MCS: Connect Initial")
 
 	if err := p.x224Conn.Send(req.Serialize()); err != nil {
-		return fmt.Errorf("client MCS connect initial request: %w", err)
+		return nil, fmt.Errorf("client MCS connect initial request: %w", err)
 	}
 
 	log.Println("MCS: Connect Response")
 
 	wire, err := p.x224Conn.Receive()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var resp ConnectPDU
 	if err = resp.Deserialize(wire); err != nil {
-		return fmt.Errorf("server MCS connect response: %w", err)
+		return nil, fmt.Errorf("server MCS connect response: %w", err)
 	}
 
 	if resp.ServerConnectResponse.Result != RTSuccessful {
-		return fmt.Errorf("unsuccessful MCS connect initial; result=%d", resp.ServerConnectResponse.Result)
+		return nil, fmt.Errorf("unsuccessful MCS connect initial; result=%d", resp.ServerConnectResponse.Result)
 	}
 
-	p.channels["global"] = resp.ServerConnectResponse.UserData.UserData.ServerNetworkData.MCSChannelId
-	p.initChannels(channelNames, resp.ServerConnectResponse.UserData.UserData.ServerNetworkData.ChannelIdArray)
-
-	log.Printf("MCS: Server Connect Response: earlyCapabilityFlags: %d\n", resp.ServerConnectResponse.UserData.UserData.ServerCoreData.EarlyCapabilityFlags)
-
-	// RNS_UD_SC_SKIP_CHANNELJOIN_SUPPORTED = 0x00000008
-	p.skipChannelJoin = resp.ServerConnectResponse.UserData.UserData.ServerCoreData.EarlyCapabilityFlags&0x8 == 0x8
-	p.connected = true
-
-	return nil
-}
-
-func (p *Protocol) initChannels(channelNames []string, channelIDArray []uint16) {
-	if p.channels == nil {
-		p.channels = make(map[string]uint16, len(channelNames))
-	}
-
-	for i, channelName := range channelNames {
-		p.channels[channelName] = channelIDArray[i]
-	}
+	return wire, nil
 }

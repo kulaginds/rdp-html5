@@ -38,30 +38,20 @@ func (d *ServerSendDataIndication) Deserialize(wire io.Reader) error {
 }
 
 // Receive returns channelName, reader or error
-func (p *Protocol) Receive() (string, io.Reader, error) {
-	if !p.connected {
-		return "", nil, ErrNotConnected
-	}
-
+func (p *Protocol) Receive() (uint16, io.Reader, error) {
 	wire, err := p.x224Conn.Receive()
 	if err != nil {
-		return "", nil, err
+		return 0, nil, err
 	}
 
 	var resp DomainPDU
 	if err = resp.Deserialize(wire); err != nil {
-		return "", nil, err
+		return 0, nil, err
 	}
 
 	if resp.Application != SendDataIndication {
-		return "", nil, ErrUnknownDomainApplication
+		return 0, nil, ErrUnknownDomainApplication
 	}
 
-	for channelName, channelID := range p.channels {
-		if channelID == resp.ServerSendDataIndication.ChannelId {
-			return channelName, wire, nil
-		}
-	}
-
-	return "", nil, ErrUnknownChannel
+	return resp.ServerSendDataIndication.ChannelId, wire, nil
 }

@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"testing"
@@ -7,7 +7,9 @@ import (
 )
 
 func TestNewClientInfoPDU_Serialize(t *testing.T) {
-	req := NewClientInfoPDU("192.168.1.2", "User", "p@$$w0rd")
+	req := NewClientInfo("192.168.1.2", "User", "p@$$w0rd")
+	req.InfoPacket.Flags = 0x00010153
+	req.InfoPacket.ExtraInfo.PerformanceFlags = 0x0
 
 	expected := []byte{
 		0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x53, 0x01, 0x01, 0x00, 0x16, 0x00, 0x08, 0x00,

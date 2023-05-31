@@ -55,27 +55,18 @@ func (d *ClientSendDataRequest) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (p *Protocol) Send(channelName string, pduData []byte) error {
-	if !p.connected {
-		return ErrNotConnected
-	}
-
-	channelID, ok := p.channels[channelName]
-	if !ok {
-		return ErrChannelNotFound
-	}
-
+func (p *Protocol) Send(userID, channelID uint16, pduData []byte) error {
 	req := DomainPDU{
 		Application: SendDataRequest,
 		ClientSendDataRequest: &ClientSendDataRequest{
-			Initiator: p.userId,
+			Initiator: userID,
 			ChannelId: channelID,
 			Data:      pduData,
 		},
 	}
 
 	if err := p.x224Conn.Send(req.Serialize()); err != nil {
-		return fmt.Errorf("client MCS send data request for channel=%s: %w", channelName, err)
+		return fmt.Errorf("client MCS send data request: %w", err)
 	}
 
 	return nil

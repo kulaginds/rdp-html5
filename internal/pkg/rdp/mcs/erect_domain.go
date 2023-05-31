@@ -20,10 +20,6 @@ func (pdu *ClientErectDomainRequest) Serialize() []byte {
 }
 
 func (p *Protocol) ErectDomain() error {
-	if !p.connected {
-		return ErrNotConnected
-	}
-
 	req := DomainPDU{
 		Application:              erectDomainRequest,
 		ClientErectDomainRequest: &ClientErectDomainRequest{},

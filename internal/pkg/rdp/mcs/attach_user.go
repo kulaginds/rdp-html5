@@ -36,11 +36,7 @@ func (pdu *ServerAttachUserConfirm) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (p *Protocol) AttachUser() error {
-	if !p.connected {
-		return ErrNotConnected
-	}
-
+func (p *Protocol) AttachUser() (uint16, error) {
 	req := DomainPDU{
 		Application:             attachUserRequest,
 		ClientAttachUserRequest: &ClientAttachUserRequest{},
@@ -49,28 +45,24 @@ func (p *Protocol) AttachUser() error {
 	log.Println("MCS: Attach User Request")
 
 	if err := p.x224Conn.Send(req.Serialize()); err != nil {
-		return fmt.Errorf("client MCS attach user request: %w", err)
+		return 0, fmt.Errorf("client MCS attach user request: %w", err)
 	}
 
 	log.Println("MCS: Attach User Confirm")
 
 	wire, err := p.x224Conn.Receive()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	var resp DomainPDU
 	if err = resp.Deserialize(wire); err != nil {
-		return fmt.Errorf("server MCS attach user confirm reponse: %w", err)
+		return 0, fmt.Errorf("server MCS attach user confirm reponse: %w", err)
 	}
 
 	if resp.ServerAttachUserConfirm.Result != RTSuccessful {
-		return fmt.Errorf("unsuccessful MCS attach user; result=%d", resp.ServerAttachUserConfirm.Result)
+		return 0, fmt.Errorf("unsuccessful MCS attach user; result=%d", resp.ServerAttachUserConfirm.Result)
 	}
 
-	p.userId = resp.ServerAttachUserConfirm.Initiator
-
-	p.channels["user"] = p.userId
-
-	return nil
+	return resp.ServerAttachUserConfirm.Initiator, nil
 }

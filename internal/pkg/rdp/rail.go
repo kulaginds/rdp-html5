@@ -325,13 +325,13 @@ func (c *client) railHandshake(*RailPDU) error {
 	)
 
 	clientHandshake := NewRailHandshakePDU()
-	err = c.mcsLayer.Send("rail", clientHandshake.Serialize())
+	err = c.mcsLayer.Send(c.userID, c.channelIDMap["rail"], clientHandshake.Serialize())
 	if err != nil {
 		return err
 	}
 
 	clientInfo := NewRailClientInfoPDU()
-	err = c.mcsLayer.Send("rail", clientInfo.Serialize())
+	err = c.mcsLayer.Send(c.userID, c.channelIDMap["rail"], clientInfo.Serialize())
 	if err != nil {
 		return err
 	}
@@ -413,7 +413,7 @@ func (c *client) railStartRemoteApp() error {
 
 	clientExecute := NewRailClientExecutePDU(c.remoteApp.App, c.remoteApp.WorkingDir, c.remoteApp.Args)
 
-	return c.mcsLayer.Send("rail", clientExecute.Serialize())
+	return c.mcsLayer.Send(c.userID, c.channelIDMap["rail"], clientExecute.Serialize())
 }
 
 type RailPDUExecResult struct {

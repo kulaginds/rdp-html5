@@ -61,24 +61,16 @@ func (pdu *ServerChannelJoinConfirm) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-func (p *Protocol) JoinChannels() error {
-	if !p.connected {
-		return ErrNotConnected
-	}
-
-	if len(p.channels) == 0 {
+func (p *Protocol) JoinChannels(userID uint16, channelIDMap map[string]uint16) error {
+	if len(channelIDMap) == 0 {
 		return nil
 	}
 
-	if p.skipChannelJoin {
-		return nil
-	}
-
-	for channelName, channelID := range p.channels {
+	for channelName, channelID := range channelIDMap {
 		req := DomainPDU{
 			Application: channelJoinRequest,
 			ClientChannelJoinRequest: &ClientChannelJoinRequest{
-				Initiator: p.userId,
+				Initiator: userID,
 				ChannelId: channelID,
 			},
 		}

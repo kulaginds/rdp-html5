@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"bytes"
@@ -22,7 +22,7 @@ func TestServerDemandActivePDU_Deserialize(t *testing.T) {
 
 	require.NoError(t, dom.Deserialize(wire))
 
-	var resp ServerDemandActivePDU
+	var resp ServerDemandActive
 
 	require.NoError(t, resp.Deserialize(wire))
 
@@ -32,7 +32,7 @@ func TestServerDemandActivePDU_Deserialize(t *testing.T) {
 func TestClientConfirmActivePDU_Serialize(t *testing.T) {
 	const userID uint16 = 1007
 
-	confirmActive := NewClientConfirmActivePDU(66538, userID)
+	confirmActive := NewClientConfirmActive(66538, userID, 1280, 1024, false)
 	confirmActive.SourceDescriptor = []byte("MSTSC\x00")
 	confirmActive.CapabilitySets = []CapabilitySet{
 		{

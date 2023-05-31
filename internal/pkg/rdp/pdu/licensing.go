@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"encoding/binary"
@@ -58,12 +58,12 @@ func (p *LicensingPreamble) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-type ServerLicenseErrorPDU struct {
+type ServerLicenseError struct {
 	Preamble           LicensingPreamble
 	ValidClientMessage LicensingErrorMessage
 }
 
-func (pdu *ServerLicenseErrorPDU) Deserialize(wire io.Reader) error {
+func (pdu *ServerLicenseError) Deserialize(wire io.Reader) error {
 	securityFlag, err := headers.UnwrapSecurityFlag(wire)
 	if err != nil {
 		return err

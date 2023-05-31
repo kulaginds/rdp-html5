@@ -7,13 +7,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestClientConnectionRequestPDU_Serialize from MS-RDPBCGR Protocol examples 4.1.1.
-// without TPKT header
-func TestClientConnectionRequestPDU_Serialize(t *testing.T) {
-	var req ClientConnectionRequestPDU
-
-	req.Cookie = "eltons"
-	req.RDPNegReq.RequestedProtocols = RDPNegotiationProtocolRDP
+func Test_ConnectionRequest(t *testing.T) {
+	req := ConnectionRequest{
+		CRCDT:        0xE0, // TPDU_CONNECTION_REQUEST
+		DSTREF:       0,
+		SRCREF:       0,
+		ClassOption:  0,
+		VariablePart: nil,
+		UserData: []byte{
+			0x43, 0x6f, 0x6f, 0x6b, 0x69, 0x65, 0x3a, 0x20, 0x6d, 0x73, 0x74, 0x73, 0x68, 0x61, 0x73, 0x68,
+			0x3d, 0x65, 0x6c, 0x74, 0x6f, 0x6e, 0x73, 0x0d, 0x0a, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+			0x00,
+		},
+	}
 
 	actual := req.Serialize()
 	expected := []byte{
@@ -25,15 +31,15 @@ func TestClientConnectionRequestPDU_Serialize(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-// TestServerConnectionConfirmPDU_Deserialize from MS-RDPBCGR Protocol examples 4.1.2.
-// without TPKT header
-func TestServerConnectionConfirmPDU_Deserialize(t *testing.T) {
-	var actual ServerConnectionConfirmPDU
+func Test_ConnectionConfirm(t *testing.T) {
+	var actual ConnectionConfirm
 
-	expected := ServerConnectionConfirmPDU{
-		Type:  RDPNegotiationTypeResponse,
-		Flags: 0,
-		data:  uint32(RDPNegotiationProtocolRDP),
+	expected := ConnectionConfirm{
+		LI:          14,
+		CCCDT:       0xd0,
+		DSTREF:      0,
+		SRCREF:      0x1234,
+		ClassOption: 0,
 	}
 
 	input := bytes.NewBuffer([]byte{

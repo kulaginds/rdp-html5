@@ -25,11 +25,11 @@ func (pdu *ConnectionRequest) Serialize() []byte {
 
 	buf := new(bytes.Buffer)
 
-	_ = binary.Write(buf, binary.LittleEndian, pdu.li)
-	_ = binary.Write(buf, binary.LittleEndian, pdu.CRCDT)
-	_ = binary.Write(buf, binary.LittleEndian, pdu.DSTREF)
-	_ = binary.Write(buf, binary.LittleEndian, pdu.SRCREF)
-	_ = binary.Write(buf, binary.LittleEndian, pdu.ClassOption)
+	_ = binary.Write(buf, binary.BigEndian, pdu.li)
+	_ = binary.Write(buf, binary.BigEndian, pdu.CRCDT)
+	_ = binary.Write(buf, binary.BigEndian, pdu.DSTREF)
+	_ = binary.Write(buf, binary.BigEndian, pdu.SRCREF)
+	_ = binary.Write(buf, binary.BigEndian, pdu.ClassOption)
 
 	buf.Write(pdu.UserData)
 
@@ -51,7 +51,7 @@ func (pdu *ConnectionConfirm) Deserialize(wire io.Reader) error {
 		packetLen             = fixedPartLen + variablePartLen
 	)
 
-	err := binary.Read(wire, binary.LittleEndian, &pdu.LI)
+	err := binary.Read(wire, binary.BigEndian, &pdu.LI)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (pdu *ConnectionConfirm) Deserialize(wire io.Reader) error {
 		return ErrSmallConnectionConfirmLength
 	}
 
-	err = binary.Read(wire, binary.LittleEndian, &pdu.CCCDT)
+	err = binary.Read(wire, binary.BigEndian, &pdu.CCCDT)
 	if err != nil {
 		return err
 	}
@@ -69,17 +69,17 @@ func (pdu *ConnectionConfirm) Deserialize(wire io.Reader) error {
 		return ErrWrongConnectionConfirmCode
 	}
 
-	err = binary.Read(wire, binary.LittleEndian, &pdu.DSTREF)
+	err = binary.Read(wire, binary.BigEndian, &pdu.DSTREF)
 	if err != nil {
 		return err
 	}
 
-	err = binary.Read(wire, binary.LittleEndian, &pdu.SRCREF)
+	err = binary.Read(wire, binary.BigEndian, &pdu.SRCREF)
 	if err != nil {
 		return err
 	}
 
-	err = binary.Read(wire, binary.LittleEndian, &pdu.ClassOption)
+	err = binary.Read(wire, binary.BigEndian, &pdu.ClassOption)
 	if err != nil {
 		return err
 	}

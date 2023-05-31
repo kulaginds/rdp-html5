@@ -1,8 +1,9 @@
-package rdp
+package pdu
 
 import (
 	"bytes"
 	"encoding/binary"
+	"io"
 	"strings"
 )
 
@@ -183,9 +184,6 @@ const (
 	// NegotiationResponseFlagGFXSupported DYNVC_GFX_PROTOCOL_SUPPORTED
 	NegotiationResponseFlagGFXSupported NegotiationResponseFlag = 0x02
 
-	// NegotiationResponseFlagReserved NEGRSP_FLAG_RESERVED
-	NegotiationResponseFlagReserved NegotiationResponseFlag = 0x04
-
 	// NegotiationResponseFlagAdminModeSupported RESTRICTED_ADMIN_MODE_SUPPORTED
 	NegotiationResponseFlagAdminModeSupported NegotiationResponseFlag = 0x08
 
@@ -260,4 +258,77 @@ var NegotiationFailureCodeMap = map[NegotiationFailureCode]string{
 
 func (c NegotiationFailureCode) String() string {
 	return NegotiationFailureCodeMap[c]
+}
+
+// ClientConnectionRequest Client X.224 Connection Request PDU
+type ClientConnectionRequest struct {
+	RoutingToken       string // one of RoutingToken or Cookie ending CR+LF
+	Cookie             string
+	NegotiationRequest NegotiationRequest // RDP Negotiation Request
+	CorrelationInfo    CorrelationInfo    // Correlation Info
+}
+
+func (pdu *ClientConnectionRequest) Serialize() []byte {
+	const (
+		CRLF         = "\r\n"
+		cookieHeader = "Cookie: mstshash="
+	)
+
+	buf := new(bytes.Buffer)
+
+	// routingToken or cookie
+	if pdu.RoutingToken != "" {
+		buf.WriteString(strings.Trim(pdu.RoutingToken, CRLF) + CRLF)
+	} else if pdu.Cookie != "" {
+		buf.WriteString(cookieHeader + strings.Trim(pdu.Cookie, CRLF) + CRLF)
+	}
+
+	// rdpNegReq
+	buf.Write(pdu.NegotiationRequest.Serialize())
+
+	// rdpCorrelationInfo
+	if pdu.NegotiationRequest.Flags.IsCorrelationInfoPresent() {
+		buf.Write(pdu.CorrelationInfo.Serialize())
+	}
+
+	return buf.Bytes()
+}
+
+type ServerConnectionConfirm struct {
+	Type   NegotiationType
+	Flags  NegotiationResponseFlag // RDP Negotiation Response flags
+	length uint16
+	data   uint32 // RDP Negotiation Response selectedProtocol or RDP Negotiation Failure failureCode
+}
+
+func (pdu *ServerConnectionConfirm) SelectedProtocol() NegotiationProtocol {
+	return NegotiationProtocol(pdu.data)
+}
+
+func (pdu *ServerConnectionConfirm) FailureCode() NegotiationFailureCode {
+	return NegotiationFailureCode(pdu.data)
+}
+
+func (pdu *ServerConnectionConfirm) Deserialize(wire io.Reader) error {
+	err := binary.Read(wire, binary.LittleEndian, &pdu.Type)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.Flags)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.length)
+	if err != nil {
+		return err
+	}
+
+	err = binary.Read(wire, binary.LittleEndian, &pdu.data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

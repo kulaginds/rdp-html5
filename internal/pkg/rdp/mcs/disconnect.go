@@ -15,10 +15,6 @@ func (pdu *ClientDisconnectUltimatumRequest) Serialize() []byte {
 }
 
 func (p *Protocol) Disconnect() error {
-	if !p.connected {
-		return nil
-	}
-
 	req := ClientDisconnectUltimatumRequest{}
 
 	if err := p.x224Conn.Send(req.Serialize()); err != nil {

@@ -1,6 +1,7 @@
 package rdp
 
 import (
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"io"
 	"log"
 
@@ -15,16 +16,16 @@ func (c *client) GetUpdate() (*fastpath.UpdatePDU, error) {
 
 	if protocol.IsX224() {
 		var (
-			channelName string
-			wire        io.Reader
+			channelID uint16
+			wire      io.Reader
 		)
 
-		channelName, wire, err = c.mcsLayer.Receive()
+		channelID, wire, err = c.mcsLayer.Receive()
 		if err != nil {
 			return nil, err
 		}
 
-		if channelName == "rail" {
+		if channelID == c.channelIDMap["rail"] {
 			err = c.handleRail(wire)
 			if err != nil {
 				return nil, err
@@ -33,7 +34,7 @@ func (c *client) GetUpdate() (*fastpath.UpdatePDU, error) {
 			return c.GetUpdate()
 		}
 
-		var data DataPDU
+		var data pdu.Data
 		if err = data.Deserialize(wire); err != nil {
 			return nil, err
 		}

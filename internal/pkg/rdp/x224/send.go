@@ -16,9 +16,9 @@ type Data struct {
 func (pdu *Data) Serialize() []byte {
 	buf := new(bytes.Buffer)
 
-	binary.Write(buf, binary.LittleEndian, pdu.LI)
-	binary.Write(buf, binary.LittleEndian, pdu.DTROA)
-	binary.Write(buf, binary.LittleEndian, pdu.NREOT)
+	binary.Write(buf, binary.BigEndian, pdu.LI)
+	binary.Write(buf, binary.BigEndian, pdu.DTROA)
+	binary.Write(buf, binary.BigEndian, pdu.NREOT)
 
 	buf.Write(pdu.UserData)
 
@@ -26,21 +26,21 @@ func (pdu *Data) Serialize() []byte {
 }
 
 func (pdu *Data) Deserialize(wire io.Reader) error {
-	err := binary.Read(wire, binary.LittleEndian, &pdu.LI)
+	err := binary.Read(wire, binary.BigEndian, &pdu.LI)
 	if err != nil {
 		return err
 	}
 
-	if pdu.LI != fixedPartLen {
+	if pdu.LI != dataFixedPartLen {
 		return ErrWrongDataLength
 	}
 
-	err = binary.Read(wire, binary.LittleEndian, &pdu.DTROA)
+	err = binary.Read(wire, binary.BigEndian, &pdu.DTROA)
 	if err != nil {
 		return err
 	}
 
-	err = binary.Read(wire, binary.LittleEndian, &pdu.NREOT)
+	err = binary.Read(wire, binary.BigEndian, &pdu.NREOT)
 	if err != nil {
 		return err
 	}
@@ -48,11 +48,12 @@ func (pdu *Data) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-const fixedPartLen uint8 = 0x02
+const dataFixedPartLen uint8 = 0x02
 
 func (p *Protocol) Send(userData []byte) error {
+
 	req := Data{
-		LI:       fixedPartLen,
+		LI:       dataFixedPartLen,
 		DTROA:    0xF0, // message type TPDU_DATA
 		NREOT:    0x80, // EOT flag is up, which indicates that current TPDU is the last data unit of a complete TPDU sequence
 		UserData: userData,

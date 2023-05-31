@@ -2,6 +2,7 @@ package rdp
 
 import (
 	"fmt"
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"net"
 	"time"
 
@@ -33,10 +34,13 @@ type client struct {
 	remoteApp *RemoteApp
 	railState RailState
 
-	selectedProtocol       NegotiationProtocol
-	serverNegotiationFlags NegotiationResponseFlag
+	selectedProtocol       pdu.NegotiationProtocol
+	serverNegotiationFlags pdu.NegotiationResponseFlag
 	channels               []string
+	channelIDMap           map[string]uint16
+	skipChannelJoin        bool
 	shareID                uint32
+	userID                 uint16
 }
 
 const (
@@ -55,7 +59,7 @@ func NewClient(
 		desktopWidth:  uint16(desktopWidth),
 		desktopHeight: uint16(desktopHeight),
 
-		selectedProtocol: NegotiationProtocolSSL,
+		selectedProtocol: pdu.NegotiationProtocolSSL,
 	}
 
 	var err error

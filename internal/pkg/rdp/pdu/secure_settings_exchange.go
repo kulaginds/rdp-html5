@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"bytes"
@@ -162,7 +162,7 @@ func (p *ClientInfoPacket) Serialize() []byte {
 	return buf.Bytes()
 }
 
-type ClientInfoPDU struct {
+type ClientInfo struct {
 	InfoPacket ClientInfoPacket
 }
 
@@ -235,8 +235,8 @@ const (
 	CompressionTypeRDP61 uint32 = 0x3
 )
 
-func NewClientInfoPDU(domain, username, password string) *ClientInfoPDU {
-	return &ClientInfoPDU{
+func NewClientInfo(domain, username, password string) *ClientInfo {
+	return &ClientInfo{
 		InfoPacket: ClientInfoPacket{
 			Flags:    InfoFlagMouse | InfoFlagUnicode | InfoFlagAutoLogon | InfoFlagDisableCtrlAltDel | InfoFlagEnableWindowsKey,
 			Domain:   domain,
@@ -251,7 +251,7 @@ func NewClientInfoPDU(domain, username, password string) *ClientInfoPDU {
 	}
 }
 
-func (pdu *ClientInfoPDU) Serialize() []byte {
+func (pdu *ClientInfo) Serialize() []byte {
 	return headers.WrapSecurityFlag(
 		0x0040, // SEC_INFO_PKT
 		pdu.InfoPacket.Serialize(),

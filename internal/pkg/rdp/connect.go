@@ -1,12 +1,10 @@
 package rdp
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"io"
 	"log"
-	"strings"
 )
 
 func (c *client) Connect() error {
@@ -45,90 +43,17 @@ func (c *client) Connect() error {
 	return nil
 }
 
-// ClientConnectionRequestPDU Client X.224 Connection Request PDU
-type ClientConnectionRequestPDU struct {
-	RoutingToken       string // one of RoutingToken or Cookie ending CR+LF
-	Cookie             string
-	NegotiationRequest NegotiationRequest // RDP Negotiation Request
-	CorrelationInfo    CorrelationInfo    // Correlation Info
-}
-
-func (pdu *ClientConnectionRequestPDU) Serialize() []byte {
-	const (
-		CRLF         = "\r\n"
-		cookieHeader = "Cookie: mstshash="
-	)
-
-	buf := new(bytes.Buffer)
-
-	// routingToken or cookie
-	if pdu.RoutingToken != "" {
-		buf.WriteString(strings.Trim(pdu.RoutingToken, CRLF) + CRLF)
-	} else if pdu.Cookie != "" {
-		buf.WriteString(cookieHeader + strings.Trim(pdu.Cookie, CRLF) + CRLF)
-	}
-
-	// rdpNegReq
-	buf.Write(pdu.NegotiationRequest.Serialize())
-
-	// rdpCorrelationInfo
-	if pdu.NegotiationRequest.Flags.IsCorrelationInfoPresent() {
-		buf.Write(pdu.CorrelationInfo.Serialize())
-	}
-
-	return buf.Bytes()
-}
-
-type ServerConnectionConfirmPDU struct {
-	Type   NegotiationType
-	Flags  NegotiationResponseFlag // RDP Negotiation Response flags
-	length uint16
-	data   uint32 // RDP Negotiation Response selectedProtocol or RDP Negotiation Failure failureCode
-}
-
-func (pdu *ServerConnectionConfirmPDU) SelectedProtocol() NegotiationProtocol {
-	return NegotiationProtocol(pdu.data)
-}
-
-func (pdu *ServerConnectionConfirmPDU) FailureCode() NegotiationFailureCode {
-	return NegotiationFailureCode(pdu.data)
-}
-
-func (pdu *ServerConnectionConfirmPDU) Deserialize(wire io.Reader) error {
-	err := binary.Read(wire, binary.LittleEndian, &pdu.Type)
-	if err != nil {
-		return err
-	}
-
-	err = binary.Read(wire, binary.LittleEndian, &pdu.Flags)
-	if err != nil {
-		return err
-	}
-
-	err = binary.Read(wire, binary.LittleEndian, &pdu.length)
-	if err != nil {
-		return err
-	}
-
-	err = binary.Read(wire, binary.LittleEndian, &pdu.data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (c *client) connectionInitiation() error {
 	var err error
 
-	req := ClientConnectionRequestPDU{
-		NegotiationRequest: NegotiationRequest{
+	req := pdu.ClientConnectionRequest{
+		NegotiationRequest: pdu.NegotiationRequest{
 			RequestedProtocols: c.selectedProtocol,
 		},
 	}
 
 	var (
-		resp ServerConnectionConfirmPDU
+		resp pdu.ServerConnectionConfirm
 		wire io.Reader
 	)
 
@@ -160,7 +85,39 @@ func (c *client) connectionInitiation() error {
 }
 
 func (c *client) basicSettingsExchange() error {
-	return c.mcsLayer.Connect(uint32(c.selectedProtocol), c.desktopWidth, c.desktopHeight, c.channels)
+	clientUserDataSet := pdu.NewClientUserDataSet(uint32(c.selectedProtocol), c.desktopWidth, c.desktopHeight, c.channels)
+
+	wire, err := c.mcsLayer.Connect(clientUserDataSet.Serialize())
+	if err != nil {
+		return err
+	}
+
+	var serverUserData pdu.ServerUserData
+	err = serverUserData.Deserialize(wire)
+	if err != nil {
+		return err
+	}
+
+	c.initChannels(serverUserData.ServerNetworkData)
+
+	log.Println("MCS: Server Connect Response: earlyCapabilityFlags: ", serverUserData.ServerCoreData.EarlyCapabilityFlags)
+
+	// RNS_UD_SC_SKIP_CHANNELJOIN_SUPPORTED = 0x00000008
+	c.skipChannelJoin = serverUserData.ServerCoreData.EarlyCapabilityFlags&0x8 == 0x8
+
+	return nil
+}
+
+func (c *client) initChannels(serverNetworkData *pdu.ServerNetworkData) {
+	if c.channels == nil {
+		c.channelIDMap = make(map[string]uint16, len(c.channels))
+	}
+
+	for i, channelName := range c.channels {
+		c.channelIDMap[channelName] = serverNetworkData.ChannelIdArray[i]
+	}
+
+	c.channelIDMap["global"] = serverNetworkData.MCSChannelId
 }
 
 func (c *client) channelConnection() error {
@@ -169,12 +126,18 @@ func (c *client) channelConnection() error {
 		return err
 	}
 
-	err = c.mcsLayer.AttachUser()
+	c.userID, err = c.mcsLayer.AttachUser()
 	if err != nil {
 		return err
 	}
 
-	err = c.mcsLayer.JoinChannels()
+	c.channelIDMap["user"] = c.userID
+
+	if c.skipChannelJoin {
+		return nil
+	}
+
+	err = c.mcsLayer.JoinChannels(c.userID, c.channelIDMap)
 	if err != nil {
 		return err
 	}
@@ -183,15 +146,15 @@ func (c *client) channelConnection() error {
 }
 
 func (c *client) secureSettingsExchange() error {
-	clientInfoPDU := NewClientInfoPDU(c.domain, c.username, c.password)
+	clientInfoPDU := pdu.NewClientInfo(c.domain, c.username, c.password)
 
 	if c.remoteApp != nil {
-		clientInfoPDU.InfoPacket.Flags |= InfoFlagRail
+		clientInfoPDU.InfoPacket.Flags |= pdu.InfoFlagRail
 	}
 
 	log.Println("RDP: Client Info")
 
-	if err := c.mcsLayer.Send("global", clientInfoPDU.Serialize()); err != nil {
+	if err := c.mcsLayer.Send(c.userID, c.channelIDMap["global"], clientInfoPDU.Serialize()); err != nil {
 		return fmt.Errorf("client info: %w", err)
 	}
 
@@ -206,7 +169,7 @@ func (c *client) licensing() error {
 		return err
 	}
 
-	var resp ServerLicenseErrorPDU
+	var resp pdu.ServerLicenseError
 	if err = resp.Deserialize(wire); err != nil {
 		return fmt.Errorf("server license error: %w", err)
 	}

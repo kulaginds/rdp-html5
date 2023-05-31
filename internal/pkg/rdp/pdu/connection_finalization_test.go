@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"encoding/hex"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestClientSynchronizePDU_Serialize(t *testing.T) {
-	synchronize := NewSynchronizePDU(66538, 1007)
+	synchronize := NewSynchronize(66538, 1007)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -31,7 +31,7 @@ func TestClientSynchronizePDU_Serialize(t *testing.T) {
 }
 
 func TestClientSynchronizePDU_Serialize2(t *testing.T) {
-	synchronize := NewSynchronizePDU(66538, 1004)
+	synchronize := NewSynchronize(66538, 1004)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -51,7 +51,7 @@ func TestClientSynchronizePDU_Serialize2(t *testing.T) {
 }
 
 func TestClientControlPDU_Serialize_Cooperate(t *testing.T) {
-	control := NewControlPDU(66538, 1007, ControlActionCooperate)
+	control := NewControl(66538, 1007, ControlActionCooperate)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -73,7 +73,7 @@ func TestClientControlPDU_Serialize_Cooperate(t *testing.T) {
 }
 
 func TestClientControlPDU_Serialize_Cooperate2(t *testing.T) {
-	control := NewControlPDU(66538, 1004, ControlActionCooperate)
+	control := NewControl(66538, 1004, ControlActionCooperate)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -93,7 +93,7 @@ func TestClientControlPDU_Serialize_Cooperate2(t *testing.T) {
 }
 
 func TestClientControlPDU_Serialize_RequestControl(t *testing.T) {
-	control := NewControlPDU(66538, 1007, ControlActionRequestControl)
+	control := NewControl(66538, 1007, ControlActionRequestControl)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -115,7 +115,7 @@ func TestClientControlPDU_Serialize_RequestControl(t *testing.T) {
 }
 
 func TestClientControlPDU_Serialize_RequestControl2(t *testing.T) {
-	control := NewControlPDU(66538, 1004, ControlActionRequestControl)
+	control := NewControl(66538, 1004, ControlActionRequestControl)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -135,7 +135,7 @@ func TestClientControlPDU_Serialize_RequestControl2(t *testing.T) {
 }
 
 func TestClientFontListPDU_Serialize(t *testing.T) {
-	fontlist := NewFontListPDU(66538, 1007)
+	fontlist := NewFontList(66538, 1007)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,
@@ -157,7 +157,7 @@ func TestClientFontListPDU_Serialize(t *testing.T) {
 }
 
 func TestClientFontListPDU_Serialize2(t *testing.T) {
-	fontlist := NewFontListPDU(66538, 1004)
+	fontlist := NewFontList(66538, 1004)
 
 	req := mcs.DomainPDU{
 		Application: mcs.SendDataRequest,

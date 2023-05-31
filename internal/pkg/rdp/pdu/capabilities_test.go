@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"encoding/hex"

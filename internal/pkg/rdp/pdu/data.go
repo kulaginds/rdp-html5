@@ -1,4 +1,4 @@
-package rdp
+package pdu
 
 import (
 	"bytes"
@@ -7,45 +7,45 @@ import (
 	"io"
 )
 
-type PDUType uint16
+type Type uint16
 
 const (
-	// PDUTypeDemandActive PDUTYPE_DEMANDACTIVEPDU
-	PDUTypeDemandActive PDUType = 0x11
+	// TypeDemandActive PDUTYPE_DEMANDACTIVEPDU
+	TypeDemandActive Type = 0x11
 
-	// PDUTypeConfirmActive PDUTYPE_CONFIRMACTIVEPDU
-	PDUTypeConfirmActive PDUType = 0x13
+	// TypeConfirmActive PDUTYPE_CONFIRMACTIVEPDU
+	TypeConfirmActive Type = 0x13
 
-	// PDUTypeDeactivateAll PDUTYPE_DEACTIVATEALLPDU
-	PDUTypeDeactivateAll PDUType = 0x16
+	// TypeDeactivateAll PDUTYPE_DEACTIVATEALLPDU
+	TypeDeactivateAll Type = 0x16
 
-	// PDUTypeData PDUTYPE_DATAPDU
-	PDUTypeData PDUType = 0x17
+	// TypeData PDUTYPE_DATAPDU
+	TypeData Type = 0x17
 )
 
-func (t PDUType) IsDemandActive() bool {
-	return t == PDUTypeDemandActive
+func (t Type) IsDemandActive() bool {
+	return t == TypeDemandActive
 }
 
-func (t PDUType) IsConfirmActive() bool {
-	return t == PDUTypeConfirmActive
+func (t Type) IsConfirmActive() bool {
+	return t == TypeConfirmActive
 }
 
-func (t PDUType) IsDeactivateAll() bool {
-	return t == PDUTypeDeactivateAll
+func (t Type) IsDeactivateAll() bool {
+	return t == TypeDeactivateAll
 }
 
-func (t PDUType) IsData() bool {
-	return t == PDUTypeData
+func (t Type) IsData() bool {
+	return t == TypeData
 }
 
 type ShareControlHeader struct {
 	TotalLength uint16
-	PDUType     PDUType
+	PDUType     Type
 	PDUSource   uint16
 }
 
-func newShareControlHeader(pduType PDUType, pduSource uint16) *ShareControlHeader {
+func newShareControlHeader(pduType Type, pduSource uint16) *ShareControlHeader {
 	return &ShareControlHeader{
 		PDUType:   pduType,
 		PDUSource: pduSource,
@@ -70,71 +70,71 @@ func (header *ShareControlHeader) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-type PDUType2 uint8
+type Type2 uint8
 
 const (
-	// PDUType2Update PDUTYPE2_UPDATE
-	PDUType2Update PDUType2 = 0x02
+	// Type2Update PDUTYPE2_UPDATE
+	Type2Update Type2 = 0x02
 
-	// PDUType2Control PDUTYPE2_CONTROL
-	PDUType2Control PDUType2 = 0x14
+	// Type2Control PDUTYPE2_CONTROL
+	Type2Control Type2 = 0x14
 
-	// PDUType2Pointer PDUTYPE2_POINTER
-	PDUType2Pointer PDUType2 = 0x1B
+	// Type2Pointer PDUTYPE2_POINTER
+	Type2Pointer Type2 = 0x1B
 
-	// PDUType2Input PDUTYPE2_INPUT
-	PDUType2Input PDUType2 = 0x1C
+	// Type2Input PDUTYPE2_INPUT
+	Type2Input Type2 = 0x1C
 
-	// PDUType2Synchronize PDUTYPE2_SYNCHRONIZE
-	PDUType2Synchronize PDUType2 = 0x1F
+	// Type2Synchronize PDUTYPE2_SYNCHRONIZE
+	Type2Synchronize Type2 = 0x1F
 
-	// PDUType2Fontlist PDUTYPE2_FONTLIST
-	PDUType2Fontlist PDUType2 = 0x27
+	// Type2Fontlist PDUTYPE2_FONTLIST
+	Type2Fontlist Type2 = 0x27
 
-	// PDUType2Fontmap PDUTYPE2_FONTMAP
-	PDUType2Fontmap PDUType2 = 0x28
+	// Type2Fontmap PDUTYPE2_FONTMAP
+	Type2Fontmap Type2 = 0x28
 
-	// PDUType2ErrorInfo PDUTYPE2_SET_ERROR_INFO_PDU
-	PDUType2ErrorInfo PDUType2 = 0x2f
+	// Type2ErrorInfo PDUTYPE2_SET_ERROR_INFO_PDU
+	Type2ErrorInfo Type2 = 0x2f
 
-	// PDUType2SaveSessionInfo PDUTYPE2_SAVE_SESSION_INFO
-	PDUType2SaveSessionInfo PDUType2 = 0x26
+	// Type2SaveSessionInfo PDUTYPE2_SAVE_SESSION_INFO
+	Type2SaveSessionInfo Type2 = 0x26
 )
 
-func (t PDUType2) IsUpdate() bool {
-	return t == PDUType2Update
+func (t Type2) IsUpdate() bool {
+	return t == Type2Update
 }
 
-func (t PDUType2) IsControl() bool {
-	return t == PDUType2Control
+func (t Type2) IsControl() bool {
+	return t == Type2Control
 }
 
-func (t PDUType2) IsPointer() bool {
-	return t == PDUType2Pointer
+func (t Type2) IsPointer() bool {
+	return t == Type2Pointer
 }
 
-func (t PDUType2) IsInput() bool {
-	return t == PDUType2Input
+func (t Type2) IsInput() bool {
+	return t == Type2Input
 }
 
-func (t PDUType2) IsSynchronize() bool {
-	return t == PDUType2Synchronize
+func (t Type2) IsSynchronize() bool {
+	return t == Type2Synchronize
 }
 
-func (t PDUType2) IsFontlist() bool {
-	return t == PDUType2Fontlist
+func (t Type2) IsFontlist() bool {
+	return t == Type2Fontlist
 }
 
-func (t PDUType2) IsErrorInfo() bool {
-	return t == PDUType2ErrorInfo
+func (t Type2) IsErrorInfo() bool {
+	return t == Type2ErrorInfo
 }
 
-func (t PDUType2) IsFontmap() bool {
-	return t == PDUType2Fontmap
+func (t Type2) IsFontmap() bool {
+	return t == Type2Fontmap
 }
 
-func (t PDUType2) IsSaveSessionInfo() bool {
-	return t == PDUType2SaveSessionInfo
+func (t Type2) IsSaveSessionInfo() bool {
+	return t == Type2SaveSessionInfo
 }
 
 type ShareDataHeader struct {
@@ -142,12 +142,12 @@ type ShareDataHeader struct {
 	ShareID            uint32
 	StreamID           uint8
 	UncompressedLength uint16
-	PDUType2           PDUType2
+	PDUType2           Type2
 	CompressedType     uint8
 	CompressedLength   uint16
 }
 
-func newShareDataHeader(shareID uint32, pduSource uint16, pduType PDUType, pduType2 PDUType2) *ShareDataHeader {
+func newShareDataHeader(shareID uint32, pduSource uint16, pduType Type, pduType2 Type2) *ShareDataHeader {
 	return &ShareDataHeader{
 		ShareControlHeader: *newShareControlHeader(pduType, pduSource),
 		ShareID:            shareID,
@@ -219,7 +219,7 @@ func (header *ShareDataHeader) Deserialize(wire io.Reader) error {
 	return nil
 }
 
-type DataPDU struct {
+type Data struct {
 	ShareDataHeader    ShareDataHeader
 	SynchronizePDUData *SynchronizePDUData
 	ControlPDUData     *ControlPDUData
@@ -228,7 +228,7 @@ type DataPDU struct {
 	ErrorInfoPDUData   *ErrorInfoPDUData
 }
 
-func (pdu *DataPDU) Serialize() []byte {
+func (pdu *Data) Serialize() []byte {
 	var data []byte
 
 	switch {
@@ -251,7 +251,7 @@ func (pdu *DataPDU) Serialize() []byte {
 	return buf.Bytes()
 }
 
-func (pdu *DataPDU) Deserialize(wire io.Reader) error {
+func (pdu *Data) Deserialize(wire io.Reader) error {
 	var err error
 
 	if err = pdu.ShareDataHeader.Deserialize(wire); err != nil {
