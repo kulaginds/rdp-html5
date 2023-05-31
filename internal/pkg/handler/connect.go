@@ -2,8 +2,6 @@ package handler
 
 import (
 	"context"
-	"encoding/binary"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -94,22 +92,6 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	rdpToWs(ctx, rdpClient, wsConn)
 }
 
-func wsReadCanvasDimensions(wsConn *websocket.Conn) (uint16, uint16, error) {
-	_, data, err := wsConn.ReadMessage()
-	if err != nil {
-		return 0, 0, err
-	}
-
-	if len(data) != 4 {
-		return 0, 0, errors.New("bad data size")
-	}
-
-	width := binary.LittleEndian.Uint16(data[0:2])
-	height := binary.LittleEndian.Uint16(data[2:4])
-
-	return width, height, nil
-}
-
 func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn rdpConn, cancel context.CancelFunc) {
 	defer func() {
 		log.Println("wsToRdp done")
@@ -162,7 +144,7 @@ func rdpToWs(ctx context.Context, rdpConn rdpConn, wsConn *websocket.Conn) {
 			return
 		}
 
-		if err = wsConn.WriteMessage(2, update.Data); err != nil {
+		if err = wsConn.WriteMessage(websocket.BinaryMessage, update.Data); err != nil {
 			if err == websocket.ErrCloseSent {
 				log.Println("sent to closed websocket")
 

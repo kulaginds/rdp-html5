@@ -40,7 +40,7 @@ func (c *client) GetUpdate() (*fastpath.UpdatePDU, error) {
 		}
 
 		if data.ShareDataHeader.PDUType2.IsErrorInfo() {
-			log.Printf("received error info: %d\n", data.ErrorInfoPDUData.ErrorInfo)
+			log.Printf("received error info: %d\n", data.ErrorInfoPDUData.String())
 		}
 
 		return c.GetUpdate()

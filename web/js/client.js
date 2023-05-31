@@ -157,6 +157,9 @@ function buf2hex(buffer) { // buffer is an ArrayBuffer
 Client.prototype.handleBitmap = function (r) {
     const bitmap = parseBitmapUpdate(r);
 
+    // const size = 64;
+    // const resultSize = size * size * 4;
+
     const inputPtr = this.inputPtr;
     const outputPtr = this.outputPtr;
     const flipVTempPtr = this.flipVTempPtr;

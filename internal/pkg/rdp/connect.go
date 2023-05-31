@@ -162,7 +162,7 @@ func (c *client) secureSettingsExchange() error {
 }
 
 func (c *client) licensing() error {
-	log.Println("RDP: Server License Error")
+	log.Println("RDP: Server License")
 
 	_, wire, err := c.mcsLayer.Receive()
 	if err != nil {
