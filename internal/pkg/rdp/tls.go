@@ -1,6 +1,7 @@
 package rdp
 
 import (
+	"bufio"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -20,6 +21,7 @@ func (c *client) StartTLS() error {
 	}
 
 	c.conn = tlsConn
+	c.buffReader = bufio.NewReaderSize(c.conn, readBufferSize)
 
 	return nil
 }

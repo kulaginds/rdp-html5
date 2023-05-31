@@ -181,6 +181,10 @@ func (header *ShareDataHeader) Deserialize(wire io.Reader) error {
 		return err
 	}
 
+	if header.ShareControlHeader.PDUType.IsDeactivateAll() {
+		return ErrDeactiateAll
+	}
+
 	err = binary.Read(wire, binary.LittleEndian, &header.ShareID)
 	if err != nil {
 		return err

@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"log"
 	"net/http"
 	"strconv"
@@ -138,7 +140,14 @@ func rdpToWs(ctx context.Context, rdpConn rdpConn, wsConn *websocket.Conn) {
 		}
 
 		update, err = rdpConn.GetUpdate()
-		if err != nil {
+		switch {
+		case err == nil: // pass
+		case errors.Is(err, pdu.ErrDeactiateAll):
+			log.Println("deactivate all")
+
+			return
+
+		default:
 			log.Println(fmt.Errorf("get update: %w", err))
 
 			return

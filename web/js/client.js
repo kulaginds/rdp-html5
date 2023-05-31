@@ -84,14 +84,14 @@ Client.prototype.initialize = function () {
 
     this.connected = true;
 
-    const size = 64;
-    const rowDelta = size * 2;
-    const resultSize = size * size * 4;
-
-    this.inputPtr = Module._malloc(rowDelta * size);
-    this.outputPtr = Module._malloc(resultSize);
-    this.flipVTempPtr = Module._malloc(rowDelta);
-    this.pbResultBufferPtr = Module._malloc(resultSize);
+    // const size = 64;
+    // const rowDelta = size * 2;
+    // const resultSize = size * size * 4;
+    //
+    // this.inputPtr = Module._malloc(rowDelta * size);
+    // this.outputPtr = Module._malloc(resultSize);
+    // this.flipVTempPtr = Module._malloc(rowDelta);
+    // this.pbResultBufferPtr = Module._malloc(resultSize);
 };
 
 Client.prototype.deinitialize = function () {
@@ -105,10 +105,10 @@ Client.prototype.deinitialize = function () {
 
     this.connected = false;
 
-    Module._free(this.inputPtr);
-    Module._free(this.outputPtr);
-    Module._free(this.flipVTempPtr);
-    Module._free(this.pbResultBufferPtr);
+    // Module._free(this.inputPtr);
+    // Module._free(this.outputPtr);
+    // Module._free(this.flipVTempPtr);
+    // Module._free(this.pbResultBufferPtr);
 
     Object.entries(this.pointerCache).forEach(([index, style]) => {
         document.getElementsByTagName('head')[0].removeChild(style);
@@ -145,6 +145,11 @@ Client.prototype.handleMessage = function (arrayBuffer) {
         return;
     }
 
+    if (header.isSynchronize()) {
+        // an artifact of the T.128 protocol ([T128] section 8.6.2) and SHOULD be ignored.
+        return;
+    }
+
     console.warn("unknown update:", header.updateCode);
 };
 
@@ -160,26 +165,40 @@ Client.prototype.handleBitmap = function (r) {
     // const size = 64;
     // const resultSize = size * size * 4;
 
-    const inputPtr = this.inputPtr;
-    const outputPtr = this.outputPtr;
-    const flipVTempPtr = this.flipVTempPtr;
-    const pbResultBufferPtr = this.pbResultBufferPtr;
+    // const inputPtr = this.inputPtr;
+    // const outputPtr = this.outputPtr;
+    // const flipVTempPtr = this.flipVTempPtr;
+    // const pbResultBufferPtr = this.pbResultBufferPtr;
 
     bitmap.rectangles.forEach((bitmapData) => {
-        const resultSize = bitmapData.width * bitmapData.height * 4;
-        const inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, resultSize);
+        const size = bitmapData.width * bitmapData.height;
+        const rowDelta = bitmapData.width * 2;
+        const resultSize = size * 2;
+
+        if (!bitmapData.isCompressed()) {
+            let rgb = new Uint8ClampedArray(bitmapData.bitmapDataStream);
+            let rgba = new Uint8ClampedArray(bitmapData.width * bitmapData.height * 4);
+
+            flipV(rgb, bitmapData.width, bitmapData.height);
+            rgb2rgba(rgb, resultSize, rgba)
+
+            this.ctx.putImageData(new ImageData(rgba, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
+
+            return;
+        }
+
+        const inputPtr = Module._malloc(bitmapData.bitmapLength);
+        const outputPtr = Module._malloc(resultSize);
+        const inputHeap = new Uint8Array(Module.HEAPU8.buffer, inputPtr, bitmapData.bitmapDataStream.length);
         inputHeap.set(new Uint8Array(bitmapData.bitmapDataStream));
 
-        const result = Module.ccall('ProcessBitmapData',
+        const result = Module.ccall('RleDecompress',
             'number',
-            ['number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'number', 'bool'],
+            ['number', 'number', 'number', 'number'],
             [
                 inputPtr, bitmapData.bitmapLength,
                 outputPtr,
-                bitmapData.width * 2, bitmapData.width * bitmapData.height * 2,
-                bitmapData.width, bitmapData.height,
-                flipVTempPtr, pbResultBufferPtr,
-                bitmapData.isCompressed(),
+                rowDelta,
             ]
         );
 
@@ -188,8 +207,16 @@ Client.prototype.handleBitmap = function (r) {
             return;
         }
 
-        const data = new Uint8ClampedArray(Module.HEAP8.buffer.slice(pbResultBufferPtr, pbResultBufferPtr + resultSize));
-        this.ctx.putImageData(new ImageData(data, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
+        let rgb = new Uint8ClampedArray(Module.HEAP8.buffer.slice(outputPtr, outputPtr + resultSize));
+        let rgba = new Uint8ClampedArray(bitmapData.width * bitmapData.height * 4);
+
+        flipV(rgb, bitmapData.width, bitmapData.height);
+        rgb2rgba(rgb, resultSize, rgba)
+
+        this.ctx.putImageData(new ImageData(rgba, bitmapData.width, bitmapData.height), bitmapData.destLeft, bitmapData.destTop);
+
+        Module._free(inputPtr);
+        Module._free(outputPtr);
     });
 };
 

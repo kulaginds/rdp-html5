@@ -1,6 +1,7 @@
 package rdp
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"net"
@@ -19,11 +20,12 @@ type RemoteApp struct {
 }
 
 type client struct {
-	conn      net.Conn
-	tpktLayer *tpkt.Protocol
-	x224Layer *x224.Protocol
-	mcsLayer  *mcs.Protocol
-	fastPath  *fastpath.Protocol
+	conn       net.Conn
+	buffReader *bufio.Reader
+	tpktLayer  *tpkt.Protocol
+	x224Layer  *x224.Protocol
+	mcsLayer   *mcs.Protocol
+	fastPath   *fastpath.Protocol
 
 	domain   string
 	username string
@@ -45,6 +47,7 @@ type client struct {
 
 const (
 	tcpConnectionTimeout = 15 * time.Second
+	readBufferSize       = 64 * 1024
 )
 
 func NewClient(
@@ -68,6 +71,8 @@ func NewClient(
 	if err != nil {
 		return nil, fmt.Errorf("tcp connect: %w", err)
 	}
+
+	c.buffReader = bufio.NewReaderSize(c.conn, readBufferSize)
 
 	c.tpktLayer = tpkt.New(&c)
 	c.x224Layer = x224.New(c.tpktLayer)

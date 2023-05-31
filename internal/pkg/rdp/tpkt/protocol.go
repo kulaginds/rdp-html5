@@ -5,8 +5,7 @@ import (
 )
 
 type Protocol struct {
-	conn            io.ReadWriteCloser
-	fastpathEnabled bool
+	conn io.ReadWriteCloser
 }
 
 func New(conn io.ReadWriteCloser) *Protocol {

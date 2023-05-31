@@ -38,8 +38,6 @@ func (c *client) Connect() error {
 		return fmt.Errorf("connection finalizatioin: %w", err)
 	}
 
-	c.tpktLayer.StartHandleFastpath()
-
 	return nil
 }
 
