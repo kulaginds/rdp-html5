@@ -387,23 +387,23 @@ func NewClientConfirmActive(shareID uint32, userId, desktopWidth, desktopHeight 
 			'w', 'e', 'b', '-', 'r', 'd', 'p', '-', 's', 'o', 'l', 'u', 't', 'i', 'o', 'n',
 		},
 		CapabilitySets: []CapabilitySet{
-			*NewGeneralCapabilitySet(),
-			*NewBitmapCapabilitySet(desktopWidth, desktopHeight),
-			*NewOrderCapabilitySet(),
-			*NewBitmapCacheCapabilitySetRev1(),
-			*NewPointerCapabilitySet(),
-			*NewInputCapabilitySet(),
-			*NewBrushCapabilitySet(),
-			*NewGlyphCacheCapabilitySet(),
-			*NewOffscreenBitmapCacheCapabilitySet(),
-			*NewVirtualChannelCapabilitySet(),
-			*NewSoundCapabilitySet(),
-			*NewMultifragmentUpdateCapabilitySet(),
+			NewGeneralCapabilitySet(),
+			NewBitmapCapabilitySet(desktopWidth, desktopHeight),
+			NewOrderCapabilitySet(),
+			NewBitmapCacheCapabilitySetRev1(),
+			NewPointerCapabilitySet(),
+			NewInputCapabilitySet(),
+			NewBrushCapabilitySet(),
+			NewGlyphCacheCapabilitySet(),
+			NewOffscreenBitmapCacheCapabilitySet(),
+			NewVirtualChannelCapabilitySet(),
+			NewSoundCapabilitySet(),
+			NewMultifragmentUpdateCapabilitySet(),
 		},
 	}
 
 	if withRemoteApp {
-		pdu.CapabilitySets = append(pdu.CapabilitySets, *NewRailCapabilitySet(), *NewWindowListCapabilitySet())
+		pdu.CapabilitySets = append(pdu.CapabilitySets, NewRailCapabilitySet(), NewWindowListCapabilitySet())
 	}
 
 	return &pdu

@@ -14,8 +14,8 @@ type GeneralCapabilitySet struct {
 	SuppressOutputSupport uint8
 }
 
-func NewGeneralCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewGeneralCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeGeneral,
 		GeneralCapabilitySet: &GeneralCapabilitySet{
 			OSMajorType: 0x0008,                   // Chrome OS platform
@@ -120,8 +120,8 @@ type BitmapCapabilitySet struct {
 	DrawingFlags          uint8
 }
 
-func NewBitmapCapabilitySet(desktopWidth, desktopHeight uint16) *CapabilitySet {
-	return &CapabilitySet{
+func NewBitmapCapabilitySet(desktopWidth, desktopHeight uint16) CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeBitmap,
 		BitmapCapabilitySet: &BitmapCapabilitySet{
 			PreferredBitsPerPixel: 0x0018, // HIGH_COLOR_24BPP
@@ -238,8 +238,8 @@ type OrderCapabilitySet struct {
 	textANSICodePage    uint16
 }
 
-func NewOrderCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewOrderCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeOrder,
 		OrderCapabilitySet: &OrderCapabilitySet{
 			OrderFlags:      0x2 | 0x0008, // NEGOTIATEORDERSUPPORT, ZEROBOUNDSDELTASSUPPORT this flags must be set
@@ -377,8 +377,8 @@ type BitmapCacheCapabilitySetRev1 struct {
 	Cache2MaximumCellSize uint16
 }
 
-func NewBitmapCacheCapabilitySetRev1() *CapabilitySet {
-	return &CapabilitySet{
+func NewBitmapCacheCapabilitySetRev1() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:            CapabilitySetTypeBitmapCache,
 		BitmapCacheCapabilitySetRev1: &BitmapCacheCapabilitySetRev1{},
 	}
@@ -567,8 +567,8 @@ type PointerCapabilitySet struct {
 	lengthCapability      uint16
 }
 
-func NewPointerCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewPointerCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypePointer,
 		PointerCapabilitySet: &PointerCapabilitySet{
 			ColorPointerFlag: 1, // color mouse cursors are supported
@@ -621,8 +621,8 @@ type InputCapabilitySet struct {
 	ImeFileName         [64]byte
 }
 
-func NewInputCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewInputCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeInput,
 		InputCapabilitySet: &InputCapabilitySet{
 			InputFlags:          0x0001 | 0x0004 | 0x0010 | 0x0020, // INPUT_FLAG_SCANCODES, INPUT_FLAG_MOUSEX, INPUT_FLAG_UNICODE, INPUT_FLAG_FASTPATH_INPUT2
@@ -706,8 +706,8 @@ type BrushCapabilitySet struct {
 	BrushSupportLevel BrushSupportLevel
 }
 
-func NewBrushCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewBrushCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:  CapabilitySetTypeBrush,
 		BrushCapabilitySet: &BrushCapabilitySet{},
 	}
@@ -777,8 +777,8 @@ type GlyphCacheCapabilitySet struct {
 	GlyphSupportLevel GlyphSupportLevel
 }
 
-func NewGlyphCacheCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewGlyphCacheCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:       CapabilitySetTypeGlyphCache,
 		GlyphCacheCapabilitySet: &GlyphCacheCapabilitySet{},
 	}
@@ -833,8 +833,8 @@ type OffscreenBitmapCacheCapabilitySet struct {
 	OffscreenCacheEntries uint16
 }
 
-func NewOffscreenBitmapCacheCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewOffscreenBitmapCacheCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:                 CapabilitySetTypeOffscreenBitmapCache,
 		OffscreenBitmapCacheCapabilitySet: &OffscreenBitmapCacheCapabilitySet{},
 	}
@@ -876,8 +876,8 @@ type VirtualChannelCapabilitySet struct {
 	VCChunkSize uint32
 }
 
-func NewVirtualChannelCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewVirtualChannelCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:           CapabilitySetTypeVirtualChannel,
 		VirtualChannelCapabilitySet: &VirtualChannelCapabilitySet{},
 	}
@@ -1140,8 +1140,8 @@ type SoundCapabilitySet struct {
 	SoundFlags uint16
 }
 
-func NewSoundCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewSoundCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:  CapabilitySetTypeSound,
 		SoundCapabilitySet: &SoundCapabilitySet{},
 	}
@@ -1291,8 +1291,8 @@ type MultifragmentUpdateCapabilitySet struct {
 	MaxRequestSize uint32
 }
 
-func NewMultifragmentUpdateCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewMultifragmentUpdateCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType:                CapabilitySetTypeMultifragmentUpdate,
 		MultifragmentUpdateCapabilitySet: &MultifragmentUpdateCapabilitySet{},
 	}
@@ -1416,8 +1416,8 @@ type RailCapabilitySet struct {
 	RailSupportLevel uint32
 }
 
-func NewRailCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewRailCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeRail,
 		RailCapabilitySet: &RailCapabilitySet{
 			RailSupportLevel: 1, // TS_RAIL_LEVEL_SUPPORTED
@@ -1439,8 +1439,8 @@ type WindowListCapabilitySet struct {
 	NumIconCacheEntries uint16
 }
 
-func NewWindowListCapabilitySet() *CapabilitySet {
-	return &CapabilitySet{
+func NewWindowListCapabilitySet() CapabilitySet {
+	return CapabilitySet{
 		CapabilitySetType: CapabilitySetTypeWindow,
 		WindowListCapabilitySet: &WindowListCapabilitySet{
 			WndSupportLevel: 0, // TS_WINDOW_LEVEL_NOT_SUPPORTED
