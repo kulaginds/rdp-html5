@@ -10,6 +10,9 @@ Protocol specification available on [MS-RDPBCGR](https://learn.microsoft.com/en-
 - pointer cache
 - basic graphics (Interleaved RLE-Based Bitmap Compression)
 
+## Tested on
+- Windows 7
+
 ## Technologies
 - golang
 - html5
