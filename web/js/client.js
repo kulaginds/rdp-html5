@@ -245,7 +245,7 @@ Client.prototype.handlePointer = function (header, r) {
 
         const url = this.pointerCacheCanvas.toDataURL('image/webp', 1);
 
-        if (newPointerUpdate.cacheIndex in Object.keys(this.pointerCache)) {
+        if (this.pointerCache.hasOwnProperty(newPointerUpdate.cacheIndex)) {
             document.getElementsByTagName('head')[0].removeChild(this.pointerCache[newPointerUpdate.cacheIndex]);
 
             delete this.pointerCache[newPointerUpdate.cacheIndex];
