@@ -47,7 +47,7 @@ type client struct {
 }
 
 const (
-	tcpConnectionTimeout = 15 * time.Second
+	tcpConnectionTimeout = 5 * time.Second
 	readBufferSize       = 64 * 1024
 )
 
