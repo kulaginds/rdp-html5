@@ -3,6 +3,8 @@ Toy HTML5 client for connect to remote desktop on Windows.
 I just wanted to learn the protocol.  
 Protocol specification available on [MS-RDPBCGR](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpbcgr/5073f4ed-1e93-45e1-b039-6e30c385867c).
 
+![rdp-html5 client screenshot](./screenshot.png)
+
 ## Features implemented
 - negotiation PROTOCOL_SSL
 - FASTPATH_OUTPUT_SUPPORTED, LONG_CREDENTIALS_SUPPORTED, NO_BITMAP_COMPRESSION_HDR
