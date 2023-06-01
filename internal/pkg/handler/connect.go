@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,8 +11,9 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/fastpath"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/fastpath"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/pdu"
 )
 
 const (

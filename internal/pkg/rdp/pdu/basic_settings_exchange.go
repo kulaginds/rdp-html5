@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/utf16"
 	"io"
+
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/utf16"
 )
 
 const (

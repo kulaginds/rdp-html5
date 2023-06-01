@@ -5,7 +5,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/handler"
+	"github.com/kulaginds/rdp-html5/internal/pkg/handler"
 )
 
 func main() {

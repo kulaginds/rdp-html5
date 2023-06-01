@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/asn1"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/asn1"
 )
 
 func ReadApplicationTag(r io.Reader) (uint8, error) {

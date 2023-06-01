@@ -1,6 +1,6 @@
 package rdp
 
-import "github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
+import "github.com/kulaginds/rdp-html5/internal/pkg/rdp/pdu"
 
 func (c *client) capabilitiesExchange() error {
 	_, wire, err := c.mcsLayer.Receive()

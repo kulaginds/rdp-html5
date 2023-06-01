@@ -1,4 +1,4 @@
-module github.com/kulaginds/web-rdp-solution
+module github.com/kulaginds/rdp-html5
 
 go 1.18
 

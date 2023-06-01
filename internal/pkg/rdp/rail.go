@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"io"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/utf16"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/utf16"
 )
 
 type RailState uint8

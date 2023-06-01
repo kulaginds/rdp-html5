@@ -1,6 +1,6 @@
 package x224
 
-import "github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/tpkt"
+import "github.com/kulaginds/rdp-html5/internal/pkg/rdp/tpkt"
 
 type Protocol struct {
 	tpktConn *tpkt.Protocol

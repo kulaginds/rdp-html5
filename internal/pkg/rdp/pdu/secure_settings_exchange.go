@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"strings"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/headers"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/utf16"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/headers"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/utf16"
 )
 
 type SystemTime struct {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/mcs"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/mcs"
 )
 
 func TestClientSynchronizePDU_Serialize(t *testing.T) {

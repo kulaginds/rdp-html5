@@ -1,3 +1,3 @@
 package pdu
 
-const projectName = "web-rdp"
+const projectName = "rdp-html5"

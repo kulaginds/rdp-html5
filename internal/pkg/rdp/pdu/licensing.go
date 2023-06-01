@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/headers"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/headers"
 )
 
 type LicensingBinaryBlob struct {

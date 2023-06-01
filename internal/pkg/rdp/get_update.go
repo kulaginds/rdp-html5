@@ -3,10 +3,10 @@ package rdp
 import (
 	"errors"
 	"fmt"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"log"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/fastpath"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/fastpath"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/pdu"
 )
 
 func (c *client) GetUpdate() (*fastpath.UpdatePDU, error) {

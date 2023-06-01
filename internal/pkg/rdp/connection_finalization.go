@@ -2,8 +2,9 @@ package rdp
 
 import (
 	"fmt"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"io"
+
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/pdu"
 )
 
 func (c *client) connectionFinalization() error {

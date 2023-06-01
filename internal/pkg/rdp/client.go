@@ -3,14 +3,14 @@ package rdp
 import (
 	"bufio"
 	"fmt"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/pdu"
 	"net"
 	"time"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/fastpath"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/mcs"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/tpkt"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/x224"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/fastpath"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/mcs"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/pdu"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/tpkt"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/x224"
 )
 
 type RemoteApp struct {

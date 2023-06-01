@@ -2,10 +2,11 @@ package mcs
 
 import (
 	"bytes"
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/gcc"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/gcc"
 )
 
 // TestClientMCSConnectInitialPDU_Serialize from MS-RDPBCGR protocol examples 4.1.3.

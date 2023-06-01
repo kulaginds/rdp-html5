@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/kulaginds/web-rdp-solution/internal/pkg/rdp/per"
+	"github.com/kulaginds/rdp-html5/internal/pkg/rdp/per"
 )
 
 type ClientSendDataRequest struct {
