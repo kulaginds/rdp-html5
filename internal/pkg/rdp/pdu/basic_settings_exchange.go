@@ -79,7 +79,7 @@ func newClientCoreData(selectedProtocol uint32, desktopWidth, desktopHeight uint
 		ServerSelectedProtocol: selectedProtocol,
 	}
 
-	copy(data.ClientName[:], utf16.Encode("web-rdp"))
+	copy(data.ClientName[:], utf16.Encode(projectName))
 
 	return &data
 }

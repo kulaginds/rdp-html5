@@ -33,8 +33,9 @@ type client struct {
 
 	desktopWidth, desktopHeight uint16
 
-	remoteApp *RemoteApp
-	railState RailState
+	serverCapabilitySets []pdu.CapabilitySet
+	remoteApp            *RemoteApp
+	railState            RailState
 
 	selectedProtocol       pdu.NegotiationProtocol
 	serverNegotiationFlags pdu.NegotiationResponseFlag

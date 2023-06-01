@@ -14,6 +14,6 @@ func New(conn io.ReadWriter) *Protocol {
 	return &Protocol{
 		conn: conn,
 
-		updatePDUData: make([]byte, 16*1024),
+		updatePDUData: make([]byte, 64*1024),
 	}
 }

@@ -382,10 +382,8 @@ func NewClientConfirmActive(shareID uint32, userId, desktopWidth, desktopHeight 
 			PDUType:   TypeConfirmActive,
 			PDUSource: userId,
 		},
-		ShareID: shareID,
-		SourceDescriptor: []byte{
-			'w', 'e', 'b', '-', 'r', 'd', 'p', '-', 's', 'o', 'l', 'u', 't', 'i', 'o', 'n',
-		},
+		ShareID:          shareID,
+		SourceDescriptor: []byte(projectName),
 		CapabilitySets: []CapabilitySet{
 			NewGeneralCapabilitySet(),
 			NewBitmapCapabilitySet(desktopWidth, desktopHeight),

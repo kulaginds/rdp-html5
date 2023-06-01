@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/websocket"
 
@@ -79,6 +80,7 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rdpClient.Close()
 
+	// TODO: implement
 	//rdpClient.SetRemoteApp("C:\\agent\\agent.exe", ".\\Downloads\\cbct1.zip", "C:\\Users\\Doc")
 	//rdpClient.SetRemoteApp("explore", "", "")
 
@@ -109,6 +111,10 @@ func wsToRdp(ctx context.Context, wsConn *websocket.Conn, rdpConn rdpConn, cance
 
 		_, data, err := wsConn.ReadMessage()
 		if err != nil {
+			if strings.HasSuffix(err.Error(), "use of closed network connection") {
+				return
+			}
+
 			log.Println(fmt.Errorf("error reading message from ws: %w", err))
 
 			return

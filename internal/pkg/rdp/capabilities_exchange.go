@@ -14,6 +14,7 @@ func (c *client) capabilitiesExchange() error {
 	}
 
 	c.shareID = resp.ShareID
+	c.serverCapabilitySets = resp.CapabilitySets
 
 	req := pdu.NewClientConfirmActive(resp.ShareID, c.userID, c.desktopWidth, c.desktopHeight, c.remoteApp != nil)
 
